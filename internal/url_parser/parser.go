@@ -41,9 +41,6 @@ func ParseUrl(url *url.URL) (metric.Metric, error) {
 	} else if !checkMetricName(_parsedUrl) {
 		errorDescription = "Unsupported Metric name"
 		parseError = errors.New(errorMsg + errorDescription)
-	} else if !checkMetricValueType(_parsedUrl) {
-		errorDescription = "Mismatch between Metric Name and Metric Type"
-		parseError = errors.New(errorMsg + errorDescription)
 	} else if !checkMetricValueFormat(_parsedUrl) {
 		errorDescription = "Mismatch between Metric Value and Metric Type"
 		parseError = errors.New(errorMsg + errorDescription)

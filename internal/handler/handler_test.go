@@ -30,18 +30,23 @@ func TestHandler(t *testing.T) {
 			expected: expected{code: 200, contentType: "text/plain"},
 		},
 		{
+			name:     "CORRECT GAUGE",
+			input:    input{path: "/update/gauge/aaa/323648", contentType: "text/plain"},
+			expected: expected{code: 200, contentType: "text/plain"},
+		},
+		{
 			name:     "CORRECT COUNTER",
 			input:    input{path: "/update/counter/PollCount/10", contentType: "text/plain"},
 			expected: expected{code: 200, contentType: "text/plain"},
 		},
 		{
-			name:     "WRONG VALUE",
-			input:    input{path: "/update/counter/PollCount/0.1", contentType: "text/plain"},
-			expected: expected{code: 400, contentType: "text/plain"},
+			name:     "CORRECT COUNTER",
+			input:    input{path: "/update/counter/aaa/10", contentType: "text/plain"},
+			expected: expected{code: 200, contentType: "text/plain"},
 		},
 		{
-			name:     "WRONG METRIC",
-			input:    input{path: "/update/counter/aaa/0.1", contentType: "text/plain"},
+			name:     "WRONG СOUNTER VALUE",
+			input:    input{path: "/update/counter/PollCount/0.1", contentType: "text/plain"},
 			expected: expected{code: 400, contentType: "text/plain"},
 		},
 	}
