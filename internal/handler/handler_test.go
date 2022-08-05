@@ -45,6 +45,12 @@ func TestHandler(t *testing.T) {
 			expected: expected{code: 200, contentType: "text/plain"},
 		},
 		{
+			name:     "CORRECT COUNTER",
+			input:    input{path: "/update/counter/testCounter/100", contentType: "text/plain"},
+			expected: expected{code: 200, contentType: "text/plain"},
+		},
+		
+		{
 			name:     "WRONG СOUNTER VALUE",
 			input:    input{path: "/update/counter/PollCount/0.1", contentType: "text/plain"},
 			expected: expected{code: 400, contentType: "text/plain"},

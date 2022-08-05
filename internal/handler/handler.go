@@ -17,9 +17,9 @@ func (h ApiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unsupported Http Method", http.StatusBadRequest)
 	}
 
-	if r.Header.Get("Content-Type") != "text/plain" {
-		http.Error(w, "Unsupported Content Type", http.StatusBadRequest)
-	}
+	//if r.Header.Get("Content-Type") != "text/plain" {
+	//	http.Error(w, "Unsupported Content Type", http.StatusBadRequest)
+	//}
 
 	metric, err := url_parser.ParseUrl(r.URL)
 	if err != nil {
