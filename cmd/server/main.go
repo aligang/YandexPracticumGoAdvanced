@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/handler"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
 	"net"
 	"net/http"
 	"os"
@@ -17,11 +18,10 @@ func main() {
 
 	server := &http.Server{}
 
-	handler1 := handler.ApiHandler{}
-	//handler2 := ApiHandler2{}
-
-	http.DefaultServeMux.Handle("/update/", handler1)
-	//http.DefaultServeMux.Handle("/update/gauge/BuckHashSys/", handler2)
+	update_handler := handler.ApiHandler{
+		Storage: storage.New(),
+	}
+	http.DefaultServeMux.Handle("/update/", update_handler)
 	server.Serve(listener)
 
 }

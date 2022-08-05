@@ -2,33 +2,32 @@ package handler
 
 import (
 	"fmt"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/url_parser"
 	"net/http"
-	"strings"
 )
 
 type ApiHandler struct {
+	Storage *storage.Storage
 }
 
 func (h ApiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println("Handler1 was used")
-	if err := r.ParseForm(); err != nil {
-		// если не заполнена, возвращаем код ошибки
-		http.Error(w, "Bad auth", 401)
-		return
-	} else {
-		path := strings.TrimPrefix(r.URL.Path, "/")
-		fmt.Println(strings.Split(path, "/"))
+	if r.Method != http.MethodPost {
+		http.Error(w, "Unsupported Http Method", http.StatusBadRequest)
 	}
-}
 
-//type ApiHandler2 struct {
-//}
-//
-//func (h ApiHandler2) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-//	//_, err := w.Write(h.Templ)
-//	//if err != nil {
-//	//	fmt.Println(err)
-//	//}
-//	fmt.Println("Handler2 was used")
-//}
+	if r.Header.Get("Content-Type") != "text/plain" {
+		http.Error(w, "Unsupported Content Type", http.StatusBadRequest)
+	}
+
+	metric, err := url_parser.ParseUrl(r.URL)
+	if err != nil {
+		http.Error(w, fmt.Sprintln(err), http.StatusBadRequest)
+	}
+
+	h.Storage.Update(&metric)
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
+	fmt.Println("2")
+}

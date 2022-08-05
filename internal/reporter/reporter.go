@@ -5,23 +5,29 @@ import (
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 )
 
-func SendCall(client *http.Client, typeName string, fieldName string, value string) {
-	url := fmt.Sprintf("http://127.0.0.1:8080/update/%s/%s/%s", typeName, fieldName, value)
-	fmt.Println(url)
-	request, err := http.NewRequest("POST", url, nil)
+func MakeCall(client *http.Client, uri string) {
+	request, err := http.NewRequest("POST", uri, nil)
 	if err != nil {
 		fmt.Println("Error During building ")
 		panic(err)
 	}
 	request.Header.Add("Content-Type", "text/plain")
-	_, err = client.Do(request)
+	response, err := client.Do(request)
 	if err != nil {
 		fmt.Println("Error During Sending request ")
 		panic(err)
 	}
+	if response.StatusCode == http.StatusOK {
+		fmt.Println("ITISOK")
+	}
+}
+
+func DeduceUri(typeName string, fieldName string, value string) string {
+	return fmt.Sprintf("http://127.0.0.1:8080/update/%s/%s/%s", typeName, fieldName, value)
 }
 
 func SendMetrics(stats *metric.Stats) {
@@ -29,21 +35,19 @@ func SendMetrics(stats *metric.Stats) {
 	client := &http.Client{}
 
 	for {
-		time.Sleep(10 * time.Second)
-		for metricName, metricType := range metric.Metrics() {
-			v := reflect.ValueOf(*stats.MemStats).FieldByName(metricName)
-			value := fmt.Sprintf("%v", v)
-			SendCall(client, metricType, metricName, value)
-		}
+		time.Sleep(2 * time.Second)
 
-		v := reflect.ValueOf(*stats.OperStats)
-		for i := 0; i < v.NumField(); i++ {
-			metricType := v.Field(i).Type().Name()
-			//typeName := v.Type().Field(i).Type
-			metricName := v.Type().Field(i).Name
-			value := fmt.Sprintf("%v", v.Field(i))
-			//fmt.Println(value)
-			SendCall(client, metricType, metricName, value)
+		s := reflect.ValueOf(*stats)
+		for i := 0; i < s.NumField(); i++ {
+			e := s.Field(i)
+			for j := 0; j < e.NumField(); j++ {
+				metricValue := e.Field(j)
+				metricName := e.Type().Field(j).Name
+				metricType := strings.ToLower(metricValue.Type().Name())
+				value := fmt.Sprintf("%v", metricValue)
+				url := DeduceUri(metricType, metricName, value)
+				MakeCall(client, url)
+			}
 		}
 	}
 }
