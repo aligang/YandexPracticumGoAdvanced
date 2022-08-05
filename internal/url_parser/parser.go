@@ -38,12 +38,12 @@ func ParseUrl(url *url.URL) (metric.Metric, error) {
 	} else if !checkMetricType(_parsedUrl) {
 		errorDescription = "Unsupported Metric Type"
 		parseError = errors.New(errorMsg + errorDescription)
-	} else if !checkMetricName(_parsedUrl) {
-		errorDescription = "Unsupported Metric name"
-		parseError = errors.New(errorMsg + errorDescription)
-	} else if !checkMetricValueFormat(_parsedUrl) {
-		errorDescription = "Wrong Id"
-		parseError = errors.New(errorMsg + errorDescription)
+		//} else if !checkMetricName(_parsedUrl) {
+		//	errorDescription = "Unsupported Metric name"
+		//	parseError = errors.New(errorMsg + errorDescription)
+		//} else if !checkMetricValueFormat(_parsedUrl) {
+		//	errorDescription = "Wrong Id"
+		//	parseError = errors.New(errorMsg + errorDescription)
 	}
 	return _parsedUrl.metric, parseError
 }
