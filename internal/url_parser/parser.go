@@ -42,7 +42,7 @@ func ParseUrl(url *url.URL) (metric.Metric, error) {
 		errorDescription = "Unsupported Metric name"
 		parseError = errors.New(errorMsg + errorDescription)
 	} else if !checkMetricValueFormat(_parsedUrl) {
-		errorDescription = "Mismatch between Metric Value and Metric Type"
+		errorDescription = "Wrong Id"
 		parseError = errors.New(errorMsg + errorDescription)
 	}
 	return _parsedUrl.metric, parseError

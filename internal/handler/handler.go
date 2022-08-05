@@ -23,7 +23,11 @@ func (h ApiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	metric, err := url_parser.ParseUrl(r.URL)
 	if err != nil {
-		http.Error(w, fmt.Sprintln(err), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintln(err), http.StatusNotImplemented)
+	}
+
+	if metric.MetricValue == "" {
+		http.Error(w, fmt.Sprintln(err), http.StatusNotFound)
 	}
 
 	h.Storage.Update(&metric)
