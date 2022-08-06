@@ -22,7 +22,7 @@ func (h ApiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch {
 		case errors.Is(err, url_parser.EmptyValueError):
-			http.Error(w, fmt.Sprintln(err), http.StatusNotFound)
+			http.Error(w, fmt.Sprintln(err), http.StatusNotImplemented)
 		case errors.Is(err, url_parser.MailformedValueError):
 			http.Error(w, fmt.Sprintln(err), http.StatusBadRequest)
 		case errors.Is(err, url_parser.WrongUrlFormat):
