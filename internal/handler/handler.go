@@ -26,7 +26,7 @@ func (h ApiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, url_parser.MailformedValueError):
 			http.Error(w, fmt.Sprintln(err), http.StatusBadRequest)
 		case errors.Is(err, url_parser.WrongUrlFormat):
-			http.Error(w, fmt.Sprintln(err), http.StatusNotFound)
+			http.Error(w, fmt.Sprintln(err), http.StatusNotImplemented)
 		case errors.Is(err, url_parser.UnsupportedMetricType):
 			http.Error(w, fmt.Sprintln(err), http.StatusNotImplemented)
 		}
