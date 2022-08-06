@@ -12,13 +12,6 @@ func checkMetricType(metricUrl parsedUrl) bool {
 	return metricUrl.metric.MetricType == "gauge" || metricUrl.metric.MetricType == "counter"
 }
 
-func checkMetricName(metricUrl parsedUrl) bool {
-	if metricUrl.metric.MetricName != "" {
-		return true
-	}
-	return false
-}
-
 func CheckValueIsNotEmpty(metricUrl parsedUrl) bool {
 	if metricUrl.metric.MetricValue == "" {
 		return false
