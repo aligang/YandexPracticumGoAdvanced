@@ -1,9 +1,10 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/handler/url_parser"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/url_parser"
 	"net/http"
 )
 
@@ -17,17 +18,18 @@ func (h ApiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unsupported Http Method", http.StatusBadRequest)
 	}
 
-	//if r.Header.Get("Content-Type") != "text/plain" {
-	//	http.Error(w, "Unsupported Content Type", http.StatusBadRequest)
-	//}
-
 	metric, err := url_parser.ParseUrl(r.URL)
 	if err != nil {
-		http.Error(w, fmt.Sprintln(err), http.StatusNotImplemented)
-	}
-
-	if metric.MetricValue == "" {
-		http.Error(w, fmt.Sprintln(err), http.StatusNotFound)
+		switch {
+		case errors.Is(err, url_parser.EmptyValueError):
+			http.Error(w, fmt.Sprintln(err), http.StatusNotFound)
+		case errors.Is(err, url_parser.MailformedValueError):
+			http.Error(w, fmt.Sprintln(err), http.StatusBadRequest)
+		case errors.Is(err, url_parser.WrongUrlFormat):
+			http.Error(w, fmt.Sprintln(err), http.StatusNotImplemented)
+		case errors.Is(err, url_parser.UnsupportedMetricType):
+			http.Error(w, fmt.Sprintln(err), http.StatusNotImplemented)
+		}
 	}
 
 	h.Storage.Update(&metric)

@@ -19,7 +19,15 @@ func checkMetricName(metricUrl parsedUrl) bool {
 	return false
 }
 
+func CheckValueIsNotEmpty(metricUrl parsedUrl) bool {
+	if metricUrl.metric.MetricValue == "" {
+		return false
+	}
+	return true
+}
+
 func checkMetricValueFormat(metricUrl parsedUrl) bool {
+
 	_, ferr := strconv.ParseFloat(metricUrl.metric.MetricValue, 64)
 	if ferr == nil {
 		_, ierr := strconv.ParseInt(metricUrl.metric.MetricValue, 10, 64)
