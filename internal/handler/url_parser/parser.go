@@ -18,7 +18,7 @@ func ParseUrl(url *url.URL) (metric.Metric, error) {
 
 	pathElem := strings.Split(url.Path, "/")
 	if len(pathElem) != 5 {
-		return _parsedUrl.metric, WrongUrlFormat
+		return _parsedUrl.metric, EmptyValueError
 	} else {
 		_parsedUrl.prefix = pathElem[1]
 		_parsedUrl.metric.MetricType = pathElem[2]
