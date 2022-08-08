@@ -18,10 +18,10 @@ func (s *Storage) init() {
 	s.dbCounter = counter{}
 }
 
-func Define(gaugeDb gauge, counterDb counter) *Storage {
+func Define(gaugeDB gauge, counterDB counter) *Storage {
 	s := &Storage{}
-	s.dbCounter = counterDb
-	s.dbGauge = gaugeDb
+	s.dbCounter = counterDB
+	s.dbGauge = gaugeDB
 	return s
 }
 

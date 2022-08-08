@@ -74,6 +74,7 @@ func TestFetch(t *testing.T) {
 			require.NoError(t, err)
 			request.Header.Add("Content-Type", test.input.contentType)
 			res, err := http.DefaultClient.Do(request)
+			defer res.Body.Close()
 			require.NoError(t, err)
 			assert.Equal(t, test.expected.code, res.StatusCode)
 			if res.StatusCode == http.StatusOK {

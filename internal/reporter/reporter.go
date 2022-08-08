@@ -17,6 +17,7 @@ func MakeCall(client *http.Client, uri string) {
 	}
 	request.Header.Add("Content-Type", "text/plain")
 	response, err := client.Do(request)
+	defer response.Body.Close()
 	if err != nil {
 		fmt.Println("Error During Sending request ")
 		panic(err)
@@ -26,7 +27,7 @@ func MakeCall(client *http.Client, uri string) {
 	}
 }
 
-func ComposeUri(typeName string, fieldName string, value string) string {
+func ComposeURI(typeName string, fieldName string, value string) string {
 	return fmt.Sprintf("http://127.0.0.1:8080/update/%s/%s/%s", typeName, fieldName, value)
 }
 
@@ -45,7 +46,7 @@ func SendMetrics(stats *metric.Stats) {
 				metricName := e.Type().Field(j).Name
 				metricType := strings.ToLower(metricValue.Type().Name())
 				value := fmt.Sprintf("%v", metricValue)
-				url := ComposeUri(metricType, metricName, value)
+				url := ComposeURI(metricType, metricName, value)
 				MakeCall(client, url)
 			}
 		}

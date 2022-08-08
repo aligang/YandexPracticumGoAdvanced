@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (h ApiHandler) Update(w http.ResponseWriter, r *http.Request) {
+func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	metricType := chi.URLParam(r, "metricType")
 	metricName := chi.URLParam(r, "metricName")

@@ -6,13 +6,13 @@ import (
 	"net/http"
 )
 
-func (h ApiHandler) FetchAll(w http.ResponseWriter, r *http.Request) {
+func (h APIHandler) FetchAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(h.Storage.Dump()))
 }
 
-func (h ApiHandler) Fetch(w http.ResponseWriter, r *http.Request) {
+func (h APIHandler) Fetch(w http.ResponseWriter, r *http.Request) {
 	metricType := chi.URLParam(r, "metricType")
 	metricName := chi.URLParam(r, "metricName")
 	if metricType != "gauge" && metricType != "counter" {
