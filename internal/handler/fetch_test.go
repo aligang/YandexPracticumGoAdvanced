@@ -77,7 +77,7 @@ func TestFetch(t *testing.T) {
 			defer func(Body io.ReadCloser) {
 				err := Body.Close()
 				if err != nil {
-					panic("Problem during making call")
+					panic(err)
 				}
 			}(res.Body)
 			require.NoError(t, err)

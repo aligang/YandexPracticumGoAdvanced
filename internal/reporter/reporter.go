@@ -21,7 +21,7 @@ func MakeCall(client *http.Client, uri string) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			panic("Problem during making call")
+			panic(err)
 		}
 	}(response.Body)
 	if err != nil {
