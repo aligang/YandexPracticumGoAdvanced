@@ -75,7 +75,7 @@ func TestUpdate(t *testing.T) {
 			defer func(Body io.ReadCloser) {
 				err := Body.Close()
 				if err != nil {
-					
+					panic("Problem during making call")
 				}
 			}(res.Body)
 			require.NoError(t, err)
