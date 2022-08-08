@@ -4,6 +4,7 @@ import (
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -71,7 +72,12 @@ func TestUpdate(t *testing.T) {
 			require.NoError(t, err)
 			request.Header.Add("Content-Type", test.input.contentType)
 			res, err := http.DefaultClient.Do(request)
-			defer res.Body.Close()
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				if err != nil {
+					
+				}
+			}(res.Body)
 			require.NoError(t, err)
 			assert.Equal(t, test.expected.code, res.StatusCode)
 			if res.StatusCode == http.StatusOK {
