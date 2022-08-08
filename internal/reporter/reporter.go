@@ -26,7 +26,7 @@ func MakeCall(client *http.Client, uri string) {
 	}
 }
 
-func DeduceUri(typeName string, fieldName string, value string) string {
+func ComposeUri(typeName string, fieldName string, value string) string {
 	return fmt.Sprintf("http://127.0.0.1:8080/update/%s/%s/%s", typeName, fieldName, value)
 }
 
@@ -45,7 +45,7 @@ func SendMetrics(stats *metric.Stats) {
 				metricName := e.Type().Field(j).Name
 				metricType := strings.ToLower(metricValue.Type().Name())
 				value := fmt.Sprintf("%v", metricValue)
-				url := DeduceUri(metricType, metricName, value)
+				url := ComposeUri(metricType, metricName, value)
 				MakeCall(client, url)
 			}
 		}

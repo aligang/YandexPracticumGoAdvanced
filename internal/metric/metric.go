@@ -1,16 +1,5 @@
 package metric
 
-import (
-	"reflect"
-	"strings"
-)
-
-type Metric struct {
-	MetricType  string
-	MetricName  string
-	MetricValue string
-}
-
 type Gauge float64
 type Counter int64
 
@@ -52,20 +41,4 @@ type OperStats struct {
 type Stats struct {
 	MemeStats
 	OperStats
-}
-
-func GetMetricTypes() map[string]string {
-	metricTypes := map[string]string{}
-
-	s := reflect.ValueOf(Stats{})
-	for i := 0; i < s.NumField(); i++ {
-		e := s.Field(i)
-		for j := 0; j < e.NumField(); j++ {
-			metricValue := e.Field(j)
-			metricName := e.Type().Field(j).Name
-			metricType := strings.ToLower(metricValue.Type().Name())
-			metricTypes[metricName] = metricType
-		}
-	}
-	return metricTypes
 }
