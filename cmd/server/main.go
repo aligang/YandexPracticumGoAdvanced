@@ -1,27 +1,26 @@
 package main
 
 import (
-	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/handler"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
-	"net"
+	"github.com/go-chi/chi/v5/middleware"
+	"log"
 	"net/http"
-	"os"
 )
 
 func main() {
-	listener, err := net.Listen("tcp", "127.0.0.1:8080")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	Storage := storage.New()
+	mux := handler.New(Storage)
+	mux.Use(middleware.RequestID)
+	mux.Use(middleware.RealIP)
+	mux.Use(middleware.Logger)
+	mux.Use(middleware.Recoverer)
 
-	server := &http.Server{}
+	mux.Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)
 
-	update_handler := handler.ApiHandler{
-		Storage: storage.New(),
-	}
-	http.DefaultServeMux.Handle("/update/", update_handler)
-	server.Serve(listener)
+	mux.Get("/", mux.FetchAll)
+	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
+
+	log.Fatal(http.ListenAndServe("127.0.0.1:8080", mux))
 
 }

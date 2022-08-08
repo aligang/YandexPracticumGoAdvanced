@@ -3,22 +3,13 @@ package handler
 import (
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-type expected struct {
-	code        int
-	contentType string
-}
-
-type input struct {
-	path        string
-	contentType string
-}
-
-func TestHandler(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    input
@@ -67,19 +58,20 @@ func TestHandler(t *testing.T) {
 		},
 	}
 
+	strg := storage.New()
+	mux := New(strg)
+	mux.Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)
+	ts := httptest.NewServer(mux)
+	defer ts.Close()
+
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			handler := ApiHandler{
-				Storage: storage.New(),
-			}
-			request := httptest.NewRequest(http.MethodPost, test.input.path, nil)
+
+			request, err := http.NewRequest(http.MethodPost, ts.URL+test.input.path, nil)
+			require.NoError(t, err)
 			request.Header.Add("Content-Type", test.input.contentType)
-			w := httptest.NewRecorder()
-			h := http.HandlerFunc(handler.ServeHTTP)
-			// запускаем сервер
-			h.ServeHTTP(w, request)
-			res := w.Result()
-			defer res.Body.Close()
+			res, err := http.DefaultClient.Do(request)
+			require.NoError(t, err)
 			assert.Equal(t, test.expected.code, res.StatusCode)
 			if res.StatusCode == http.StatusOK {
 				assert.Equal(t, test.expected.contentType, res.Header.Get("Content-Type"))
