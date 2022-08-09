@@ -18,19 +18,17 @@ func MakeCall(client *http.Client, uri string) {
 	}
 	request.Header.Add("Content-Type", "text/plain")
 	response, err := client.Do(request)
+	
+	if err != nil {
+		fmt.Println("Error During Sending request ")
+		panic(err)
+	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
 			panic(err)
 		}
 	}(response.Body)
-	if err != nil {
-		fmt.Println("Error During Sending request ")
-		panic(err)
-	}
-	if response.StatusCode == http.StatusOK {
-		fmt.Println("ITISOK")
-	}
 }
 
 func ComposeURI(typeName string, fieldName string, value string) string {
