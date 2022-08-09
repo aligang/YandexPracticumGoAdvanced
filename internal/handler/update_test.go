@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -71,6 +72,9 @@ func TestUpdate(t *testing.T) {
 			require.NoError(t, err)
 			request.Header.Add("Content-Type", test.input.contentType)
 			res, err := http.DefaultClient.Do(request)
+			if err != nil {
+				fmt.Println(err)
+			}
 			defer res.Body.Close()
 			require.NoError(t, err)
 			assert.Equal(t, test.expected.code, res.StatusCode)
