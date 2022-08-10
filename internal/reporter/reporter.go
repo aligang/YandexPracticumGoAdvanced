@@ -31,11 +31,12 @@ func ComposeURI(typeName string, fieldName string, value string) string {
 
 func SendMetrics(stats *metric.Stats) {
 
-	client := &http.Client{}
-
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+	ticker := time.NewTicker(2 * time.Second)
 	for {
-		time.Sleep(2 * time.Second)
-
+		<-ticker.C
 		s := reflect.ValueOf(*stats)
 		for i := 0; i < s.NumField(); i++ {
 			e := s.Field(i)

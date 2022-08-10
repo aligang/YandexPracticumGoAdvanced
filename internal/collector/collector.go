@@ -49,12 +49,13 @@ func CollectMemStats(m *metric.Stats) {
 func CollectMetrics(m *metric.Stats) {
 	s := rand.NewSource(time.Now().Unix())
 	r := rand.New(s)
-
+	ticker := time.NewTicker(2 * time.Second)
 	for {
 		CollectMemStats(m)
 		CollectOperStats(m, r)
 
 		fmt.Println("data polled")
-		time.Sleep(2 * time.Second)
+
+		<-ticker.C
 	}
 }

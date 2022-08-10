@@ -4,20 +4,23 @@ import (
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/collector"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/reporter"
+	"os"
+	"os/signal"
 	"sync"
-	"time"
+	"syscall"
 )
 
 var wg sync.WaitGroup
 
 func main() {
-	wg.Add(2)
+	exitSignal := make(chan os.Signal, 1)
+	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
+
 	stats := &metric.Stats{}
 
 	go collector.CollectMetrics(stats)
 	go reporter.SendMetrics(stats)
-	for {
-		time.Sleep(time.Second * 10)
-	}
+
+	<-exitSignal
 
 }

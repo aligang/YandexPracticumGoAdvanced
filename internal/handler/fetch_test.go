@@ -67,14 +67,17 @@ func TestFetch(t *testing.T) {
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
 	mux.Get("/", mux.FetchAll)
 	ts := httptest.NewServer(mux)
+	tc := ts.Client()
 	defer ts.Close()
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			request, err := http.NewRequest(http.MethodGet, ts.URL+test.input.path, nil)
-			require.NoError(t, err)
+			if err != nil {
+				fmt.Println(err)
+			}
 			request.Header.Add("Content-Type", test.input.contentType)
-			res, err := http.DefaultClient.Do(request)
+			res, err := tc.Do(request)
 			if err != nil {
 				fmt.Println(err)
 			}

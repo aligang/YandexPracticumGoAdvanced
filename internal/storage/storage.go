@@ -3,25 +3,32 @@ package storage
 import (
 	"fmt"
 	"strconv"
+	"sync"
 )
 
 type gauge map[string]float64
 type counter map[string]int64
 
 type Storage struct {
-	dbGauge   gauge
-	dbCounter counter
+	dbGauge     gauge
+	dbCounter   counter
+	gaugeLock   sync.Mutex
+	counterLock sync.Mutex
 }
 
 func (s *Storage) init() {
 	s.dbGauge = gauge{}
 	s.dbCounter = counter{}
+	s.gaugeLock = sync.Mutex{}
+	s.counterLock = sync.Mutex{}
 }
 
 func Define(gaugeDB gauge, counterDB counter) *Storage {
 	s := &Storage{}
 	s.dbCounter = counterDB
 	s.dbGauge = gaugeDB
+	s.gaugeLock = sync.Mutex{}
+	s.counterLock = sync.Mutex{}
 	return s
 }
 
