@@ -12,6 +12,7 @@ import (
 )
 
 type expected struct {
+	path        string
 	code        int
 	contentType string
 	payload     string
