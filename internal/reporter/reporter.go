@@ -59,10 +59,10 @@ func SendMetrics(stats *metric.Stats) {
 		//	}
 		//}
 		for name, value := range stats.Gauge {
-			MakeCall(client, &metric.Metrics{ID: name, MType: "Gauge", Value: &value})
+			MakeCall(client, &metric.Metrics{ID: name, MType: "gauge", Value: &value})
 		}
 		for name, value := range stats.Counter {
-			MakeCall(client, &metric.Metrics{ID: name, MType: "Counter", Delta: &value})
+			MakeCall(client, &metric.Metrics{ID: name, MType: "counter", Delta: &value})
 		}
 	}
 }

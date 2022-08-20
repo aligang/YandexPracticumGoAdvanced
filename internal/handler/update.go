@@ -38,7 +38,6 @@ func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	//h.Storage.Update(metricName, metricValue)
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 }
