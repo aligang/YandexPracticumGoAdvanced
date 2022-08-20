@@ -16,7 +16,11 @@ func main() {
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 
-	stats := &metric.Stats{}
+	stats := &metric.Stats{
+		map[string]float64{},
+		map[string]int64{},
+	}
+	//stats := map[string]metric.Metrics{}
 
 	go collector.CollectMetrics(stats)
 	go reporter.SendMetrics(stats)

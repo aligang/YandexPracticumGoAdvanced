@@ -10,25 +10,25 @@ type gauge map[string]float64
 type counter map[string]int64
 
 type Storage struct {
-	dbGauge     gauge
-	dbCounter   counter
-	gaugeLock   sync.Mutex
-	counterLock sync.Mutex
+	DBGauge     gauge
+	DBCounter   counter
+	GaugeLock   sync.Mutex
+	CounterLock sync.Mutex
 }
 
 func (s *Storage) init() {
-	s.dbGauge = gauge{}
-	s.dbCounter = counter{}
-	s.gaugeLock = sync.Mutex{}
-	s.counterLock = sync.Mutex{}
+	s.DBGauge = gauge{}
+	s.DBCounter = counter{}
+	s.GaugeLock = sync.Mutex{}
+	s.CounterLock = sync.Mutex{}
 }
 
 func Define(gaugeDB gauge, counterDB counter) *Storage {
 	s := &Storage{}
-	s.dbCounter = counterDB
-	s.dbGauge = gaugeDB
-	s.gaugeLock = sync.Mutex{}
-	s.counterLock = sync.Mutex{}
+	s.DBCounter = counterDB
+	s.DBGauge = gaugeDB
+	s.GaugeLock = sync.Mutex{}
+	s.CounterLock = sync.Mutex{}
 	return s
 }
 
@@ -38,57 +38,34 @@ func New() *Storage {
 	return s
 }
 
-func (s *Storage) Update(metricType, metricName, metricValue string) {
-	switch metricType {
-	case "gauge":
-		value, err := strconv.ParseFloat(metricValue, 64)
-		if err == nil {
-			s.dbGauge[metricName] = value
-		} else {
-			fmt.Println(err)
-		}
-	case "counter":
-		value, err := strconv.ParseInt(metricValue, 10, 64)
-		if err == nil {
-			s.dbCounter[metricName] += value
-		} else {
-			fmt.Println(err)
-		}
+func (s *Storage) Update(metricName string, metricValue any) {
+	switch metricValue.(type) {
+	case float64:
+		s.DBGauge[metricName] = metricValue.(float64)
+	case int64:
+		s.DBCounter[metricName] = metricValue.(int64)
 	}
+
 }
 
-func (s *Storage) Get(metricType, metricName string) (string, bool) {
-	var result string
+func (s *Storage) Get(metricType, metricName string) (any, bool) {
+	var value any
 	var found bool
-	var gauge float64
-	var counter int64
 	switch metricType {
 	case "gauge":
-		gauge, found = s.dbGauge[metricName]
-		if !found {
-			result = ""
-		} else {
-			result = strconv.FormatFloat(gauge, 'f', -1, 64)
-		}
-
+		value, found = s.DBGauge[metricName]
 	case "counter":
-		counter, found = s.dbCounter[metricName]
-		if !found {
-			result = ""
-		} else {
-			result = fmt.Sprintf("%d", counter)
-		}
-
+		value, found = s.DBCounter[metricName]
 	}
-	return result, found
+	return value, found
 }
 
 func (s *Storage) Dump() string {
 	result := ""
-	for k, v := range s.dbGauge {
+	for k, v := range s.DBGauge {
 		result = result + fmt.Sprintf("%s     %s\n", k, strconv.FormatFloat(v, 'f', -1, 64))
 	}
-	for k, v := range s.dbCounter {
+	for k, v := range s.DBCounter {
 		result = result + fmt.Sprintf("%s     %d\n", k, v)
 	}
 	return result

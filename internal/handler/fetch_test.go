@@ -14,12 +14,13 @@ import (
 type expected struct {
 	code        int
 	contentType string
-	value       string
+	payload     string
 }
 
 type input struct {
 	path        string
 	contentType string
+	payload     string
 }
 
 func TestFetch(t *testing.T) {
@@ -31,12 +32,12 @@ func TestFetch(t *testing.T) {
 		{
 			name:     "CORRECT GAUGE",
 			input:    input{path: "/value/gauge/gauge_example", contentType: "text/plain"},
-			expected: expected{code: 200, contentType: "text/plain", value: "1234"},
+			expected: expected{code: 200, contentType: "text/plain", payload: "1234"},
 		},
 		{
 			name:     "CORRECT COUNTER",
 			input:    input{path: "/value/counter/counter_example", contentType: "text/plain"},
-			expected: expected{code: 200, contentType: "text/plain", value: "12345"},
+			expected: expected{code: 200, contentType: "text/plain", payload: "12345"},
 		},
 		{
 			name:     "Non EXISTING COUNTER",
@@ -49,7 +50,7 @@ func TestFetch(t *testing.T) {
 			expected: expected{
 				code:        200,
 				contentType: "text/html",
-				value: "gauge_example     1234\n" +
+				payload: "gauge_example     1234\n" +
 					"counter_example     12345\n",
 			},
 		},
@@ -88,7 +89,7 @@ func TestFetch(t *testing.T) {
 				assert.Equal(t, test.expected.contentType, res.Header.Get("Content-Type"))
 				payload, err := io.ReadAll(res.Body)
 				assert.NoError(t, err)
-				assert.Equal(t, test.expected.value, string(payload))
+				assert.Equal(t, test.expected.payload, string(payload))
 
 			}
 		})
