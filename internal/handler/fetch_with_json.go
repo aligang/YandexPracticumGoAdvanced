@@ -19,7 +19,7 @@ func (h APIHandler) FetchWithJson(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
 	}
 	result, found := h.Storage.Get(m.MType, m.ID)
-	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Content-Type", "application/json")
 	if found {
 		var reply metric.Metrics
 		switch m.MType {
