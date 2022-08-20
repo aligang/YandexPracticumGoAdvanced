@@ -43,7 +43,7 @@ func (s *Storage) UpdateGauge(metricName string, metricValue float64) {
 }
 
 func (s *Storage) UpdateCounter(metricName string, metricValue int64) {
-	s.DBCounter[metricName] = metricValue
+	s.DBCounter[metricName] += metricValue
 }
 
 func (s *Storage) Get(metricType, metricName string) (any, bool) {

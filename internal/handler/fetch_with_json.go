@@ -9,8 +9,6 @@ import (
 
 func (h APIHandler) FetchWithJson(w http.ResponseWriter, r *http.Request) {
 	var m metric.Metrics
-	//a, err := io.ReadAll(r.Body)
-	//fmt.Println(string(a))
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&m)
 	if err != nil {
