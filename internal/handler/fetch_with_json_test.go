@@ -20,16 +20,16 @@ func TestFetchWithJson(t *testing.T) {
 	}{
 		{
 			name: "CORRECT GAUGE",
-			input: input{path: "/value/", contentType: "text/plain",
+			input: input{path: "/value/", contentType: "application/json",
 				payload: "{\"id\":\"gauge_example\",\"type\":\"gauge\"}"},
-			expected: expected{code: 200, contentType: "text/plain",
+			expected: expected{code: 200, contentType: "application/json",
 				payload: "{\"id\":\"gauge_example\",\"type\":\"gauge\",\"value\":1234}"},
 		},
 		{
 			name: "CORRECT COUNTER",
-			input: input{path: "/value/", contentType: "text/plain",
+			input: input{path: "/value/", contentType: "application/json",
 				payload: "{\"id\":\"counter_example\",\"type\":\"counter\"}"},
-			expected: expected{code: 200, contentType: "text/plain",
+			expected: expected{code: 200, contentType: "application/json",
 				payload: "{\"id\":\"counter_example\",\"type\":\"counter\",\"delta\":12345}"},
 		},
 	}
