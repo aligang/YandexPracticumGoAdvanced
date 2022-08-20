@@ -38,14 +38,12 @@ func New() *Storage {
 	return s
 }
 
-func (s *Storage) Update(metricName string, metricValue any) {
-	switch metricValue.(type) {
-	case float64:
-		s.DBGauge[metricName] = metricValue.(float64)
-	case int64:
-		s.DBCounter[metricName] = metricValue.(int64)
-	}
+func (s *Storage) UpdateGauge(metricName string, metricValue float64) {
+	s.DBGauge[metricName] = metricValue
+}
 
+func (s *Storage) UpdateCounter(metricName string, metricValue int64) {
+	s.DBCounter[metricName] = metricValue
 }
 
 func (s *Storage) Get(metricType, metricName string) (any, bool) {
