@@ -10,8 +10,7 @@ import (
 
 func (h APIHandler) UpdateWithJson(w http.ResponseWriter, r *http.Request) {
 	var m metric.Metrics
-	//decoder := json.NewDecoder(r.Body)
-	//err := decoder.Decode(&m)
+
 	payload, err := io.ReadAll(r.Body)
 	err = json.Unmarshal(payload, &m)
 	if err != nil {
@@ -25,12 +24,8 @@ func (h APIHandler) UpdateWithJson(w http.ResponseWriter, r *http.Request) {
 	switch m.MType {
 	case "gauge":
 		h.Storage.UpdateGauge(m.ID, *m.Value)
-		fmt.Println(*m.Value)
 	case "counter":
 		h.Storage.UpdateCounter(m.ID, *m.Delta)
-		fmt.Println(*m.Delta)
-	default:
-		fmt.Println("miss")
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)

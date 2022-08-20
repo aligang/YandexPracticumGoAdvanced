@@ -43,7 +43,7 @@ func SendMetrics(stats *metric.Stats) {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}
-	ticker := time.NewTicker(2 * time.Second)
+	ticker := time.NewTicker(10 * time.Second)
 	for {
 		<-ticker.C
 		//s := reflect.ValueOf(*stats)
