@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
 	"github.com/stretchr/testify/assert"
@@ -24,8 +25,8 @@ func TestUpdateWithJson(t *testing.T) {
 		},
 		{
 			name: "CORRECT COUNTER",
-			input: input{path: "/update/counter/PollCount/10", contentType: "application/json",
-				payload: "{\"id\":\"PollCount\",\"value\":10,\"type\":\"counter\"}"},
+			input: input{path: "/update/", contentType: "application/json",
+				payload: "{\"id\":\"PollCount\",\"delta\":10,\"type\":\"counter\"}"},
 			expected: expected{code: 200, contentType: "text/plain"},
 		},
 	}
@@ -39,7 +40,8 @@ func TestUpdateWithJson(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 
-			request, err := http.NewRequest(http.MethodPost, ts.URL+test.input.path, nil)
+			request, err := http.NewRequest(http.MethodPost, ts.URL+test.input.path,
+				bytes.NewBuffer([]byte(test.input.payload)))
 			require.NoError(t, err)
 			request.Header.Add("Content-Type", test.input.contentType)
 			res, err := http.DefaultClient.Do(request)

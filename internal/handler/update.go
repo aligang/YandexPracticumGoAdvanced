@@ -24,7 +24,7 @@ func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if metricType == "gauge" {
 		value, err := strconv.ParseFloat(metricValue, 64)
 		if err == nil {
-			h.Storage.DBGauge[metricName] = value
+			h.Storage.UpdateGauge(metricName, value)
 		} else {
 			fmt.Println(err)
 		}
@@ -32,7 +32,7 @@ func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if metricType == "counter" {
 		value, err := strconv.ParseInt(metricValue, 10, 64)
 		if err == nil {
-			h.Storage.DBCounter[metricName] += value
+			h.Storage.UpdateCounter(metricName, value)
 		} else {
 			fmt.Println(err)
 		}
