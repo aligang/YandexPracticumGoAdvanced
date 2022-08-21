@@ -20,16 +20,19 @@ func PushData(address string, client *http.Client, m *metric.Metrics) {
 	}
 	request, err := http.NewRequest("POST", fmt.Sprintf("http://%s/update/", address), buf)
 	if err != nil {
-		fmt.Println("Error During building ")
+		fmt.Println("Error During communication ")
 		panic(err)
 	}
+
 	request.Header.Add("Content-Type", "application/json")
 	response, err := client.Do(request)
-	defer response.Body.Close()
+
 	if err != nil {
 		fmt.Println("Error During Pushing data ")
-		panic(err)
+	} else {
+		defer response.Body.Close()
 	}
+
 }
 
 func PullData(address string, client *http.Client, m *metric.Metrics) (metric.Metrics, error) {
@@ -47,22 +50,23 @@ func PullData(address string, client *http.Client, m *metric.Metrics) (metric.Me
 	}
 	request.Header.Add("Content-Type", "application/json")
 	response, err := client.Do(request)
-	defer response.Body.Close()
+	var pulledMetric metric.Metrics
 	if err != nil {
 		fmt.Println("Error During Pulling data ")
-		panic(err)
-	}
-	var pulledMetric metric.Metrics
-	if response.StatusCode == 200 {
-		decoder := json.NewDecoder(response.Body)
-		err = decoder.Decode(&pulledMetric)
-		if err != nil {
-			fmt.Println("Error During Parsing data ")
-			panic(err)
-		}
-		return pulledMetric, nil
-	} else {
 		return pulledMetric, errors.New("")
+	} else {
+		defer response.Body.Close()
+		if response.StatusCode == 200 {
+			decoder := json.NewDecoder(response.Body)
+			err = decoder.Decode(&pulledMetric)
+			if err != nil {
+				fmt.Println("Error During Parsing data ")
+				panic(err)
+			}
+			return pulledMetric, nil
+		} else {
+			return pulledMetric, errors.New("")
+		}
 	}
 }
 
