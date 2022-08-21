@@ -29,6 +29,6 @@ func (h APIHandler) UpdateWithJson(w http.ResponseWriter, r *http.Request) {
 	case "counter":
 		h.Storage.UpdateCounter(m.ID, *m.Delta)
 	}
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 }

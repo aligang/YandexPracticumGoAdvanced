@@ -22,7 +22,7 @@ func TestCounterIncrement(t *testing.T) {
 			name: "UPDATE GAUGE 1 ",
 			input: input{path: "/update/", contentType: "application/json",
 				payload: "{\"id\":\"TotalAlloc\",\"value\":323648,\"type\":\"gauge\"}"},
-			expected: expected{code: 200, contentType: "application/json",
+			expected: expected{code: 200, contentType: "text/plain",
 				payload: ""},
 		},
 		{
@@ -36,7 +36,7 @@ func TestCounterIncrement(t *testing.T) {
 			name: "UPDATE GAUGE 2 ",
 			input: input{path: "/update/", contentType: "application/json",
 				payload: "{\"id\":\"TotalAlloc\",\"value\":133,\"type\":\"gauge\"}"},
-			expected: expected{code: 200, contentType: "application/json",
+			expected: expected{code: 200, contentType: "text/plain",
 				payload: ""},
 		},
 		{
@@ -50,7 +50,7 @@ func TestCounterIncrement(t *testing.T) {
 			name: "UPDATE COUNTER 1",
 			input: input{path: "/update/", contentType: "application/json",
 				payload: "{\"id\":\"PollCount\",\"delta\":10,\"type\":\"counter\"}"},
-			expected: expected{code: 200, contentType: "application/json",
+			expected: expected{code: 200, contentType: "text/plain",
 				payload: ""},
 		},
 		{
@@ -64,7 +64,7 @@ func TestCounterIncrement(t *testing.T) {
 			name: "UPDATE COUNTER 2",
 			input: input{path: "/update/", contentType: "application/json",
 				payload: "{\"id\":\"PollCount\",\"delta\":10,\"type\":\"counter\"}"},
-			expected: expected{code: 200, contentType: "application/json",
+			expected: expected{code: 200, contentType: "text/plain",
 				payload: ""},
 		},
 		{
