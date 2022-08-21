@@ -1,7 +1,6 @@
 package collector
 
 import (
-	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"math/rand"
 	"runtime"
@@ -53,9 +52,6 @@ func CollectMetrics(m *metric.Stats) {
 	for {
 		CollectMemStats(m)
 		CollectOperStats(m, r)
-
-		fmt.Println("data polled")
-
 		<-ticker.C
 	}
 }
