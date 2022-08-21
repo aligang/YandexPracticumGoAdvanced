@@ -45,10 +45,10 @@ func CollectMemStats(m *metric.Stats) {
 	m.Gauge["TotalAlloc"] = float64(memstats.TotalAlloc)
 }
 
-func CollectMetrics(m *metric.Stats) {
+func CollectMetrics(pollInterval int, m *metric.Stats) {
 	s := rand.NewSource(time.Now().Unix())
 	r := rand.New(s)
-	ticker := time.NewTicker(2 * time.Second)
+	ticker := time.NewTicker(time.Duration(pollInterval) * time.Second)
 	for {
 		CollectMemStats(m)
 		CollectOperStats(m, r)

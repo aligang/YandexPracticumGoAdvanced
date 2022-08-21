@@ -73,11 +73,11 @@ func PullData(client *http.Client, m *metric.Metrics) (metric.Metrics, error) {
 //	return fmt.Sprintf("http://127.0.0.1:8080/update/%s/%s/%s", typeName, fieldName, value)
 //}
 
-func SendMetrics(stats *metric.Stats) {
+func SendMetrics(reportInterval int, stats *metric.Stats) {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(time.Second * time.Duration(reportInterval))
 	iteration := 0
 	for {
 		<-ticker.C
