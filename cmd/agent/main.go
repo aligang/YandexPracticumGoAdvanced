@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/collector"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
@@ -25,6 +26,8 @@ func main() {
 	if aerr != nil || serr != nil {
 		panic("Could not fetch ENV params")
 	}
+	fmt.Printf("%+v\n", agentConfig)
+	fmt.Printf("%+v\n", serverConfig)
 
 	stats := &metric.Stats{
 		map[string]float64{},
