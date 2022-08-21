@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/collector"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
@@ -19,20 +18,21 @@ func main() {
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 
-	var conf config.AgentConfig
-	err := env.Parse(&conf)
-	if err != nil {
-		fmt.Println("Could not fetch server ENV params")
-		panic(err)
+	var agentConfig config.AgentConfig
+	var serverConfig config.ServerConfig
+	aerr := env.Parse(&agentConfig)
+	serr := env.Parse(&serverConfig)
+	if aerr != nil || serr != nil {
+		panic("Could not fetch ENV params")
 	}
 
 	stats := &metric.Stats{
 		map[string]float64{},
 		map[string]int64{},
 	}
-	
-	go collector.CollectMetrics(conf.PollInterval, stats)
-	go reporter.SendMetrics(conf.ReportInterval, stats)
+
+	go collector.CollectMetrics(agentConfig.PollInterval, stats)
+	go reporter.SendMetrics(serverConfig.Address, agentConfig.ReportInterval, stats)
 
 	<-exitSignal
 
