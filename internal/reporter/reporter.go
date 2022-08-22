@@ -18,7 +18,9 @@ func PushData(address string, client *http.Client, m *metric.Metrics) {
 		fmt.Println("Error During serialization ")
 		panic(err)
 	}
-	request, err := http.NewRequest("POST", fmt.Sprintf("http://%s/update/", address), buf)
+	URI := fmt.Sprintf("http://%s/update/", address)
+	request, err := http.NewRequest("POST", URI, buf)
+	fmt.Printf("Seding request to: URI: %s\n", URI)
 	if err != nil {
 		fmt.Println("Error During communication ")
 		panic(err)
@@ -43,7 +45,9 @@ func PullData(address string, client *http.Client, m *metric.Metrics) (metric.Me
 		fmt.Println("Error During serialization ")
 		panic(err)
 	}
-	request, err := http.NewRequest("POST", fmt.Sprintf("http://%s/value/", address), buf)
+	URI := fmt.Sprintf("http://%s/value/", address)
+	request, err := http.NewRequest("POST", URI, buf)
+	fmt.Printf("Seding request to: URI: %s\n", URI)
 	if err != nil {
 		fmt.Println("Error During building ")
 		panic(err)
