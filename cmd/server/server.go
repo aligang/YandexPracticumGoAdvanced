@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/handler"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
-	"github.com/caarlos0/env/v6"
 	"github.com/go-chi/chi/v5/middleware"
 	"log"
 	"net/http"
@@ -26,12 +24,7 @@ func main() {
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
 	mux.Post("/value/", mux.FetchWithJson)
 
-	var conf config.ServerConfig
-	err := env.Parse(&conf)
-	if err != nil {
-		fmt.Println("Could not fetch server ENV params")
-		panic(err)
-	}
+	conf := config.GetServerConfig()
 	log.Fatal(http.ListenAndServe(conf.Address, mux))
 
 }
