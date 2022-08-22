@@ -25,7 +25,6 @@ func (h APIHandler) UpdateWithJson(w http.ResponseWriter, r *http.Request) {
 	switch m.MType {
 	case "gauge":
 		h.Storage.UpdateGauge(m.ID, *m.Value)
-		fmt.Println("Updating ")
 	case "counter":
 		h.Storage.UpdateCounter(m.ID, *m.Delta)
 	}
