@@ -33,6 +33,18 @@ func TestFetchWithJson(t *testing.T) {
 			expected: expected{code: 200, contentType: "application/json",
 				payload: "{\"id\":\"counter_example\",\"type\":\"counter\",\"delta\":12345}"},
 		},
+		{
+			name: "NON-EXISTIN GAUGE",
+			input: input{path: "/value/", contentType: "application/json",
+				payload: "{\"id\":\"non_existing_gauge_example\",\"type\":\"gauge\"}"},
+			expected: expected{code: 404},
+		},
+		{
+			name: "NON-EXISTING COUNTER",
+			input: input{path: "/value/", contentType: "application/json",
+				payload: "{\"id\":\"non_existing_counter_example\",\"type\":\"counter\"}"},
+			expected: expected{code: 404},
+		},
 	}
 
 	var GaugeValue float64 = 1234
