@@ -13,7 +13,7 @@ func (h APIHandler) FetchWithJson(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&m)
 	if err != nil {
 		fmt.Println("Could not decode json")
-		panic(err)
+		http.Error(w, "Mailformed JSON", http.StatusBadRequest)
 	}
 	if !checkMetricType(&m.MType) {
 		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
