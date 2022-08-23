@@ -97,7 +97,7 @@ func SendMetrics(agentConfig config.AgentConfig, stats *metric.Stats) {
 			//} else {
 			//	fmt.Printf("Record for counter: %s was not found\n", name)
 			//}
-			fmt.Printf("Updating value of counter: %+v=\n", *m)
+			fmt.Printf("Updating value of counter: %+v\n", *m)
 			PushData(agentConfig.Address, client, m)
 			//fmt.Printf("Checking new value of counter: %s\n", name)
 			//fetchedMetric, err = PullData(agentConfig.Address, client, m)
