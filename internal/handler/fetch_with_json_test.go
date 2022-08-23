@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"fmt"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -34,14 +35,16 @@ func TestFetchWithJson(t *testing.T) {
 		},
 	}
 
-	strg := storage.Define(
-		map[string]float64{
-			"gauge_example": 1234,
-		},
-		map[string]int64{
-			"counter_example": 12345,
+	var GaugeValue float64 = 1234
+	var CounterDelta int64 = 12345
+	strg := storage.New()
+	strg.Load(
+		map[string]metric.Metrics{
+			"gauge_example":   {ID: "gauge_example", MType: "gauge", Value: &GaugeValue},
+			"counter_example": {ID: "counter_example", MType: "counter", Delta: &CounterDelta},
 		},
 	)
+
 	mux := New(strg)
 	mux.Post("/value/", mux.FetchWithJson)
 	ts := httptest.NewServer(mux)

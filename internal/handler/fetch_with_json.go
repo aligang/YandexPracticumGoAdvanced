@@ -18,21 +18,11 @@ func (h APIHandler) FetchWithJson(w http.ResponseWriter, r *http.Request) {
 	if !checkMetricType(&m.MType) {
 		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
 	}
-	result, found := h.Storage.Get(m.MType, m.ID)
+	result, found := h.Storage.Get(m.ID)
 	w.Header().Set("Content-Type", "application/json")
 	if found {
-		var reply metric.Metrics
-		switch m.MType {
-		case "gauge":
-			value := result.(float64)
-			reply = metric.Metrics{ID: m.ID, MType: m.MType, Value: &value}
-		case "counter":
-			value := result.(int64)
-			reply = metric.Metrics{ID: m.ID, MType: m.MType, Delta: &value}
-		}
-
 		w.WriteHeader(http.StatusOK)
-		j, err := json.Marshal(&reply)
+		j, err := json.Marshal(&result)
 		if err != nil {
 			fmt.Println("Could not encode Json")
 			panic(err)

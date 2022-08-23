@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"net/http"
 	"time"
@@ -74,37 +75,37 @@ func PullData(address string, client *http.Client, m *metric.Metrics) (metric.Me
 	}
 }
 
-func SendMetrics(address string, reportInterval int, stats *metric.Stats) {
+func SendMetrics(agentConfig config.AgentConfig, stats *metric.Stats) {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}
-	ticker := time.NewTicker(time.Second * time.Duration(reportInterval))
+	ticker := time.NewTicker(time.Second * time.Duration(agentConfig.ReportInterval))
 	iteration := 0
 	for {
 		<-ticker.C
 		fmt.Printf("Running Iteration %d\n", iteration)
 		for name, value := range stats.Gauge {
 			m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
-			PushData(address, client, m)
+			PushData(agentConfig.Address, client, m)
 		}
 		for name, value := range stats.Counter {
 			m := &metric.Metrics{ID: name, MType: "counter", Delta: &value}
-			fmt.Printf("Checking old value of counter: %s\n", name)
-			fetchedMetric, err := PullData(address, client, m)
-			if err == nil {
-				fmt.Printf("counter: %s=%d\n", name, *fetchedMetric.Delta)
-			} else {
-				fmt.Printf("Record for counter: %s was not found\n", name)
-			}
-			fmt.Printf("Updating value of counter: %s=%d\n", name, *m.Delta)
-			PushData(address, client, m)
-			fmt.Printf("Checking new value of counter: %s\n", name)
-			fetchedMetric, err = PullData(address, client, m)
-			if err == nil {
-				fmt.Printf("counter: %s=%d", name, *fetchedMetric.Delta)
-			} else {
-				fmt.Printf("Record for counter: %s was not found\n", name)
-			}
+			//fmt.Printf("Checking old value of counter: %s\n", name)
+			//fetchedMetric, err := PullData(agentConfig.Address, client, m)
+			//if err == nil {
+			//	fmt.Printf("counter: %s=%d\n", name, *fetchedMetric.Delta)
+			//} else {
+			//	fmt.Printf("Record for counter: %s was not found\n", name)
+			//}
+			fmt.Printf("Updating value of counter: %+v=\n", *m)
+			PushData(agentConfig.Address, client, m)
+			//fmt.Printf("Checking new value of counter: %s\n", name)
+			//fetchedMetric, err = PullData(agentConfig.Address, client, m)
+			//if err == nil {
+			//	fmt.Printf("counter: %s=%d", name, *fetchedMetric.Delta)
+			//} else {
+			//	fmt.Printf("Record for counter: %s was not found\n", name)
+			//}
 		}
 		iteration++
 	}

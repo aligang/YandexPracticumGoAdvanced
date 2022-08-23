@@ -11,6 +11,11 @@ import (
 
 func main() {
 	Storage := storage.New()
+	conf := config.GetServerConfig()
+	if conf.Restore {
+		Storage.Restore(conf)
+	}
+	Storage.ConfigureBackup(conf)
 	mux := handler.New(Storage)
 	mux.Use(middleware.RequestID)
 	mux.Use(middleware.RealIP)
@@ -24,7 +29,6 @@ func main() {
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
 	mux.Post("/value/", mux.FetchWithJson)
 
-	conf := config.GetServerConfig()
 	log.Fatal(http.ListenAndServe(conf.Address, mux))
 
 }

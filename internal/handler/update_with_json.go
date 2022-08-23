@@ -13,6 +13,8 @@ func (h APIHandler) UpdateWithJson(w http.ResponseWriter, r *http.Request) {
 
 	payload, err := io.ReadAll(r.Body)
 	err = json.Unmarshal(payload, &m)
+	fmt.Printf("Recieved JSON: %s\n", string(payload))
+
 	if err != nil {
 		fmt.Println("Invalid JSON received")
 		http.Error(w, "Invalid JSON received", http.StatusBadRequest)
@@ -21,13 +23,7 @@ func (h APIHandler) UpdateWithJson(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Invalid Metric Type")
 		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
 	}
-
-	switch m.MType {
-	case "gauge":
-		h.Storage.UpdateGauge(m.ID, *m.Value)
-	case "counter":
-		h.Storage.UpdateCounter(m.ID, *m.Delta)
-	}
+	h.Storage.Update(m)
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 }

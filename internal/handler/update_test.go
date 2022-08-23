@@ -67,7 +67,6 @@ func TestUpdate(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-
 			request, err := http.NewRequest(http.MethodPost, ts.URL+test.input.path, nil)
 			require.NoError(t, err)
 			request.Header.Add("Content-Type", test.input.contentType)

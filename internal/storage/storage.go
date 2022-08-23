@@ -2,33 +2,25 @@ package storage
 
 import (
 	"fmt"
-	"strconv"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"sync"
 )
 
-type gauge map[string]float64
-type counter map[string]int64
+type metricMap map[string]metric.Metrics
 
 type Storage struct {
-	DBGauge     gauge
-	DBCounter   counter
-	GaugeLock   sync.Mutex
-	CounterLock sync.Mutex
+	Metrics      metricMap
+	Lock         sync.Mutex
+	BackupConfig BackupConfig
 }
 
 func (s *Storage) init() {
-	s.DBGauge = gauge{}
-	s.DBCounter = counter{}
-	s.GaugeLock = sync.Mutex{}
-	s.CounterLock = sync.Mutex{}
+	s.Metrics = metricMap{}
+	s.Lock = sync.Mutex{}
 }
 
-func Define(gaugeDB gauge, counterDB counter) *Storage {
-	s := &Storage{}
-	s.DBCounter = counterDB
-	s.DBGauge = gaugeDB
-	s.GaugeLock = sync.Mutex{}
-	s.CounterLock = sync.Mutex{}
+func (s *Storage) Load(metrics metricMap) *Storage {
+	s.Metrics = metrics
 	return s
 }
 
@@ -38,33 +30,30 @@ func New() *Storage {
 	return s
 }
 
-func (s *Storage) UpdateGauge(metricName string, metricValue float64) {
-	s.DBGauge[metricName] = metricValue
-}
+func (s *Storage) Update(metrics metric.Metrics) {
 
-func (s *Storage) UpdateCounter(metricName string, metricValue int64) {
-	s.DBCounter[metricName] += metricValue
-}
-
-func (s *Storage) Get(metricType, metricName string) (any, bool) {
-	var value any
-	var found bool
-	switch metricType {
-	case "gauge":
-		value, found = s.DBGauge[metricName]
-	case "counter":
-		value, found = s.DBCounter[metricName]
+	if metrics.MType == "gauge" {
+		s.Metrics[metrics.ID] = metrics
 	}
+	if metrics.MType == "counter" {
+		if _, exists := s.Metrics[metrics.ID]; exists == false {
+			s.Metrics[metrics.ID] = metrics
+		} else {
+			*s.Metrics[metrics.ID].Delta = *s.Metrics[metrics.ID].Delta + *metrics.Delta
+		}
+	}
+	if s.BackupConfig.enable == true && s.BackupConfig.Periodic == false {
+		fmt.Println("Staring On-Deman Backup")
+		BackupDo(s)
+	}
+}
+
+func (s *Storage) Get(metricName string) (metric.Metrics, bool) {
+	var found bool
+	value, found := s.Metrics[metricName]
 	return value, found
 }
 
-func (s *Storage) Dump() string {
-	result := ""
-	for k, v := range s.DBGauge {
-		result = result + fmt.Sprintf("%s     %s\n", k, strconv.FormatFloat(v, 'f', -1, 64))
-	}
-	for k, v := range s.DBCounter {
-		result = result + fmt.Sprintf("%s     %d\n", k, v)
-	}
-	return result
+func (s *Storage) Dump() metricMap {
+	return s.Metrics
 }
