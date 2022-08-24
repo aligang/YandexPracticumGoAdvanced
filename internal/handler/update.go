@@ -28,6 +28,7 @@ func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
 		MType: metricType,
 	}
 	var updateErr error = nil
+	fmt.Printf("Parsing value for metric: %+v\n", m)
 	if metricType == "gauge" {
 		value, err := strconv.ParseFloat(metricValue, 64)
 		m.Value = &value
