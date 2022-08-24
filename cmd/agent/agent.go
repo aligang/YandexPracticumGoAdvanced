@@ -20,7 +20,7 @@ func main() {
 		map[string]int64{},
 	}
 
-	go collector.CollectMetrics(agentConfig.PollInterval, stats)
+	go collector.CollectMetrics(agentConfig, stats)
 	go reporter.SendMetrics(agentConfig, stats)
 
 	<-exitSignal

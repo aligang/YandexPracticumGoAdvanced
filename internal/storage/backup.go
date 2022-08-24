@@ -62,12 +62,12 @@ func (s *Storage) ConfigureBackup(c config.ServerConfig) {
 	fmt.Println("COnfiguring backup mode")
 	s.BackupConfig = BackupConfig{file: c.StoreFile}
 	s.BackupConfig.enable = true
-	
+
 	if c.StoreInterval > 0 {
 		s.BackupConfig.Periodic = true
 		fmt.Println("Periodic")
 		periodicBackup := func(c config.ServerConfig) {
-			ticker := time.NewTicker(time.Second * time.Duration(c.StoreInterval))
+			ticker := time.NewTicker(c.StoreInterval)
 			for {
 				<-ticker.C
 				BackupDo(s)

@@ -79,7 +79,7 @@ func SendMetrics(agentConfig config.AgentConfig, stats *metric.Stats) {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}
-	ticker := time.NewTicker(time.Second * time.Duration(agentConfig.ReportInterval))
+	ticker := time.NewTicker(agentConfig.ReportInterval)
 	iteration := 0
 	for {
 		<-ticker.C

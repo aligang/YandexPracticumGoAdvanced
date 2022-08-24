@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"math/rand"
 	"runtime"
@@ -45,10 +46,10 @@ func CollectMemStats(m *metric.Stats) {
 	m.Gauge["TotalAlloc"] = float64(memstats.TotalAlloc)
 }
 
-func CollectMetrics(pollInterval int, m *metric.Stats) {
+func CollectMetrics(cfg config.AgentConfig, m *metric.Stats) {
 	s := rand.NewSource(time.Now().Unix())
 	r := rand.New(s)
-	ticker := time.NewTicker(time.Duration(pollInterval) * time.Second)
+	ticker := time.NewTicker(cfg.PollInterval)
 	for {
 		CollectMemStats(m)
 		CollectOperStats(m, r)
