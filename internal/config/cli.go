@@ -15,7 +15,7 @@ func GetServerCLIConfig(conf *ServerConfig) {
 
 func GetAgentCLIConfig(conf *AgentConfig) {
 	flag.StringVar(&conf.Address, "a", "127.0.0.1:8080", "host to listen on")
-	flag.DurationVar(&conf.PollInterval, "i", 2*time.Second, "period for collection metrics by agent")
-	flag.DurationVar(&conf.ReportInterval, "i", 10*time.Second, "period for pushing metrics by agent")
+	flag.DurationVar(&conf.PollInterval, "p", 2*time.Second, "period for collection metrics by agent")
+	flag.DurationVar(&conf.ReportInterval, "r", 10*time.Second, "period for pushing metrics by agent")
 	flag.Parse()
 }

@@ -11,9 +11,9 @@ import (
 )
 
 func main() {
-	agentConfig := &config.AgentConfig{}
-	config.GetAgentCLIConfig(agentConfig)
-	config.GetAgentENVConfig(agentConfig)
+	conf := config.NewAgent()
+	config.GetAgentCLIConfig(conf)
+	config.GetAgentENVConfig(conf)
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 
@@ -22,8 +22,8 @@ func main() {
 		map[string]int64{},
 	}
 
-	go collector.CollectMetrics(agentConfig, stats)
-	go reporter.SendMetrics(agentConfig, stats)
+	go collector.CollectMetrics(conf, stats)
+	go reporter.SendMetrics(conf, stats)
 
 	<-exitSignal
 
