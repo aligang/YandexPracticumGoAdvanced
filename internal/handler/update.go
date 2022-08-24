@@ -27,30 +27,25 @@ func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
 		ID:    metricName,
 		MType: metricType,
 	}
-	var updateErr error = nil
+
 	fmt.Printf("Parsing value for metric: %+v\n", m)
 	if metricType == "gauge" {
-		value, err := strconv.ParseFloat(metricValue, 64)
+		fmt.Println("Parsing gauge/float")
+		value, _ := strconv.ParseFloat(metricValue, 64)
 		m.Value = &value
-		if err != nil {
-			updateErr = err
-			fmt.Println(err)
-		}
 
 	}
 	if metricType == "counter" {
-		value, err := strconv.ParseInt(metricValue, 10, 64)
+		fmt.Println("Parsing counter/int")
+		value, _ := strconv.ParseInt(metricValue, 10, 64)
 		m.Delta = &value
-		if err != nil {
-			updateErr = err
-			fmt.Println(err)
-		}
-	}
-	if updateErr != nil {
-		fmt.Printf("Updating storage with metric %+v\n", m)
-		h.Storage.Update(m)
 	}
 
+	fmt.Printf("Updating storage with metric %+v\n", m)
+	h.Storage.Update(m)
+
+	fmt.Println("Prepare response")
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
+	fmt.Printf("Prepare response sent with status %d\n", http.StatusOK)
 }
