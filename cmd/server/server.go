@@ -11,7 +11,9 @@ import (
 
 func main() {
 	Storage := storage.New()
-	conf := config.GetServerConfig()
+	conf := config.NewServer()
+	config.GetServerCLIConfig(conf)
+	config.GetServerENVConfig(conf)
 	if conf.Restore {
 		Storage.Restore(conf)
 	}
