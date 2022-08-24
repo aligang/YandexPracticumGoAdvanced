@@ -9,7 +9,7 @@ import (
 )
 
 func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Processing Update handler")
+	fmt.Printf("Processing incoming update to: %s\n", r.URL.String())
 	metricType := chi.URLParam(r, "metricType")
 	metricName := chi.URLParam(r, "metricName")
 	metricValue := chi.URLParam(r, "metricValue")
