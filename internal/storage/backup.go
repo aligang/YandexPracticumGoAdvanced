@@ -27,6 +27,7 @@ type consumer struct {
 func newProducer(filename string) *producer {
 	file, err := os.Create(filename)
 	if err != nil {
+		fmt.Println("Could not open file for writing")
 		return nil
 	}
 	return &producer{
@@ -38,6 +39,7 @@ func newProducer(filename string) *producer {
 func newConsumer(filename string) *consumer {
 	file, err := os.OpenFile(filename, os.O_RDONLY, 0644)
 	if err != nil {
+		fmt.Println("Could not open file for reading")
 		return nil
 	}
 	return &consumer{
@@ -48,25 +50,29 @@ func newConsumer(filename string) *consumer {
 
 func BackupDo(storage *Storage) {
 	p := newProducer(storage.BackupConfig.file)
-	fmt.Printf("Going to backup metrics")
-	err := p.encoder.Encode(&storage.Metrics)
-	if err != nil {
-		fmt.Println("Problem during encoding data during dumping")
-		fmt.Println(err)
+	if p != nil {
+		fmt.Println("Going to backup metrics")
+		err := p.encoder.Encode(storage.Metrics)
+		if err != nil {
+			fmt.Println("Problem during encoding data during dumping")
+			fmt.Println(err)
+		}
+		p.file.Close()
+		fmt.Println("Backup dumpening is finished")
+	} else {
+		fmt.Println("Backup cancelled")
 	}
-	p.file.Close()
-	fmt.Println("Backup dumpening is finished")
 }
 
-func (s *Storage) ConfigureBackup(c config.ServerConfig) {
+func (s *Storage) ConfigureBackup(c *config.ServerConfig) {
 	fmt.Println("COnfiguring backup mode")
 	s.BackupConfig = BackupConfig{file: c.StoreFile}
 	s.BackupConfig.enable = true
 
 	if c.StoreInterval > 0 {
 		s.BackupConfig.Periodic = true
-		fmt.Println("Periodic")
-		periodicBackup := func(c config.ServerConfig) {
+		fmt.Printf("Periodic with interval %d\n", c.StoreInterval/1000000000)
+		periodicBackup := func(c *config.ServerConfig) {
 			ticker := time.NewTicker(c.StoreInterval)
 			for {
 				<-ticker.C
@@ -80,15 +86,20 @@ func (s *Storage) ConfigureBackup(c config.ServerConfig) {
 	}
 }
 
-func (s *Storage) Restore(c config.ServerConfig) {
-	fmt.Println("Restoring Data from file")
+func (s *Storage) Restore(c *config.ServerConfig) {
+	fmt.Printf("Restoring Data from file: %s\n", c.StoreFile)
 	cons := newConsumer(c.StoreFile)
-	var mmap metricMap
-	err := cons.decoder.Decode(&mmap)
-	if err != nil {
-		fmt.Println("Could not decode Json during Restore Stage")
+	mmap := metricMap{}
+	if cons != nil {
+		err := cons.decoder.Decode(&mmap)
+		if err != nil {
+			fmt.Println("Could not decode Json during Restore Stage")
+		} else {
+			fmt.Println("Backup Json succesfully decoded")
+		}
 	} else {
-		s.Load(mmap)
-		fmt.Println("Restoration finished")
+		fmt.Println("Could not find backup file")
 	}
+	s.Load(mmap)
+	fmt.Println("Restoration finished")
 }

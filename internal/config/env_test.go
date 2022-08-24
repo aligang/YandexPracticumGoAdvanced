@@ -1,117 +1,51 @@
 package config
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+	"time"
 )
 
-func TestDefaultAgentEnv(t *testing.T) {
-	t.Run("DEFAULT AGENT PARAMS", func(t *testing.T) {
-		ref := AgentConfig{PollInterval: 2, ReportInterval: 10}
-		agentConfig := GetAgentConfig()
-		assert.Equal(t, ref, agentConfig)
-	})
-}
-
-func TestDefaultServerEnv(t *testing.T) {
-	t.Run("DEFAULT SERVER PARAMS", func(t *testing.T) {
-		ref := ServerConfig{Address: "127.0.0.1:8080"}
-		serverConfig := GetServerConfig()
-		assert.Equal(t, ref, serverConfig)
-	})
-}
+//func TestDefaultAgentEnv(t *testing.T) {
+//	t.Run("DEFAULT AGENT PARAMS", func(t *testing.T) {
+//		ref := AgentConfig{PollInterval: 2, ReportInterval: 10}
+//		agentConfig := GetAgentENVConfig()
+//		assert.Equal(t, ref, agentConfig)
+//	})
+//}
+//
+//func TestDefaultServerEnv(t *testing.T) {
+//	t.Run("DEFAULT SERVER PARAMS", func(t *testing.T) {
+//		ref := &ServerConfig{Address: "", StoreInterval: -1 * time.Second, StoreFile: "", Restore: false}
+//		test := &ServerConfig{}
+//		GetServerENVConfig(test)
+//		assert.Equal(t, ref, test)
+//	})
+//}
 
 func TestCustomAgentEnv(t *testing.T) {
-	t.Run("DEFAULT AGENT PARAMS", func(t *testing.T) {
-		ref := AgentConfig{PollInterval: 20, ReportInterval: 100}
-		os.Setenv("POLL_INTERVAL", fmt.Sprintf("%d", ref.PollInterval))
-		os.Setenv("REPORT_INTERVAL", fmt.Sprintf("%d", ref.ReportInterval))
-		agentConfig := GetAgentConfig()
-		assert.Equal(t, ref, agentConfig)
+	t.Run("AGENT ENV PARAMS", func(t *testing.T) {
+		ref := &AgentConfig{Address: "127.0.0.0:12345", PollInterval: 20, ReportInterval: 100}
+		test := &AgentConfig{}
+		os.Setenv("ADDRESS", ref.Address)
+		os.Setenv("POLL_INTERVAL", ref.PollInterval.String())
+		os.Setenv("REPORT_INTERVAL", ref.ReportInterval.String())
+		GetAgentENVConfig(test)
+		assert.Equal(t, ref, test)
 	})
 }
 
 func TestCustomServerEnv(t *testing.T) {
-	t.Run("DEFAULT SERVER PARAMS", func(t *testing.T) {
-		ref := ServerConfig{Address: "127.0.0.0:12345"}
+	t.Run("SERVER ENV PARAMS", func(t *testing.T) {
+		ref := &ServerConfig{Address: "127.0.0.0:12345", StoreInterval: 1 * time.Second,
+			Restore: true, StoreFile: "/abc"}
+		test := &ServerConfig{}
 		os.Setenv("ADDRESS", ref.Address)
-		serverConfig := GetServerConfig()
-		assert.Equal(t, ref, serverConfig)
+		os.Setenv("STORE_INTERVAL", ref.StoreInterval.String())
+		os.Setenv("RESTORE", "true")
+		os.Setenv("STORE_FILE", ref.StoreFile)
+		GetServerENVConfig(test)
+		assert.Equal(t, ref, test)
 	})
 }
-
-//
-//func TestFetch(t *testing.T) {
-//	tests := []struct {
-//		name     string
-//		input    input
-//		expected expected
-//	}{
-//		{
-//			name:     "CORRECT GAUGE",
-//			input:    input{path: "/value/gauge/gauge_example", contentType: "text/plain"},
-//			expected: expected{code: 200, contentType: "text/plain", payload: "1234"},
-//		},
-//		{
-//			name:     "CORRECT COUNTER",
-//			input:    input{path: "/value/counter/counter_example", contentType: "text/plain"},
-//			expected: expected{code: 200, contentType: "text/plain", payload: "12345"},
-//		},
-//		{
-//			name:     "Non EXISTING COUNTER",
-//			input:    input{path: "/value/counter/wrong_counter_example", contentType: "text/plain"},
-//			expected: expected{code: 404, contentType: "text/plain"},
-//		},
-//		{
-//			name:  "FETCH ALL",
-//			input: input{path: "/", contentType: "text/plain"},
-//			expected: expected{
-//				code:        200,
-//				contentType: "text/html",
-//				payload: "gauge_example     1234\n" +
-//					"counter_example     12345\n",
-//			},
-//		},
-//	}
-//
-//	strg := storage.Define(
-//		map[string]float64{
-//			"gauge_example": 1234,
-//		},
-//		map[string]int64{
-//			"counter_example": 12345,
-//		},
-//	)
-//	mux := New(strg)
-//	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
-//	mux.Get("/", mux.FetchAll)
-//	ts := httptest.NewServer(mux)
-//	tc := ts.Client()
-//	defer ts.Close()
-//
-//	for _, test := range tests {
-//		t.Run(test.name, func(t *testing.T) {
-//			request, err := http.NewRequest(http.MethodGet, ts.URL+test.input.path, nil)
-//			if err != nil {
-//				fmt.Println(err)
-//			}
-//			request.Header.Add("Content-Type", test.input.contentType)
-//			res, err := tc.Do(request)
-//			if err != nil {
-//				fmt.Println(err)
-//			}
-//			defer res.Body.Close()
-//			require.NoError(t, err)
-//			assert.Equal(t, test.expected.code, res.StatusCode)
-//			if res.StatusCode == http.StatusOK {
-//				assert.Equal(t, test.expected.contentType, res.Header.Get("Content-Type"))
-//				payload, err := io.ReadAll(res.Body)
-//				assert.NoError(t, err)
-//				assert.Equal(t, test.expected.payload, string(payload))
-//
-//			}
-//		})
-//	}
-//}

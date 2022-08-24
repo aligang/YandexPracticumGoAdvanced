@@ -75,7 +75,7 @@ func PullData(address string, client *http.Client, m *metric.Metrics) (metric.Me
 	}
 }
 
-func SendMetrics(agentConfig config.AgentConfig, stats *metric.Stats) {
+func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}

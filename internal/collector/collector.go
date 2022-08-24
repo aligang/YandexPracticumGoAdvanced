@@ -46,7 +46,7 @@ func CollectMemStats(m *metric.Stats) {
 	m.Gauge["TotalAlloc"] = float64(memstats.TotalAlloc)
 }
 
-func CollectMetrics(cfg config.AgentConfig, m *metric.Stats) {
+func CollectMetrics(cfg *config.AgentConfig, m *metric.Stats) {
 	s := rand.NewSource(time.Now().Unix())
 	r := rand.New(s)
 	ticker := time.NewTicker(cfg.PollInterval)

@@ -19,9 +19,8 @@ func (s *Storage) init() {
 	s.Lock = sync.Mutex{}
 }
 
-func (s *Storage) Load(metrics metricMap) *Storage {
+func (s *Storage) Load(metrics metricMap) {
 	s.Metrics = metrics
-	return s
 }
 
 func New() *Storage {

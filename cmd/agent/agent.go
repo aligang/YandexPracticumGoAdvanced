@@ -11,7 +11,9 @@ import (
 )
 
 func main() {
-	agentConfig := config.GetAgentConfig()
+	agentConfig := &config.AgentConfig{}
+	config.GetAgentCLIConfig(agentConfig)
+	config.GetAgentENVConfig(agentConfig)
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 
