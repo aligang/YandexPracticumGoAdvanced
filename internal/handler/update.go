@@ -9,17 +9,19 @@ import (
 )
 
 func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
-
+	fmt.Println("Processing Update handler")
 	metricType := chi.URLParam(r, "metricType")
 	metricName := chi.URLParam(r, "metricName")
 	metricValue := chi.URLParam(r, "metricValue")
 
 	if !checkMetricType(&metricType) {
 		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
+		fmt.Printf("Got unsupported metric Type %s\n", metricType)
 	}
 
 	if !checkMetricValueFormat(metricType, metricValue) {
 		http.Error(w, "Incorrect Metric Format", http.StatusBadRequest)
+		fmt.Printf("Got unsupported metric format\n")
 	}
 	m := metric.Metrics{
 		ID:    metricName,
@@ -44,6 +46,7 @@ func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if updateErr != nil {
+		fmt.Printf("Updating storage with metric %+v\n", m)
 		h.Storage.Update(m)
 	}
 

@@ -21,7 +21,6 @@ func main() {
 	mux := handler.New(Storage)
 	mux.Use(middleware.RequestID)
 	mux.Use(middleware.RealIP)
-	//mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
 
 	mux.Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)
