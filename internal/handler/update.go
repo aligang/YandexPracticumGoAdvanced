@@ -45,7 +45,6 @@ func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 	if updateErr != nil {
 		h.Storage.Update(m)
-
 	}
 
 	w.Header().Set("Content-Type", "text/plain")
