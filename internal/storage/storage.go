@@ -35,10 +35,13 @@ func (s *Storage) Update(metrics metric.Metrics) {
 		s.Metrics[metrics.ID] = metrics
 	}
 	if metrics.MType == "counter" {
-		if _, exists := s.Metrics[metrics.ID]; exists {
+		if _, exists := s.Metrics[metrics.ID]; !exists {
 			s.Metrics[metrics.ID] = metrics
 		} else {
-			*s.Metrics[metrics.ID].Delta = *s.Metrics[metrics.ID].Delta + *metrics.Delta
+			fmt.Println(exists)
+			fmt.Println("here")
+			value := *s.Metrics[metrics.ID].Delta + *metrics.Delta
+			*s.Metrics[metrics.ID].Delta = value
 		}
 	}
 	if s.BackupConfig.enable && !s.BackupConfig.Periodic {
