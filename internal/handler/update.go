@@ -40,7 +40,7 @@ func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
 		value, _ := strconv.ParseInt(metricValue, 10, 64)
 		m.Delta = &value
 	}
-
+	fmt.Printf("Value is metric: %+v\n", m)
 	fmt.Printf("Updating storage with metric %+v\n", m)
 	h.Storage.Update(m)
 

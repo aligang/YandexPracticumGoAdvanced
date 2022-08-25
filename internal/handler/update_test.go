@@ -17,27 +17,27 @@ func TestUpdate(t *testing.T) {
 		expected expected
 	}{
 		{
-			name:     "CORRECT GAUGE",
+			name:     "CORRECT GAUGE 1",
 			input:    input{path: "/update/gauge/TotalAlloc/323648", contentType: "text/plain"},
 			expected: expected{code: 200, contentType: "text/plain"},
 		},
 		{
-			name:     "CORRECT GAUGE",
+			name:     "CORRECT GAUGE 2",
 			input:    input{path: "/update/gauge/aaa/323648", contentType: "text/plain"},
 			expected: expected{code: 200, contentType: "text/plain"},
 		},
 		{
-			name:     "CORRECT COUNTER",
+			name:     "CORRECT COUNTER 1",
 			input:    input{path: "/update/counter/PollCount/10", contentType: "text/plain"},
 			expected: expected{code: 200, contentType: "text/plain"},
 		},
 		{
-			name:     "CORRECT COUNTER",
-			input:    input{path: "/update/counter/aaa/10", contentType: "text/plain"},
+			name:     "CORRECT COUNTER 2",
+			input:    input{path: "/update/counter/vvv/10", contentType: "text/plain"},
 			expected: expected{code: 200, contentType: "text/plain"},
 		},
 		{
-			name:     "CORRECT COUNTER",
+			name:     "CORRECT COUNTER 3",
 			input:    input{path: "/update/counter/testCounter/100", contentType: "text/plain"},
 			expected: expected{code: 200, contentType: "text/plain"},
 		},
@@ -48,7 +48,7 @@ func TestUpdate(t *testing.T) {
 			expected: expected{code: 501, contentType: "text/plain"},
 		},
 		{
-			name:     "EMPTY COUNTER VALUE",
+			name:     "EMPTY COUNTER VALUE ",
 			input:    input{path: "/update/counter/", contentType: "text/plain"},
 			expected: expected{code: 404, contentType: "text/plain"},
 		},

@@ -19,28 +19,28 @@ func TestCounterIncrement(t *testing.T) {
 		input    input
 	}{
 		{
-			name: "UPDATE GAUGE 1 ",
+			name: "UPDATE GAUGE 1",
 			input: input{path: "/update/", contentType: "application/json",
 				payload: "{\"id\":\"TotalAlloc\",\"value\":323648,\"type\":\"gauge\"}"},
 			expected: expected{code: 200, contentType: "text/plain",
 				payload: ""},
 		},
 		{
-			name: "CHECK GAUGE 1 ",
+			name: "CHECK GAUGE 1",
 			input: input{path: "/value/", contentType: "application/json",
 				payload: "{\"id\":\"TotalAlloc\",\"type\":\"gauge\"}"},
 			expected: expected{code: 200, contentType: "application/json",
 				payload: "{\"id\":\"TotalAlloc\",\"value\":323648,\"type\":\"gauge\"}"},
 		},
 		{
-			name: "UPDATE GAUGE 2 ",
+			name: "UPDATE GAUGE 2",
 			input: input{path: "/update/", contentType: "application/json",
 				payload: "{\"id\":\"TotalAlloc\",\"value\":133,\"type\":\"gauge\"}"},
 			expected: expected{code: 200, contentType: "text/plain",
 				payload: ""},
 		},
 		{
-			name: "CHECK GAUGE 2 ",
+			name: "CHECK GAUGE 2",
 			input: input{path: "/value/", contentType: "application/json",
 				payload: "{\"id\":\"TotalAlloc\",\"type\":\"gauge\"}"},
 			expected: expected{path: "/value/", code: 200, contentType: "application/json",
@@ -78,8 +78,8 @@ func TestCounterIncrement(t *testing.T) {
 
 	strg := storage.New()
 	mux := New(strg)
-	mux.Post("/update/", mux.UpdateWithJson)
-	mux.Post("/value/", mux.FetchWithJson)
+	mux.Post("/update/", mux.UpdateWithJSON)
+	mux.Post("/value/", mux.FetchWithJSON)
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
