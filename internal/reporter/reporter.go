@@ -2,25 +2,37 @@ package reporter
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
+	"io"
 	"net/http"
 	"time"
 )
 
 func PushData(address string, client *http.Client, m *metric.Metrics) {
-	buf := &bytes.Buffer{}
-	jsonEncoder := json.NewEncoder(buf)
+	jbuf := &bytes.Buffer{}
+	jsonEncoder := json.NewEncoder(jbuf)
 	err := jsonEncoder.Encode(*m)
 	if err != nil {
 		fmt.Println("Error During serialization ")
 		panic(err)
 	}
 	URI := fmt.Sprintf("http://%s/update/", address)
-	request, err := http.NewRequest("POST", URI, buf)
+	gbuf := &bytes.Buffer{}
+	gz := gzip.NewWriter(gbuf)
+	res, _ := io.ReadAll(jbuf)
+	gz.Write(res)
+	gz.Close()
+
+	if err != nil {
+		fmt.Println("Error During compression")
+		panic(err)
+	}
+	request, err := http.NewRequest("POST", URI, gbuf)
 	fmt.Printf("Seding request to: URI: %s\n", URI)
 	if err != nil {
 		fmt.Println("Error During communication ")
@@ -28,10 +40,12 @@ func PushData(address string, client *http.Client, m *metric.Metrics) {
 	}
 
 	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("Content-Encoding", "gzip")
 	response, err := client.Do(request)
 
 	if err != nil {
 		fmt.Println("Error During Pushing data ")
+		fmt.Printf(err.Error())
 	} else {
 		defer response.Body.Close()
 	}

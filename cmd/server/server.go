@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/compress"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/handler"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
@@ -24,11 +25,11 @@ func main() {
 	mux.Use(middleware.Recoverer)
 
 	mux.Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)
-	mux.Post("/update/", mux.UpdateWithJSON)
+	mux.Post("/update/", compress.GzipHandle(mux.UpdateWithJSON))
 
 	mux.Get("/", mux.FetchAll)
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
-	mux.Post("/value/", mux.FetchWithJSON)
+	mux.Post("/value/", compress.GzipHandle(mux.FetchWithJSON))
 
 	log.Fatal(http.ListenAndServe(conf.Address, mux))
 

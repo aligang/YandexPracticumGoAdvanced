@@ -16,10 +16,12 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not read data", http.StatusUnsupportedMediaType)
 	}
 	err = json.Unmarshal(payload, &m)
-	fmt.Printf("Recieved JSON: %s\n", string(payload))
+	fmt.Println("Recieved JSON:")
+	fmt.Println(string(payload))
 
 	if err != nil {
 		fmt.Println("Invalid JSON received")
+		fmt.Println(err.Error())
 		http.Error(w, "Invalid JSON received", http.StatusBadRequest)
 	}
 	if m.MType != "gauge" && m.MType != "counter" {
