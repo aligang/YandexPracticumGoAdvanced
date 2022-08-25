@@ -28,12 +28,12 @@ func PushData(address string, client *http.Client, m *metric.Metrics) {
 		fmt.Println("Error During compressor creation")
 		panic(err)
 	}
-	res, _ := io.ReadAll(jbuf)
+	res, err := io.ReadAll(jbuf)
 	if err != nil {
 		fmt.Println("Error During fetching data for compressiong")
 		panic(err)
 	}
-	gz.Write(res)
+	_, err = gz.Write(res)
 	gz.Close()
 
 	if err != nil {
