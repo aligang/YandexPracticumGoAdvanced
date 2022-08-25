@@ -24,10 +24,11 @@ func PushData(address string, client *http.Client, m *metric.Metrics) {
 	URI := fmt.Sprintf("http://%s/update/", address)
 	gbuf := &bytes.Buffer{}
 	gz := gzip.NewWriter(gbuf)
-	res, _ := io.ReadAll(jbuf)
-	gz.Write(res)
-	gz.Close()
+	defer gz.Close()
 
+	res, err := io.ReadAll(jbuf)
+	gz.Write(res)
+	
 	if err != nil {
 		fmt.Println("Error During compression")
 		panic(err)
