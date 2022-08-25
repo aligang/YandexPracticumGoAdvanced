@@ -23,10 +23,18 @@ func PushData(address string, client *http.Client, m *metric.Metrics) {
 	}
 	URI := fmt.Sprintf("http://%s/update/", address)
 	gbuf := &bytes.Buffer{}
-	gz := gzip.NewWriter(gbuf)
-	res, _ := io.ReadAll(jbuf)
-	gz.Write(res)
-	gz.Close()
+	gz, err := gzip.NewWriterLevel(gbuf, gzip.BestSpeed)
+	if err != nil {
+		fmt.Println("Error During compressor creation")
+		panic(err)
+	}
+	res, err := io.ReadAll(jbuf)
+	if err != nil {
+		fmt.Println("Error During fetching data for compressiong")
+		panic(err)
+	}
+	_, err = gz.Write(res)
+	defer gz.Close()
 
 	if err != nil {
 		fmt.Println("Error During compression")
@@ -45,7 +53,6 @@ func PushData(address string, client *http.Client, m *metric.Metrics) {
 
 	if err != nil {
 		fmt.Println("Error During Pushing data ")
-		fmt.Printf(err.Error())
 	} else {
 		defer response.Body.Close()
 	}
