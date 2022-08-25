@@ -28,7 +28,7 @@ func PushData(address string, client *http.Client, m *metric.Metrics) {
 
 	res, err := io.ReadAll(jbuf)
 	gz.Write(res)
-	
+
 	if err != nil {
 		fmt.Println("Error During compression")
 		panic(err)
@@ -36,7 +36,7 @@ func PushData(address string, client *http.Client, m *metric.Metrics) {
 	request, err := http.NewRequest("POST", URI, gbuf)
 	fmt.Printf("Seding request to: URI: %s\n", URI)
 	if err != nil {
-		fmt.Println("Error During communication ")
+		fmt.Println("Error During Creating Request ")
 		panic(err)
 	}
 
@@ -46,7 +46,6 @@ func PushData(address string, client *http.Client, m *metric.Metrics) {
 
 	if err != nil {
 		fmt.Println("Error During Pushing data ")
-		fmt.Printf(err.Error())
 	} else {
 		defer response.Body.Close()
 	}
