@@ -58,7 +58,7 @@ func TestFetchWithJson(t *testing.T) {
 	)
 
 	mux := New(strg)
-	mux.Post("/value/", mux.FetchWithJson)
+	mux.Post("/value/", mux.FetchWithJSON)
 	ts := httptest.NewServer(mux)
 	tc := ts.Client()
 	defer ts.Close()

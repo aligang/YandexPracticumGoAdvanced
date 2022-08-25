@@ -35,13 +35,13 @@ func (s *Storage) Update(metrics metric.Metrics) {
 		s.Metrics[metrics.ID] = metrics
 	}
 	if metrics.MType == "counter" {
-		if _, exists := s.Metrics[metrics.ID]; exists == false {
+		if _, exists := s.Metrics[metrics.ID]; exists {
 			s.Metrics[metrics.ID] = metrics
 		} else {
 			*s.Metrics[metrics.ID].Delta = *s.Metrics[metrics.ID].Delta + *metrics.Delta
 		}
 	}
-	if s.BackupConfig.enable == true && s.BackupConfig.Periodic == false {
+	if s.BackupConfig.enable && !s.BackupConfig.Periodic {
 		fmt.Println("Staring On-Deman Backup")
 		BackupDo(s)
 	}

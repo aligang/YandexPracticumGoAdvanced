@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
@@ -26,11 +25,7 @@ func (h APIHandler) Fetch(w http.ResponseWriter, r *http.Request) {
 	if !checkMetricType(&metricType) {
 		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
 	}
-	m := metric.Metrics{
-		ID:    metricName,
-		MType: metricType,
-	}
-	result, found := h.Storage.Get(m.ID)
+	result, found := h.Storage.Get(metricName)
 	w.Header().Set("Content-Type", "text/plain")
 	if found {
 		var reply string
@@ -41,7 +36,10 @@ func (h APIHandler) Fetch(w http.ResponseWriter, r *http.Request) {
 			reply = strconv.FormatFloat(*result.Value, 'f', -1, 64)
 		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(reply))
+		_, err := w.Write([]byte(reply))
+		if err != nil {
+			fmt.Println("Could send byteData")
+		}
 	} else {
 		http.Error(w, fmt.Sprintf("Metric  with name=%s not found", metricName), http.StatusNotFound)
 	}

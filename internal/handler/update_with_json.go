@@ -8,10 +8,13 @@ import (
 	"net/http"
 )
 
-func (h APIHandler) UpdateWithJson(w http.ResponseWriter, r *http.Request) {
+func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 	var m metric.Metrics
 
 	payload, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Could not read data", http.StatusUnsupportedMediaType)
+	}
 	err = json.Unmarshal(payload, &m)
 	fmt.Printf("Recieved JSON: %s\n", string(payload))
 

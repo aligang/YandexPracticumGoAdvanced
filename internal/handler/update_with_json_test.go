@@ -33,7 +33,7 @@ func TestUpdateWithJson(t *testing.T) {
 
 	strg := storage.New()
 	mux := New(strg)
-	mux.Post("/update/", mux.UpdateWithJson)
+	mux.Post("/update/", mux.UpdateWithJSON)
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 

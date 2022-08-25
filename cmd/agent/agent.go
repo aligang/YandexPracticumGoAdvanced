@@ -18,8 +18,8 @@ func main() {
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 
 	stats := &metric.Stats{
-		map[string]float64{},
-		map[string]int64{},
+		Gauge:   map[string]float64{},
+		Counter: map[string]int64{},
 	}
 
 	go collector.CollectMetrics(conf, stats)

@@ -24,11 +24,11 @@ func main() {
 	mux.Use(middleware.Recoverer)
 
 	mux.Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)
-	mux.Post("/update/", mux.UpdateWithJson)
+	mux.Post("/update/", mux.UpdateWithJSON)
 
 	mux.Get("/", mux.FetchAll)
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
-	mux.Post("/value/", mux.FetchWithJson)
+	mux.Post("/value/", mux.FetchWithJSON)
 
 	log.Fatal(http.ListenAndServe(conf.Address, mux))
 

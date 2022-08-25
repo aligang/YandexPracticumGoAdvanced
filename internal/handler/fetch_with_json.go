@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func (h APIHandler) FetchWithJson(w http.ResponseWriter, r *http.Request) {
+func (h APIHandler) FetchWithJSON(w http.ResponseWriter, r *http.Request) {
 	var m metric.Metrics
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&m)
