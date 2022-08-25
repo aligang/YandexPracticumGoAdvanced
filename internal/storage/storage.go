@@ -38,8 +38,6 @@ func (s *Storage) Update(metrics metric.Metrics) {
 		if _, exists := s.Metrics[metrics.ID]; !exists {
 			s.Metrics[metrics.ID] = metrics
 		} else {
-			fmt.Println(exists)
-			fmt.Println("here")
 			value := *s.Metrics[metrics.ID].Delta + *metrics.Delta
 			*s.Metrics[metrics.ID].Delta = value
 		}

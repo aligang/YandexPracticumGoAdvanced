@@ -30,7 +30,7 @@ func GzipHandle(next func(w http.ResponseWriter, r *http.Request)) func(w http.R
 				fmt.Println("Decompression was applied")
 			}
 		} else {
-			fmt.Println("No Compression header descriptors were found")
+			fmt.Println("No Compression in request header")
 		}
 
 		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
@@ -44,7 +44,7 @@ func GzipHandle(next func(w http.ResponseWriter, r *http.Request)) func(w http.R
 				return
 			} else {
 				writer = gzipWriter{ResponseWriter: w, Writer: gz}
-				fmt.Println("Response willbe compressed")
+				fmt.Println("Response will be compressed")
 				writer.Header().Set("Content-Encoding", "gzip")
 			}
 		}
