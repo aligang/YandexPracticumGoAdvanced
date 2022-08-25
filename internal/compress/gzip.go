@@ -38,7 +38,6 @@ func GzipHandle(next func(w http.ResponseWriter, r *http.Request)) func(w http.R
 			fmt.Println("No Response compressiong will be provided")
 		} else {
 			gz, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
-			defer gz.Close()
 			if err != nil {
 				io.WriteString(w, err.Error())
 				return
@@ -47,6 +46,7 @@ func GzipHandle(next func(w http.ResponseWriter, r *http.Request)) func(w http.R
 				fmt.Println("Response will be compressed")
 				writer.Header().Set("Content-Encoding", "gzip")
 			}
+			defer gz.Close()
 		}
 		next(writer, r)
 	}
