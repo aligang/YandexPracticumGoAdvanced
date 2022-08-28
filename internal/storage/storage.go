@@ -49,7 +49,6 @@ func (s *Storage) Update(metrics metric.Metrics) {
 }
 
 func (s *Storage) Get(metricName string) (metric.Metrics, bool) {
-	var found bool
 	value, found := s.Metrics[metricName]
 	return value, found
 }

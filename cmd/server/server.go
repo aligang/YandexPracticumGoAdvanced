@@ -11,10 +11,10 @@ import (
 )
 
 func main() {
-	Storage := storage.New()
 	conf := config.NewServer()
 	config.GetServerCLIConfig(conf)
 	config.GetServerENVConfig(conf)
+	Storage := storage.New()
 	if conf.Restore {
 		Storage.Restore(conf)
 	}

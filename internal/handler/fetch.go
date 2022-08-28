@@ -14,9 +14,10 @@ func (h APIHandler) FetchAll(w http.ResponseWriter, r *http.Request) {
 	output, err := json.Marshal(h.Storage.Dump())
 	if err != nil {
 		fmt.Println("Problem During serialization of database")
-	} else {
-		w.Write(output)
+		http.Error(w, "Problem During serialization of database", http.StatusInternalServerError)
+		return
 	}
+	w.Write(output)
 }
 
 func (h APIHandler) Fetch(w http.ResponseWriter, r *http.Request) {
@@ -24,6 +25,7 @@ func (h APIHandler) Fetch(w http.ResponseWriter, r *http.Request) {
 	metricName := chi.URLParam(r, "metricName")
 	if !checkMetricType(&metricType) {
 		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
+		return
 	}
 	result, found := h.Storage.Get(metricName)
 	w.Header().Set("Content-Type", "text/plain")
@@ -39,6 +41,8 @@ func (h APIHandler) Fetch(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte(reply))
 		if err != nil {
 			fmt.Println("Could send byteData")
+			http.Error(w, "Could send byteData", http.StatusInternalServerError)
+			return
 		}
 	} else {
 		http.Error(w, fmt.Sprintf("Metric  with name=%s not found", metricName), http.StatusNotFound)

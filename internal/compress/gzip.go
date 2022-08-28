@@ -25,6 +25,7 @@ func GzipHandle(next func(w http.ResponseWriter, r *http.Request)) func(w http.R
 			gz, err := gzip.NewReader(r.Body)
 			if err != nil {
 				http.Error(w, "Incorrect Encoding", http.StatusBadRequest)
+				return
 			} else {
 				r.Body = gz
 				fmt.Println("Decompression was applied")
@@ -41,11 +42,10 @@ func GzipHandle(next func(w http.ResponseWriter, r *http.Request)) func(w http.R
 			if err != nil {
 				io.WriteString(w, err.Error())
 				return
-			} else {
-				writer = gzipWriter{ResponseWriter: w, Writer: gz}
-				fmt.Println("Response will be compressed")
-				writer.Header().Set("Content-Encoding", "gzip")
 			}
+			writer = gzipWriter{ResponseWriter: w, Writer: gz}
+			fmt.Println("Response will be compressed")
+			writer.Header().Set("Content-Encoding", "gzip")
 			defer gz.Close()
 		}
 		next(writer, r)

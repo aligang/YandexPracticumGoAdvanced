@@ -13,38 +13,38 @@ import (
 	"time"
 )
 
-func PushData(address string, client *http.Client, m *metric.Metrics) {
+func PushData(address string, client *http.Client, m *metric.Metrics) error {
 	jbuf := &bytes.Buffer{}
 	jsonEncoder := json.NewEncoder(jbuf)
 	err := jsonEncoder.Encode(*m)
 	if err != nil {
 		fmt.Println("Error During serialization ")
-		panic(err)
+		return err
 	}
 	URI := fmt.Sprintf("http://%s/update/", address)
 	gbuf := &bytes.Buffer{}
 	gz, err := gzip.NewWriterLevel(gbuf, gzip.BestSpeed)
 	if err != nil {
 		fmt.Println("Error During compressor creation")
-		panic(err)
+		return err
 	}
 	res, err := io.ReadAll(jbuf)
 	if err != nil {
 		fmt.Println("Error During fetching data for compressiong")
-		panic(err)
+		return err
 	}
 	_, err = gz.Write(res)
 	gz.Close()
 
 	if err != nil {
 		fmt.Println("Error During compression")
-		panic(err)
+		return err
 	}
 	request, err := http.NewRequest("POST", URI, gbuf)
 	fmt.Printf("Seding request to: URI: %s\n", URI)
 	if err != nil {
 		fmt.Println("Error During communication ")
-		panic(err)
+		return err
 	}
 
 	request.Header.Add("Content-Type", "application/json")
@@ -53,47 +53,44 @@ func PushData(address string, client *http.Client, m *metric.Metrics) {
 
 	if err != nil {
 		fmt.Println("Error During Pushing data ")
-	} else {
-		defer response.Body.Close()
+		return err
 	}
-
+	defer response.Body.Close()
 }
 
-func PullData(address string, client *http.Client, m *metric.Metrics) (metric.Metrics, error) {
+func PullData(address string, client *http.Client, m *metric.Metrics) (*metric.Metrics, error) {
 	buf := &bytes.Buffer{}
 	jsonEncoder := json.NewEncoder(buf)
 	err := jsonEncoder.Encode(*m)
 	if err != nil {
 		fmt.Println("Error During serialization ")
-		panic(err)
+		return nil, err
 	}
 	URI := fmt.Sprintf("http://%s/value/", address)
 	request, err := http.NewRequest("POST", URI, buf)
 	fmt.Printf("Seding request to: URI: %s\n", URI)
 	if err != nil {
 		fmt.Println("Error During building ")
-		panic(err)
+		return nil, err
 	}
 	request.Header.Add("Content-Type", "application/json")
 	response, err := client.Do(request)
 	var pulledMetric metric.Metrics
 	if err != nil {
 		fmt.Println("Error During Pulling data ")
-		return pulledMetric, errors.New("")
-	} else {
-		defer response.Body.Close()
-		if response.StatusCode == 200 {
-			decoder := json.NewDecoder(response.Body)
-			err = decoder.Decode(&pulledMetric)
-			if err != nil {
-				fmt.Println("Error During Parsing data ")
-				panic(err)
-			}
-			return pulledMetric, nil
-		} else {
-			return pulledMetric, errors.New("")
-		}
+		return &pulledMetric, err
 	}
+	defer response.Body.Close()
+	if response.StatusCode != 200 {
+		return nil, errors.New("")
+	}
+	decoder := json.NewDecoder(response.Body)
+	err = decoder.Decode(&pulledMetric)
+	if err != nil {
+		fmt.Println("Error During Parsing data ")
+		return nil, err
+	}
+	return &pulledMetric, nil
 }
 
 func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
@@ -107,7 +104,10 @@ func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 		fmt.Printf("Running Iteration %d\n", iteration)
 		for name, value := range stats.Gauge {
 			m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
-			PushData(agentConfig.Address, client, m)
+			err := PushData(agentConfig.Address, client, m)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		}
 		for name, value := range stats.Counter {
 			m := &metric.Metrics{ID: name, MType: "counter", Delta: &value}
@@ -119,7 +119,10 @@ func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 			//	fmt.Printf("Record for counter: %s was not found\n", name)
 			//}
 			fmt.Printf("Updating value of counter: %+v\n", *m)
-			PushData(agentConfig.Address, client, m)
+			err := PushData(agentConfig.Address, client, m)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 			//fmt.Printf("Checking new value of counter: %s\n", name)
 			//fetchedMetric, err = PullData(agentConfig.Address, client, m)
 			//if err == nil {
