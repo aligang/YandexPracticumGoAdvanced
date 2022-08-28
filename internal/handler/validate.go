@@ -19,3 +19,7 @@ func checkMetricValueFormat(metricType, metricValue string) bool {
 	return true
 
 }
+
+func checkMetricType(metricType *string) bool {
+	return *metricType == "gauge" || *metricType == "counter"
+}

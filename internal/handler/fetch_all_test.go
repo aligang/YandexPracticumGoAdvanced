@@ -12,39 +12,21 @@ import (
 	"testing"
 )
 
-type expected struct {
-	path        string
-	code        int
-	contentType string
-	payload     string
-}
-
-type input struct {
-	path        string
-	contentType string
-	payload     string
-}
-
-func TestFetch(t *testing.T) {
+func TestFetchAll(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    input
 		expected expected
 	}{
 		{
-			name:     "CORRECT GAUGE",
-			input:    input{path: "/value/gauge/gauge_example", contentType: "text/plain"},
-			expected: expected{code: 200, contentType: "text/plain", payload: "1234"},
-		},
-		{
-			name:     "CORRECT COUNTER",
-			input:    input{path: "/value/counter/counter_example", contentType: "text/plain"},
-			expected: expected{code: 200, contentType: "text/plain", payload: "12345"},
-		},
-		{
-			name:     "Non EXISTING COUNTER",
-			input:    input{path: "/value/counter/wrong_counter_example", contentType: "text/plain"},
-			expected: expected{code: 404, contentType: "text/plain"},
+			name:  "FETCH ALL",
+			input: input{path: "/", contentType: "text/plain"},
+			expected: expected{
+				code:        200,
+				contentType: "text/html",
+				payload: "{\"counter_example\":{\"id\":\"gauge_example\",\"type\":\"counter\",\"delta\":12345}," +
+					"\"gauge_example\":{\"id\":\"gauge_example\",\"type\":\"gauge\",\"value\":1234}}",
+			},
 		},
 	}
 	var GaugeValue float64 = 1234
@@ -82,7 +64,7 @@ func TestFetch(t *testing.T) {
 				assert.Equal(t, test.expected.contentType, res.Header.Get("Content-Type"))
 				payload, err := io.ReadAll(res.Body)
 				assert.NoError(t, err)
-				assert.Equal(t, test.expected.payload, string(payload))
+				assert.JSONEq(t, test.expected.payload, string(payload))
 			}
 		})
 	}

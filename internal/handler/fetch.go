@@ -1,28 +1,49 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"net/http"
+	"strconv"
 )
 
 func (h APIHandler) FetchAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(h.Storage.Dump()))
+	output, err := json.Marshal(h.Storage.Dump())
+	if err != nil {
+		fmt.Println("Problem During serialization of database")
+		http.Error(w, "Problem During serialization of database", http.StatusInternalServerError)
+		return
+	}
+	w.Write(output)
 }
 
 func (h APIHandler) Fetch(w http.ResponseWriter, r *http.Request) {
 	metricType := chi.URLParam(r, "metricType")
 	metricName := chi.URLParam(r, "metricName")
-	if metricType != "gauge" && metricType != "counter" {
+	if !checkMetricType(&metricType) {
 		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
+		return
 	}
-	result, found := h.Storage.Get(metricType, metricName)
+	result, found := h.Storage.Get(metricName)
 	w.Header().Set("Content-Type", "text/plain")
 	if found {
+		var reply string
+		switch metricType {
+		case "counter":
+			reply = fmt.Sprintf("%d", *result.Delta)
+		case "gauge":
+			reply = strconv.FormatFloat(*result.Value, 'f', -1, 64)
+		}
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(result))
+		_, err := w.Write([]byte(reply))
+		if err != nil {
+			fmt.Println("Could send byteData")
+			http.Error(w, "Could send byteData", http.StatusInternalServerError)
+			return
+		}
 	} else {
 		http.Error(w, fmt.Sprintf("Metric  with name=%s not found", metricName), http.StatusNotFound)
 	}

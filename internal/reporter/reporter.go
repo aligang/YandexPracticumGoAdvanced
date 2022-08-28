@@ -1,53 +1,137 @@
 package reporter
 
 import (
+	"bytes"
+	"compress/gzip"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
+	"io"
 	"net/http"
-	"reflect"
-	"strings"
 	"time"
 )
 
-func MakeCall(client *http.Client, uri string) {
-	request, err := http.NewRequest("POST", uri, nil)
+func PushData(address string, client *http.Client, m *metric.Metrics) error {
+	jbuf := &bytes.Buffer{}
+	jsonEncoder := json.NewEncoder(jbuf)
+	err := jsonEncoder.Encode(*m)
 	if err != nil {
-		fmt.Println("Error During building ")
-		panic(err)
+		fmt.Println("Error During serialization ")
+		return err
 	}
-	request.Header.Add("Content-Type", "text/plain")
+	URI := fmt.Sprintf("http://%s/update/", address)
+	gbuf := &bytes.Buffer{}
+	gz, err := gzip.NewWriterLevel(gbuf, gzip.BestSpeed)
+	if err != nil {
+		fmt.Println("Error During compressor creation")
+		return err
+	}
+	res, err := io.ReadAll(jbuf)
+	if err != nil {
+		fmt.Println("Error During fetching data for compressiong")
+		return err
+	}
+	_, err = gz.Write(res)
+	gz.Close()
+
+	if err != nil {
+		fmt.Println("Error During compression")
+		return err
+	}
+	request, err := http.NewRequest("POST", URI, gbuf)
+	fmt.Printf("Seding request to: URI: %s\n", URI)
+	if err != nil {
+		fmt.Println("Error During communication ")
+		return err
+	}
+
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("Content-Encoding", "gzip")
 	response, err := client.Do(request)
 
 	if err != nil {
-		fmt.Println("Error During Sending request ")
-		panic(err)
+		fmt.Println("Error During Pushing data ")
+		return err
 	}
 	defer response.Body.Close()
+	return nil
 }
 
-func ComposeURI(typeName string, fieldName string, value string) string {
-	return fmt.Sprintf("http://127.0.0.1:8080/update/%s/%s/%s", typeName, fieldName, value)
+func PullData(address string, client *http.Client, m *metric.Metrics) (*metric.Metrics, error) {
+	buf := &bytes.Buffer{}
+	jsonEncoder := json.NewEncoder(buf)
+	err := jsonEncoder.Encode(*m)
+	if err != nil {
+		fmt.Println("Error During serialization ")
+		return nil, err
+	}
+	URI := fmt.Sprintf("http://%s/value/", address)
+	request, err := http.NewRequest("POST", URI, buf)
+	fmt.Printf("Seding request to: URI: %s\n", URI)
+	if err != nil {
+		fmt.Println("Error During building ")
+		return nil, err
+	}
+	request.Header.Add("Content-Type", "application/json")
+	response, err := client.Do(request)
+	var pulledMetric metric.Metrics
+	if err != nil {
+		fmt.Println("Error During Pulling data ")
+		return &pulledMetric, err
+	}
+	defer response.Body.Close()
+	if response.StatusCode != 200 {
+		return nil, errors.New("")
+	}
+	decoder := json.NewDecoder(response.Body)
+	err = decoder.Decode(&pulledMetric)
+	if err != nil {
+		fmt.Println("Error During Parsing data ")
+		return nil, err
+	}
+	return &pulledMetric, nil
 }
 
-func SendMetrics(stats *metric.Stats) {
-
+func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}
-	ticker := time.NewTicker(2 * time.Second)
+	ticker := time.NewTicker(agentConfig.ReportInterval)
+	iteration := 0
 	for {
 		<-ticker.C
-		s := reflect.ValueOf(*stats)
-		for i := 0; i < s.NumField(); i++ {
-			e := s.Field(i)
-			for j := 0; j < e.NumField(); j++ {
-				metricValue := e.Field(j)
-				metricName := e.Type().Field(j).Name
-				metricType := strings.ToLower(metricValue.Type().Name())
-				value := fmt.Sprintf("%v", metricValue)
-				url := ComposeURI(metricType, metricName, value)
-				MakeCall(client, url)
+		fmt.Printf("Running Iteration %d\n", iteration)
+		for name, value := range stats.Gauge {
+			m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
+			err := PushData(agentConfig.Address, client, m)
+			if err != nil {
+				fmt.Println(err.Error())
 			}
 		}
+		for name, value := range stats.Counter {
+			m := &metric.Metrics{ID: name, MType: "counter", Delta: &value}
+			//fmt.Printf("Checking old value of counter: %s\n", name)
+			//fetchedMetric, err := PullData(agentConfig.Address, client, m)
+			//if err == nil {
+			//	fmt.Printf("counter: %s=%d\n", name, *fetchedMetric.Delta)
+			//} else {
+			//	fmt.Printf("Record for counter: %s was not found\n", name)
+			//}
+			fmt.Printf("Updating value of counter: %+v\n", *m)
+			err := PushData(agentConfig.Address, client, m)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+			//fmt.Printf("Checking new value of counter: %s\n", name)
+			//fetchedMetric, err = PullData(agentConfig.Address, client, m)
+			//if err == nil {
+			//	fmt.Printf("counter: %s=%d", name, *fetchedMetric.Delta)
+			//} else {
+			//	fmt.Printf("Record for counter: %s was not found\n", name)
+			//}
+		}
+		iteration++
 	}
 }
