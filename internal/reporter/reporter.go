@@ -56,6 +56,7 @@ func PushData(address string, client *http.Client, m *metric.Metrics) error {
 		return err
 	}
 	defer response.Body.Close()
+	return nil
 }
 
 func PullData(address string, client *http.Client, m *metric.Metrics) (*metric.Metrics, error) {
