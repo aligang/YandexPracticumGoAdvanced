@@ -30,8 +30,7 @@ func TestCounterIncrement(t *testing.T) {
 			input: input{path: "/value/", contentType: "application/json",
 				payload: "{\"id\":\"TotalAlloc\",\"type\":\"gauge\"}"},
 			expected: expected{code: 200, contentType: "application/json",
-				payload: "{\"id\":\"TotalAlloc\",\"value\":323648,\"type\":\"gauge\"" +
-					",\"hash\":\"153e73b680ec49bc75ca1ed87299f16d00c93fece536f12b56a516072a9b5695\"}"},
+				payload: "{\"id\":\"TotalAlloc\",\"value\":323648,\"type\":\"gauge\"}"},
 		},
 		{
 			name: "UPDATE GAUGE 2",
@@ -45,8 +44,7 @@ func TestCounterIncrement(t *testing.T) {
 			input: input{path: "/value/", contentType: "application/json",
 				payload: "{\"id\":\"TotalAlloc\",\"type\":\"gauge\"}"},
 			expected: expected{path: "/value/", code: 200, contentType: "application/json",
-				payload: "{\"id\":\"TotalAlloc\",\"value\":133,\"type\":\"gauge\"" +
-					",\"hash\":\"153e73b680ec49bc75ca1ed87299f16d00c93fece536f12b56a516072a9b5695\"}"},
+				payload: "{\"id\":\"TotalAlloc\",\"value\":133,\"type\":\"gauge\"}"},
 		},
 		{
 			name: "UPDATE COUNTER 1",
@@ -60,8 +58,7 @@ func TestCounterIncrement(t *testing.T) {
 			input: input{path: "/value/", contentType: "application/json",
 				payload: "{\"id\":\"PollCount\",\"type\":\"counter\"}"},
 			expected: expected{code: 200, contentType: "application/json",
-				payload: "{\"id\":\"PollCount\",\"delta\":10,\"type\":\"counter\"" +
-					",\"hash\":\"56b799508fac2c8bd6698edfb4990ea4fba59d6de67ac47c71d0698a595aeb81\"}"},
+				payload: "{\"id\":\"PollCount\",\"delta\":10,\"type\":\"counter\"}"},
 		},
 		{
 			name: "UPDATE COUNTER 2",
@@ -75,8 +72,7 @@ func TestCounterIncrement(t *testing.T) {
 			input: input{path: "/value/", contentType: "application/json",
 				payload: "{\"id\":\"PollCount\",\"type\":\"counter\"}"},
 			expected: expected{code: 200, contentType: "application/json",
-				payload: "{\"id\":\"PollCount\",\"delta\":20,\"type\":\"counter\"" +
-					",\"hash\":\"56b799508fac2c8bd6698edfb4990ea4fba59d6de67ac47c71d0698a595aeb81\"}"},
+				payload: "{\"id\":\"PollCount\",\"delta\":20,\"type\":\"counter\"}"},
 		},
 	}
 

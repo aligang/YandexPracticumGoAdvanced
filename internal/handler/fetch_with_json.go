@@ -23,7 +23,7 @@ func (h APIHandler) FetchWithJSON(w http.ResponseWriter, r *http.Request) {
 	}
 	result, found := h.Storage.Get(m.ID)
 	if found {
-		if len(result.Hash) == 0 {
+		if len(result.Hash) == 0 && h.HashKey != "" {
 			hash.AddHashInfo(&result, h.HashKey)
 		}
 		j, err := json.Marshal(&result)

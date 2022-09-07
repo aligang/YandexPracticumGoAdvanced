@@ -24,8 +24,7 @@ func TestFetchWithJson(t *testing.T) {
 			input: input{path: "/value/", contentType: "application/json",
 				payload: "{\"id\":\"gauge_example\",\"type\":\"gauge\"}"},
 			expected: expected{code: 200, contentType: "application/json",
-				payload: "{\"id\":\"gauge_example\",\"type\":\"gauge\",\"value\":1234" +
-					",\"hash\":\"d1db26d330f42d3ae11b2247e408a109cb07bc28cb990cdf4820f5ec011fa9a5\"}",
+				payload: "{\"id\":\"gauge_example\",\"type\":\"gauge\",\"value\":1234}",
 			},
 		},
 		{
@@ -33,8 +32,7 @@ func TestFetchWithJson(t *testing.T) {
 			input: input{path: "/value/", contentType: "application/json",
 				payload: "{\"id\":\"counter_example\",\"type\":\"counter\"}"},
 			expected: expected{code: 200, contentType: "application/json",
-				payload: "{\"id\":\"counter_example\",\"type\":\"counter\",\"delta\":12345" +
-					",\"hash\":\"636f3ba36073ecbc77319e63011f2037b0250951dc435e02779e69b34adda17e\"}",
+				payload: "{\"id\":\"counter_example\",\"type\":\"counter\",\"delta\":12345}",
 			},
 		},
 		{
