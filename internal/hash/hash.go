@@ -14,10 +14,13 @@ func CalculateHash(m *metric.Metrics, key string) (string, error) {
 
 	h := hmac.New(sha256.New, []byte(key))
 
-	if m.MType == "gauge" {
+	switch m.MType {
+	case "counter":
 		hashingMaterial = fmt.Sprintf("%s:counter:%d", m.ID, m.Delta)
-	} else if m.MType == "counter" {
+	case "gauge":
 		hashingMaterial = fmt.Sprintf("%s:gauge:%d", m.ID, m.Value)
+	default:
+		return "", err
 	}
 
 	_, err = h.Write([]byte(hashingMaterial))
