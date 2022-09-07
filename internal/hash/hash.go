@@ -16,6 +16,7 @@ func CalculateHash(m *metric.Metrics, key string) (string, error) {
 
 	switch m.MType {
 	case "counter":
+		hashingMaterial = fmt.Sprintf("%s:counter:%d", m.ID, *m.Delta)
 		fmt.Printf("Hashing material is : %s\n", hashingMaterial)
 	case "gauge":
 		hashingMaterial = fmt.Sprintf("%s:gauge:%f", m.ID, *m.Value)
