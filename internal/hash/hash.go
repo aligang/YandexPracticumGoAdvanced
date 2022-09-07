@@ -16,13 +16,13 @@ func CalculateHash(m *metric.Metrics, key string) (string, error) {
 
 	switch m.MType {
 	case "counter":
-		hashingMaterial = fmt.Sprintf("%s:counter:%d", m.ID, m.Delta)
+		fmt.Printf("Hashing material is : %s\n", hashingMaterial)
 	case "gauge":
-		hashingMaterial = fmt.Sprintf("%s:gauge:%d", m.ID, m.Value)
+		hashingMaterial = fmt.Sprintf("%s:gauge:%f", m.ID, *m.Value)
 	default:
 		return "", err
 	}
-
+	fmt.Printf("Hasing material is : %s\n", hashingMaterial)
 	_, err = h.Write([]byte(hashingMaterial))
 	if err != nil {
 		fmt.Printf("Could not Calculate hash for: %v\n", *m)
