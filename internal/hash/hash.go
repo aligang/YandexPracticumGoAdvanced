@@ -53,7 +53,7 @@ func CheckHashInfo(m *metric.Metrics, key string) bool {
 		return false
 	}
 	fmt.Printf("Checking provided hash for: %v\n", *m)
-	res := m.Hash == hash
+	res := hmac.Equal([]byte(m.Hash), []byte(hash))
 	if res {
 		fmt.Printf("Hash for: %+v is valid\n", *m)
 	} else {
