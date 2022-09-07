@@ -34,6 +34,7 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 	if !hash.CheckHashInfo(&m, h.HashKey) {
 		fmt.Println("Invalid Hash")
 		http.Error(w, "Invalid Hash", http.StatusBadRequest)
+		return
 	}
 	h.Storage.Update(m)
 	w.Header().Set("Content-Type", "text/plain")
