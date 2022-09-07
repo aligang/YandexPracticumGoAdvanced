@@ -1,4 +1,5 @@
-//package hash
+package hash
+
 //
 //import (
 //	"crypto/hmac"
