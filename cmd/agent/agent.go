@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/collector"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
@@ -14,6 +15,7 @@ func main() {
 	conf := config.NewAgent()
 	config.GetAgentCLIConfig(conf)
 	config.GetAgentENVConfig(conf)
+	fmt.Printf("Starting Agent with config: %+v", conf)
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 

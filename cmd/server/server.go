@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/compress"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/handler"
@@ -14,6 +15,7 @@ func main() {
 	conf := config.NewServer()
 	config.GetServerCLIConfig(conf)
 	config.GetServerENVConfig(conf)
+	fmt.Printf("Starting Server with config: %+v", conf)
 	Storage := storage.New()
 	if conf.Restore {
 		Storage.Restore(conf)
