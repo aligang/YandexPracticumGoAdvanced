@@ -28,7 +28,7 @@ func AddHashInfo(m *metric.Metrics, key string) {
 }
 
 func CheckHashInfo(m *metric.Metrics, key string) bool {
-	return len(m.Hash) == 0 || m.Hash == CalculateHash(m, key)
+	return m.Hash == CalculateHash(m, key)
 }
 
 func test() {
