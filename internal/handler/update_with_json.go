@@ -31,8 +31,8 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
 		return
 	}
-	fmt.Println("here")
 	if h.HashKey != "" {
+		fmt.Println("Validating hash ...")
 		if !hash.CheckHashInfo(&m, h.HashKey) {
 			fmt.Println("Invalid Hash")
 			http.Error(w, "Invalid Hash", http.StatusBadRequest)
@@ -40,6 +40,7 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 		} else {
 			fmt.Println("Hash validation succeeded")
 		}
+	} else {
 		fmt.Println("Skipping hash validation")
 	}
 

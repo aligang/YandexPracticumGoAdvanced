@@ -77,7 +77,7 @@ func TestCounterIncrement(t *testing.T) {
 	}
 
 	strg := storage.New()
-	mux := New(strg)
+	mux := New(strg, "")
 	mux.Post("/update/", mux.UpdateWithJSON)
 	mux.Post("/value/", mux.FetchWithJSON)
 	ts := httptest.NewServer(mux)

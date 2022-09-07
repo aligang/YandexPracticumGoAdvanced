@@ -11,10 +11,11 @@ type APIHandler struct {
 	HashKey string
 }
 
-func New(s *storage.Storage) APIHandler {
+func New(s *storage.Storage, h string) APIHandler {
 	mux := APIHandler{
 		Mux:     chi.NewMux(),
 		Storage: s,
+		HashKey: h,
 	}
 	return mux
 }

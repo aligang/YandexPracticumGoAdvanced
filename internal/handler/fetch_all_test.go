@@ -39,7 +39,7 @@ func TestFetchAll(t *testing.T) {
 			"counter_example": {ID: "gauge_example", MType: "counter", Delta: &CounterDelta},
 		},
 	)
-	mux := New(strg)
+	mux := New(strg, "")
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
 	mux.Get("/", mux.FetchAll)
 	ts := httptest.NewServer(mux)

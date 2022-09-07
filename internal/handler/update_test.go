@@ -60,7 +60,7 @@ func TestUpdate(t *testing.T) {
 	}
 
 	strg := storage.New()
-	mux := New(strg)
+	mux := New(strg, "")
 	mux.Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)
 	ts := httptest.NewServer(mux)
 	defer ts.Close()

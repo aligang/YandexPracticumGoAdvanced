@@ -19,7 +19,7 @@ func main() {
 		Storage.Restore(conf)
 	}
 	Storage.ConfigureBackup(conf)
-	mux := handler.New(Storage)
+	mux := handler.New(Storage, conf.Key)
 	mux.Use(middleware.RequestID)
 	mux.Use(middleware.RealIP)
 	mux.Use(middleware.Recoverer)
