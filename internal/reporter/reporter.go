@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/hash"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"io"
 	"net/http"
@@ -104,14 +105,17 @@ func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 		<-ticker.C
 		fmt.Printf("Running Iteration %d\n", iteration)
 		for name, value := range stats.Gauge {
-			m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
+			m := &metric.Metrics{ID: name, MType: "gauge", Value: &value, Hash: ""}
+			if len(agentConfig.Key) > 0 {
+				hash.AddHashInfo(m, agentConfig.Key)
+			}
 			err := PushData(agentConfig.Address, client, m)
 			if err != nil {
 				fmt.Println(err.Error())
 			}
 		}
 		for name, value := range stats.Counter {
-			m := &metric.Metrics{ID: name, MType: "counter", Delta: &value}
+			m := &metric.Metrics{ID: name, MType: "counter", Delta: &value, Hash: ""}
 			//fmt.Printf("Checking old value of counter: %s\n", name)
 			//fetchedMetric, err := PullData(agentConfig.Address, client, m)
 			//if err == nil {
@@ -119,6 +123,9 @@ func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 			//} else {
 			//	fmt.Printf("Record for counter: %s was not found\n", name)
 			//}
+			if len(agentConfig.Key) > 0 {
+				hash.AddHashInfo(m, agentConfig.Key)
+			}
 			fmt.Printf("Updating value of counter: %+v\n", *m)
 			err := PushData(agentConfig.Address, client, m)
 			if err != nil {

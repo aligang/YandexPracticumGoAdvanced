@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/hash"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"net/http"
 )
@@ -22,6 +23,9 @@ func (h APIHandler) FetchWithJSON(w http.ResponseWriter, r *http.Request) {
 	}
 	result, found := h.Storage.Get(m.ID)
 	if found {
+		if len(result.Hash) == 0 {
+			hash.AddHashInfo(&result, h.HashKey)
+		}
 		j, err := json.Marshal(&result)
 		if err != nil {
 			fmt.Println("Could not encode Json")

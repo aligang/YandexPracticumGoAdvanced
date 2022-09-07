@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/hash"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"io"
 	"net/http"
@@ -19,7 +20,6 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Recieved JSON:")
 	fmt.Println(string(payload))
 	err = json.Unmarshal(payload, &m)
-	
 	if err != nil {
 		fmt.Println("Invalid JSON received")
 		fmt.Println(err.Error())
@@ -30,6 +30,10 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Invalid Metric Type")
 		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
 		return
+	}
+	if !hash.CheckHashInfo(&m, h.HashKey) {
+		fmt.Println("Invalid Hash")
+		http.Error(w, "Invalid Hash", http.StatusBadRequest)
 	}
 	h.Storage.Update(m)
 	w.Header().Set("Content-Type", "text/plain")

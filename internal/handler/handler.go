@@ -8,6 +8,7 @@ import (
 type APIHandler struct {
 	*chi.Mux
 	Storage *storage.Storage
+	HashKey string
 }
 
 func New(s *storage.Storage) APIHandler {
