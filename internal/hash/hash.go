@@ -54,7 +54,7 @@ func CheckHashInfo(m *metric.Metrics, key string) bool {
 	if res {
 		fmt.Printf("Hash for: %+v is valid\n", *m)
 	} else {
-		fmt.Printf("Hash for: %+v is invalid\n", *m)
+		fmt.Printf("Hash for: %+v is invalid. Expected: %s\n", *m, hash)
 	}
 	return res
 }
