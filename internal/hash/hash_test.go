@@ -2,7 +2,6 @@ package hash
 
 import (
 	"crypto/hmac"
-	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -15,7 +14,6 @@ func TestHash(t *testing.T) {
 		refHash := "dbb85a3637412267a14d69f51eb8e0dab2f918379994702a7b5ba381128a2d70"
 		refKey := "1"
 		hash, _ := CalculateHash(&refMetric, refKey)
-		fmt.Println(hash)
 		assert.Equal(t, true, hmac.Equal([]byte(refHash), []byte(hash)))
 	})
 }
