@@ -1,9 +1,10 @@
-package storage
+package memory
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"os"
 	"time"
 )
@@ -48,7 +49,7 @@ func newConsumer(filename string) *consumer {
 	}
 }
 
-func BackupDo(storage *Storage) {
+func BackupDo(storage *MemStorage) {
 	p := newProducer(storage.BackupConfig.file)
 	if p != nil {
 		fmt.Println("Going to backup metrics")
@@ -64,7 +65,7 @@ func BackupDo(storage *Storage) {
 	}
 }
 
-func (s *Storage) ConfigureBackup(c *config.ServerConfig) {
+func (s *MemStorage) ConfigureBackup(c *config.ServerConfig) {
 	fmt.Println("COnfiguring backup mode")
 	s.BackupConfig = BackupConfig{file: c.StoreFile}
 	s.BackupConfig.enable = true
@@ -86,10 +87,10 @@ func (s *Storage) ConfigureBackup(c *config.ServerConfig) {
 	}
 }
 
-func (s *Storage) Restore(c *config.ServerConfig) {
+func (s *MemStorage) Restore(c *config.ServerConfig) {
 	fmt.Printf("Restoring Data from file: %s\n", c.StoreFile)
 	cons := newConsumer(c.StoreFile)
-	mmap := metricMap{}
+	mmap := metric.MetricMap{}
 	if cons != nil {
 		err := cons.decoder.Decode(&mmap)
 		if err != nil {

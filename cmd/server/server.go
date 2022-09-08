@@ -15,13 +15,9 @@ func main() {
 	conf := config.NewServer()
 	config.GetServerCLIConfig(conf)
 	config.GetServerENVConfig(conf)
-	fmt.Printf("Starting Server with config: %+v", conf)
-	Storage := storage.New()
-	if conf.Restore {
-		Storage.Restore(conf)
-	}
-	Storage.ConfigureBackup(conf)
-	mux := handler.New(Storage, conf.Key)
+	fmt.Printf("Starting Server with config : %+v\n", conf)
+	Storage, Type := storage.New(conf)
+	mux := handler.New(Storage, conf.Key, Type)
 	mux.Use(middleware.RequestID)
 	mux.Use(middleware.RealIP)
 	mux.Use(middleware.Recoverer)
@@ -32,6 +28,8 @@ func main() {
 	mux.Get("/", compress.GzipHandle(mux.FetchAll))
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
 	mux.Post("/value/", compress.GzipHandle(mux.FetchWithJSON))
+
+	mux.Get("/ping", mux.Ping)
 
 	log.Fatal(http.ListenAndServe(conf.Address, mux))
 

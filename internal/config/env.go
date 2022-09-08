@@ -21,6 +21,9 @@ func GetServerENVConfig(conf *ServerConfig) {
 	if envConf.Key != "" {
 		conf.Key = envConf.Key
 	}
+	if envConf.DatabaseDsn != "" {
+		conf.DatabaseDsn = envConf.DatabaseDsn
+	}
 
 	if envConf.StoreInterval >= 0 {
 		conf.StoreInterval = envConf.StoreInterval

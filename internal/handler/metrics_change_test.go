@@ -3,7 +3,7 @@ package handler
 import (
 	"bytes"
 	"fmt"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage/memory"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io"
@@ -76,8 +76,8 @@ func TestCounterIncrement(t *testing.T) {
 		},
 	}
 
-	strg := storage.New()
-	mux := New(strg, "")
+	strg := memory.New(nil)
+	mux := New(strg, "", "Memory")
 	mux.Post("/update/", mux.UpdateWithJSON)
 	mux.Post("/value/", mux.FetchWithJSON)
 	ts := httptest.NewServer(mux)

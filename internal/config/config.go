@@ -10,6 +10,7 @@ type ServerConfig struct {
 	StoreFile     string        `env:"STORE_FILE" envDefault:""`
 	Restore       bool          `env:"RESTORE" envDefault:"false"`
 	Key           string        `env:"KEY" envDefault:""`
+	DatabaseDsn   string        `env:"DATABASE_DSN" envDefault:""`
 }
 
 type AgentConfig struct {

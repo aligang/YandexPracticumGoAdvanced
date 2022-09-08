@@ -5,17 +5,25 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-type APIHandler struct {
-	*chi.Mux
-	Storage *storage.Storage
-	HashKey string
+type Config struct {
+	HashKey     string
+	StorageType string
 }
 
-func New(s *storage.Storage, h string) APIHandler {
+type APIHandler struct {
+	*chi.Mux
+	Storage storage.Storage
+	Config  Config
+}
+
+func New(s storage.Storage, h string, t string) APIHandler {
 	mux := APIHandler{
 		Mux:     chi.NewMux(),
 		Storage: s,
-		HashKey: h,
+		Config: Config{
+			HashKey:     h,
+			StorageType: t,
+		},
 	}
 	return mux
 }

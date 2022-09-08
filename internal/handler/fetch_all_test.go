@@ -3,7 +3,7 @@ package handler
 import (
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage/memory"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io"
@@ -32,14 +32,14 @@ func TestFetchAll(t *testing.T) {
 	var GaugeValue float64 = 1234
 	var CounterDelta int64 = 12345
 
-	strg := storage.New()
+	strg := memory.New(nil)
 	strg.Load(
 		map[string]metric.Metrics{
 			"gauge_example":   {ID: "gauge_example", MType: "gauge", Value: &GaugeValue},
 			"counter_example": {ID: "gauge_example", MType: "counter", Delta: &CounterDelta},
 		},
 	)
-	mux := New(strg, "")
+	mux := New(strg, "", "Memory")
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
 	mux.Get("/", mux.FetchAll)
 	ts := httptest.NewServer(mux)

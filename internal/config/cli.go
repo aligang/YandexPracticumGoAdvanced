@@ -11,6 +11,7 @@ func GetServerCLIConfig(conf *ServerConfig) {
 	flag.StringVar(&conf.StoreFile, "f", "/tmp/devops-metrics-db.json", "backup filepath")
 	flag.BoolVar(&conf.Restore, "r", true, "Read from backup before Startup")
 	flag.StringVar(&conf.Key, "k", "", "Hashing key")
+	flag.StringVar(&conf.DatabaseDsn, "d", "", "Database")
 	flag.Parse()
 }
 
