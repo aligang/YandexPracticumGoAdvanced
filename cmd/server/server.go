@@ -5,7 +5,7 @@ import (
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/compress"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/handler"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage/memory"
 	"github.com/go-chi/chi/v5/middleware"
 	"log"
 	"net/http"
@@ -16,8 +16,9 @@ func main() {
 	config.GetServerCLIConfig(conf)
 	config.GetServerENVConfig(conf)
 	fmt.Printf("Starting Server with config : %+v\n", conf)
-	Storage, Type := storage.New(conf)
-	mux := handler.New(Storage, conf.Key, Type)
+	//Storage, Type := storage.New(conf)
+	Storage := memory.New(conf)
+	mux := handler.New(Storage, conf.Key, "Memory")
 	mux.Use(middleware.RequestID)
 	mux.Use(middleware.RealIP)
 	mux.Use(middleware.Recoverer)
