@@ -24,15 +24,49 @@ func New(conf *config.ServerConfig) *DBStorage {
 		DB:   db,
 		Type: "Database",
 	}
+	s.DB.Query("create table if not exists metrics(ID text , MType text, Delta int, Value double precision, Hash text)")
 	return s
 }
 
 func (s *DBStorage) Dump() metric.MetricMap {
-	return metric.MetricMap{}
+	metricMap := metric.MetricMap{}
+	rows, err := s.DB.Query("select * from metrics;")
+	if err != nil {
+		fmt.Println("Error During scanning DB")
+		fmt.Println(err.Error())
+		return metricMap
+	}
+	defer rows.Close()
+	var it int64 = 1
+	fmt.Println(rows)
+	for rows.Next() {
+		m := metric.Metrics{}
+		err := rows.Scan(&m.ID, &m.MType, &m.Delta, &m.Value, &m.Hash)
+		if err != nil {
+			fmt.Println("Error duiring scanning of dumped DB")
+			return metricMap
+		} else {
+			metricMap[m.ID] = m
+		}
+		fmt.Printf("Finished iteration %d\n", it)
+		it += 1
+	}
+	fmt.Println(metricMap)
+	return metricMap
 }
 
 func (s *DBStorage) Get(metricName string) (metric.Metrics, bool) {
-	return metric.Metrics{}, true
+	m := metric.Metrics{}
+	row := s.DB.QueryRowContext(context.Background(),
+		fmt.Sprintf("select ID,MType,Delta,Value,Hash from metrics where ID = '%s'", metricName),
+	)
+	err := row.Scan(&m.ID, &m.MType, &m.Delta, &m.Value, &m.Hash)
+	if err != nil {
+		fmt.Println("Records were not found")
+		return m, false
+	}
+	fmt.Println("Record were found")
+	return m, true
 }
 
 func (s *DBStorage) Update(metrics metric.Metrics) {
