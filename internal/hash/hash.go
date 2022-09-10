@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
-	"strconv"
 )
 
 func CalculateHash(m *metric.Metrics, key string) (string, error) {
@@ -20,7 +19,8 @@ func CalculateHash(m *metric.Metrics, key string) (string, error) {
 		hashingMaterial = fmt.Sprintf("%s:counter:%d", m.ID, *m.Delta)
 		fmt.Printf("Hashing material is : %s\n", hashingMaterial)
 	case "gauge":
-		hashingMaterial = fmt.Sprintf("%s:gauge:%s", m.ID, strconv.FormatFloat(*m.Value, 'f', -1, 64))
+		hashingMaterial = fmt.Sprintf("%s:gauge:%f", m.ID, *m.Value)
+		//hashingMaterial = fmt.Sprintf("%s:gauge:%s", m.ID, strconv.FormatFloat(*m.Value, 'f', -1, 64))
 	default:
 		return "", err
 	}
