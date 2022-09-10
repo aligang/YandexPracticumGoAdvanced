@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"log"
+	"strconv"
 )
 
 func ConstructSelectQuery(metrics metric.Metrics) string {
@@ -60,8 +61,8 @@ func FetchRecords(db *sql.DB, metricMap metric.MetricMap) error {
 func ConstructInsertQuery(metrics metric.Metrics) string {
 	query := ""
 	if metrics.MType == "gauge" {
-		query = fmt.Sprintf("INSERT INTO metrics (ID, MType, Value, Hash) VALUES('%s', '%s',  %f, '%s')",
-			metrics.ID, metrics.MType, *metrics.Value, metrics.Hash)
+		query = fmt.Sprintf("INSERT INTO metrics (ID, MType, Value, Hash) VALUES('%s', '%s',  %s, '%s')",
+			metrics.MType, strconv.FormatFloat(*metrics.Value, 'f', -1, 64), metrics.Hash, metrics.ID)
 	} else if metrics.MType == "counter" {
 		query = fmt.Sprintf("INSERT INTO metrics (ID, MType, Delta, Hash) VALUES('%s', '%s',  %d, '%s')",
 			metrics.ID, metrics.MType, *metrics.Delta, metrics.Hash)
@@ -93,8 +94,8 @@ func InsertRecord(tx *sql.Tx, metrics metric.Metrics) error {
 func ConstructUpdateQuery(metrics metric.Metrics) string {
 	query := ""
 	if metrics.MType == "gauge" {
-		query = fmt.Sprintf("UPDATE metrics SET Mtype = '%s', Value = '%f', Hash = '%s' where id = '%s'",
-			metrics.MType, *metrics.Value, metrics.Hash, metrics.ID)
+		query = fmt.Sprintf("UPDATE metrics SET Mtype = '%s', Value = '%s', Hash = '%s' where id = '%s'",
+			metrics.MType, strconv.FormatFloat(*metrics.Value, 'f', -1, 64), metrics.Hash, metrics.ID)
 	} else if metrics.MType == "counter" {
 		query = fmt.Sprintf("UPDATE metrics SET Mtype = '%s', Delta = '%d', Hash = '%s' where id = '%s'",
 			metrics.MType, *metrics.Delta, metrics.Hash, metrics.ID)
