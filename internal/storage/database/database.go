@@ -25,7 +25,7 @@ func New(conf *config.ServerConfig) *DBStorage {
 		DB:   db,
 		Type: "Database",
 	}
-	s.DB.Query("create table if not exists metrics(ID text , MType text, Delta int, Value double precision, Hash text)")
+	s.DB.Query("create table if not exists metrics(ID text , MType text, Delta bigint, Value double precision, Hash text)")
 	return s
 }
 
@@ -60,9 +60,11 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 	if err == sql.ErrNoRows {
 		err = InsertRecord(tx, metrics)
 		if err != nil {
+			fmt.Println(err.Error())
 			return
 		}
 	} else if err == nil {
+
 		if metrics.MType == "counter" {
 			*metrics.Delta += *fetchedRecord.Delta
 		}

@@ -80,10 +80,12 @@ func InsertRecord(tx *sql.Tx, metrics metric.Metrics) error {
 		fmt.Println(err.Error())
 		return err
 	}
-	fmt.Println("2")
 	_, err = insertStatement.Exec()
+
 	if err != nil {
+		fmt.Println(err.Error())
 		if err = tx.Rollback(); err != nil {
+
 			log.Fatalf("insert drivers: unable to rollback: %v", err)
 		}
 		return err
