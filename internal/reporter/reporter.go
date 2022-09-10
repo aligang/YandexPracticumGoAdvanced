@@ -116,28 +116,14 @@ func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 		}
 		for name, value := range stats.Counter {
 			m := &metric.Metrics{ID: name, MType: "counter", Delta: &value, Hash: ""}
-			//fmt.Printf("Checking old value of counter: %s\n", name)
-			//fetchedMetric, err := PullData(agentConfig.Address, client, m)
-			//if err == nil {
-			//	fmt.Printf("counter: %s=%d\n", name, *fetchedMetric.Delta)
-			//} else {
-			//	fmt.Printf("Record for counter: %s was not found\n", name)
-			//}
 			if len(agentConfig.Key) > 0 {
 				hash.AddHashInfo(m, agentConfig.Key)
 			}
-			fmt.Printf("Updating value of counter: %+v\n", *m)
+			fmt.Printf("Updating value of counter: %+v with delta: %d\n", *m, m.Delta)
 			err := PushData(agentConfig.Address, client, m)
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-			//fmt.Printf("Checking new value of counter: %s\n", name)
-			//fetchedMetric, err = PullData(agentConfig.Address, client, m)
-			//if err == nil {
-			//	fmt.Printf("counter: %s=%d", name, *fetchedMetric.Delta)
-			//} else {
-			//	fmt.Printf("Record for counter: %s was not found\n", name)
-			//}
 		}
 		iteration++
 	}
