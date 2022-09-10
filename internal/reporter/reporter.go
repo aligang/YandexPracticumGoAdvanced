@@ -105,7 +105,7 @@ func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 		<-ticker.C
 		fmt.Printf("Running Iteration %d\n", iteration)
 		for name, value := range stats.Gauge {
-			m := &metric.Metrics{ID: name, MType: "gauge", Value: &value, Hash: ""}
+			m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
 			if len(agentConfig.Key) > 0 {
 				hash.AddHashInfo(m, agentConfig.Key)
 			}
@@ -115,7 +115,7 @@ func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 			}
 		}
 		for name, value := range stats.Counter {
-			m := &metric.Metrics{ID: name, MType: "counter", Delta: &value, Hash: ""}
+			m := &metric.Metrics{ID: name, MType: "counter", Delta: &value}
 			if len(agentConfig.Key) > 0 {
 				hash.AddHashInfo(m, agentConfig.Key)
 			}
