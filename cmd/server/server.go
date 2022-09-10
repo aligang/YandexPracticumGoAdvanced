@@ -25,6 +25,7 @@ func main() {
 
 	mux.Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)
 	mux.Post("/update/", compress.GzipHandle(mux.UpdateWithJSON))
+	mux.Post("/updates/", compress.GzipHandle(mux.BulkUpdate))
 
 	mux.Get("/", compress.GzipHandle(mux.FetchAll))
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)

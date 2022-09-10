@@ -81,6 +81,10 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 
 }
 
+func (s *DBStorage) BulkUpdate(metricMap metric.MetricMap) {
+
+}
+
 func (s *DBStorage) IsAlive() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
