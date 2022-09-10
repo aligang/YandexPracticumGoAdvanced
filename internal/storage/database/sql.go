@@ -61,8 +61,9 @@ func FetchRecords(db *sql.DB, metricMap metric.MetricMap) error {
 func ConstructInsertQuery(metrics metric.Metrics) string {
 	query := ""
 	if metrics.MType == "gauge" {
+		value := strconv.FormatFloat(*metrics.Value, 'f', -1, 64)
 		query = fmt.Sprintf("INSERT INTO metrics (ID, MType, Value, Hash) VALUES('%s', '%s',  %s, '%s')",
-			metrics.MType, strconv.FormatFloat(*metrics.Value, 'f', -1, 64), metrics.Hash, metrics.ID)
+			metrics.ID, metrics.MType, value, metrics.Hash)
 	} else if metrics.MType == "counter" {
 		query = fmt.Sprintf("INSERT INTO metrics (ID, MType, Delta, Hash) VALUES('%s', '%s',  %d, '%s')",
 			metrics.ID, metrics.MType, *metrics.Delta, metrics.Hash)
@@ -96,8 +97,9 @@ func InsertRecord(tx *sql.Tx, metrics metric.Metrics) error {
 func ConstructUpdateQuery(metrics metric.Metrics) string {
 	query := ""
 	if metrics.MType == "gauge" {
+		value := strconv.FormatFloat(*metrics.Value, 'f', -1, 64)
 		query = fmt.Sprintf("UPDATE metrics SET Mtype = '%s', Value = '%s', Hash = '%s' where id = '%s'",
-			metrics.MType, strconv.FormatFloat(*metrics.Value, 'f', -1, 64), metrics.Hash, metrics.ID)
+			metrics.MType, value, metrics.Hash, metrics.ID)
 	} else if metrics.MType == "counter" {
 		query = fmt.Sprintf("UPDATE metrics SET Mtype = '%s', Delta = '%d', Hash = '%s' where id = '%s'",
 			metrics.MType, *metrics.Delta, metrics.Hash, metrics.ID)
