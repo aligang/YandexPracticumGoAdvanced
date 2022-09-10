@@ -119,7 +119,7 @@ func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 			if len(agentConfig.Key) > 0 {
 				hash.AddHashInfo(m, agentConfig.Key)
 			}
-			fmt.Printf("Updating value of counter: %+v with delta: %d\n", *m, m.Delta)
+			fmt.Printf("Updating value of counter: %+v with delta: %d\n", *m, *m.Delta)
 			err := PushData(agentConfig.Address, client, m)
 			if err != nil {
 				fmt.Println(err.Error())
