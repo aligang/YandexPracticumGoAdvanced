@@ -23,7 +23,7 @@ func New(conf *config.ServerConfig) (Storage, string) {
 }
 
 type Storage interface {
-	BulkUpdate(metricMap metric.MetricMap)
+	BulkUpdate(metrics []metric.Metrics)
 	Dump() metric.MetricMap
 	Get(metricName string) (metric.Metrics, bool)
 	Update(metrics metric.Metrics)

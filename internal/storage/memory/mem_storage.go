@@ -55,8 +55,10 @@ func (s *MemStorage) Update(metrics metric.Metrics) {
 	}
 }
 
-func (s *MemStorage) BulkUpdate(metricMap metric.MetricMap) {
-
+func (s *MemStorage) BulkUpdate(metrics []metric.Metrics) {
+	for _, m := range metrics {
+		s.Update(m)
+	}
 }
 
 func (s *MemStorage) Get(metricName string) (metric.Metrics, bool) {

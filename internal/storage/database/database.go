@@ -81,8 +81,18 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 
 }
 
-func (s *DBStorage) BulkUpdate(metricMap metric.MetricMap) {
-
+func (s *DBStorage) BulkUpdate(metrics []metric.Metrics) {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		fmt.Println("Could not connect to open transaction")
+		fmt.Println(err.Error())
+		return
+	}
+	err = UpdateRecords(tx, metrics)
+	if err != nil {
+		fmt.Println("Could not update slice of metrics")
+		fmt.Println(err.Error())
+	}
 }
 
 func (s *DBStorage) IsAlive() error {

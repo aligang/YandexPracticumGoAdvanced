@@ -125,3 +125,24 @@ func UpdateRecord(tx *sql.Tx, metrics metric.Metrics) error {
 	}
 	return nil
 }
+
+func UpdateRecords(tx *sql.Tx, metrics []metric.Metrics) error {
+	for _, metric := range metrics {
+		fmt.Println("Updating Old Record")
+		updateQuery := ConstructUpdateQuery(metric)
+		fmt.Println(updateQuery)
+		updateStatement, err := tx.Prepare(updateQuery)
+		if err != nil {
+			fmt.Println("Problem during query preparation")
+			fmt.Println(err.Error())
+		}
+		_, err = updateStatement.Exec()
+		if err != nil {
+			if err = tx.Rollback(); err != nil {
+				log.Fatalf("update drivers: unable to rollback: %v", err)
+			}
+			return err
+		}
+	}
+	return nil
+}
