@@ -25,7 +25,7 @@ func main() {
 	}
 
 	go collector.CollectMetrics(conf, stats)
-	//go reporter.SendMetrics(conf, stats)
+	go reporter.SendMetrics(conf, stats)
 	go reporter.BulkSendMetrics(conf, stats)
 
 	<-exitSignal

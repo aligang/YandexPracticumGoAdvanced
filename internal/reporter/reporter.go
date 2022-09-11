@@ -76,6 +76,7 @@ func BulkPushData(address string, client *http.Client, m []metric.Metrics) error
 		return err
 	}
 	res, err := io.ReadAll(jbuf)
+	fmt.Println(string(res))
 	if err != nil {
 		fmt.Println("Error During fetching data for compressiong")
 		return err
