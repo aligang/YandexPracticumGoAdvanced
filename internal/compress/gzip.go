@@ -2,7 +2,7 @@ package compress
 
 import (
 	"compress/gzip"
-	"fmt"
+	. "github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"io"
 	"net/http"
 	"strings"
@@ -28,15 +28,15 @@ func GzipHandle(next func(w http.ResponseWriter, r *http.Request)) func(w http.R
 				return
 			} else {
 				r.Body = gz
-				fmt.Println("Decompression was applied")
+				Logger.Debug().Msg("Decompression was applied")
 			}
 		} else {
-			fmt.Println("No Compression in request header")
+			Logger.Debug().Msg("No Compression in request header")
 		}
 
 		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 			writer = w
-			fmt.Println("No Response compressiong will be provided")
+			Logger.Debug().Msg("No Response compression will be provided")
 		} else {
 			gz, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
 			if err != nil {
@@ -44,7 +44,7 @@ func GzipHandle(next func(w http.ResponseWriter, r *http.Request)) func(w http.R
 				return
 			}
 			writer = gzipWriter{ResponseWriter: w, Writer: gz}
-			fmt.Println("Response will be compressed")
+			Logger.Debug().Msg("Response will be compressed")
 			writer.Header().Set("Content-Encoding", "gzip")
 			defer gz.Close()
 		}
