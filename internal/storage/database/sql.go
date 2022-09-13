@@ -32,12 +32,17 @@ func FetchRecord(tx *sql.Tx, metrics metric.Metrics) (metric.Metrics, error) {
 	return fetchedMetrics, nil
 }
 
-func FetchRecords(db *sql.DB, metricMap metric.MetricMap) error {
-	rows, err := db.Query("select * from metrics;")
+func FetchRecords(tx *sql.Tx, metricMap metric.MetricMap) error {
+	fetchStatement, err := tx.Prepare("select * from metrics;")
 	if err != nil {
-		fmt.Println("Error During scanning DB")
+		fmt.Println("Error Preparing Statement")
 		fmt.Println(err.Error())
 		return err
+	}
+	rows, err := fetchStatement.Query()
+	if err != nil {
+		fmt.Println("Error During DB interaction")
+		fmt.Println(err.Error())
 	}
 	defer rows.Close()
 	var it int64 = 1

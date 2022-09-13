@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
@@ -31,7 +32,8 @@ func New(conf *config.ServerConfig) *DBStorage {
 
 func (s *DBStorage) Dump() metric.MetricMap {
 	metricMap := metric.MetricMap{}
-	err := FetchRecords(s.DB, metricMap)
+	tx, err := s.DB.Begin()
+	err = FetchRecords(tx, metricMap)
 	if err != nil {
 		fmt.Println("Error during dumping Database content")
 		fmt.Println(err.Error())
@@ -40,23 +42,20 @@ func (s *DBStorage) Dump() metric.MetricMap {
 }
 
 func (s *DBStorage) Get(metricName string) (metric.Metrics, bool) {
-	m := metric.Metrics{}
-	row := s.DB.QueryRow(
-		fmt.Sprintf("select ID,MType,Delta,Value,Hash from metrics where ID = '%s'", metricName),
-	)
-	err := row.Scan(&m.ID, &m.MType, &m.Delta, &m.Value, &m.Hash)
+	m := metric.Metrics{ID: metricName}
+	tx, err := s.DB.Begin()
+	fetchedRecord, err := FetchRecord(tx, m)
 	if err != nil {
 		fmt.Println("Records were not found")
 		return m, false
 	}
-	fmt.Println("Record were found")
-	return m, true
+	return fetchedRecord, true
 }
 
 func (s *DBStorage) Update(metrics metric.Metrics) {
 	tx, err := s.DB.Begin()
 	fetchedRecord, err := FetchRecord(tx, metrics)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		err = InsertRecord(tx, metrics)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -80,11 +79,18 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 }
 
 func (s *DBStorage) BulkUpdate(aggregatedMetrics map[string]metric.Metrics) {
-	currentMetrics := s.Dump()
+	currentMetricMap := metric.MetricMap{}
+	tx, err := s.DB.Begin()
+	if err != nil {
+		fmt.Println("Could not connect to open transaction")
+		fmt.Println(err.Error())
+		return
+	}
+	err = FetchRecords(tx, currentMetricMap)
 	var metricsToInsert []metric.Metrics
 	var metricsToUpdate []metric.Metrics
 	for id, m := range aggregatedMetrics {
-		if cm, found := currentMetrics[id]; found {
+		if cm, found := currentMetricMap[id]; found {
 			if m.MType == "counter" {
 				*m.Delta += *cm.Delta
 			}
@@ -92,12 +98,6 @@ func (s *DBStorage) BulkUpdate(aggregatedMetrics map[string]metric.Metrics) {
 		} else {
 			metricsToInsert = append(metricsToInsert, m)
 		}
-	}
-	tx, err := s.DB.Begin()
-	if err != nil {
-		fmt.Println("Could not connect to open transaction")
-		fmt.Println(err.Error())
-		return
 	}
 	err = InsertRecords(tx, metricsToInsert)
 	if err != nil {
