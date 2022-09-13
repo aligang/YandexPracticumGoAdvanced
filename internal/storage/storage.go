@@ -9,17 +9,20 @@ import (
 )
 
 func New(conf *config.ServerConfig) (Storage, string) {
+	var storage Storage
+	var storageType string
 	switch true {
 	case len(conf.DatabaseDsn) > 0:
 		logging.Debug("Configuring SQL Database Storage")
-		return database.New(conf), "Database"
-	case len(conf.StoreFile) > 0:
-		logging.Debug("Configuring In-Memory Storage")
-		return memory.New(conf), "Memory"
+		storage = database.New(conf)
+		storageType = "Database"
 	default:
-		panic("Unsupported storage configuration")
+		logging.Debug("Configuring In-Memory Storage")
+		storage = memory.New(conf)
+		storageType = "Memory"
 	}
-	return nil, ""
+	logging.Debug("Succeed")
+	return storage, storageType
 }
 
 type Storage interface {

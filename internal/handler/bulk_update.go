@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/hash"
-	. "github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"io"
 	"net/http"
@@ -16,32 +16,31 @@ func (h APIHandler) BulkUpdate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not read data", http.StatusUnsupportedMediaType)
 		return
 	}
-	Logger.Debug().Msg("Received JSON:")
-	Logger.Debug().Msg(string(payload))
+	logging.Debug("Received JSON: %s", string(payload))
 	err = json.Unmarshal(payload, &metricSlice)
 	if err != nil {
-		logging.Warn()("Invalid JSON received %s", err.Error())
+		logging.Warn("Invalid JSON received %s", err.Error())
 		http.Error(w, "Invalid JSON received", http.StatusBadRequest)
 		return
 	}
 	aggregatedMetrics := map[string]metric.Metrics{}
 	for _, m := range metricSlice {
 		if m.MType != "gauge" && m.MType != "counter" {
-			Logger.Warn().Msg("Invalid Metric Type")
+			logging.Warn("Invalid Metric Type")
 			//http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
 			continue
 		}
 		if h.Config.HashKey != "" {
-			Logger.Debug().Msg("Validating hash ...")
+			logging.Debug("Validating hash ...")
 			if !hash.CheckHashInfo(&m, h.Config.HashKey) {
-				Logger.Warn().Msg("Invalid Hash")
+				logging.Warn("Invalid Hash")
 				http.Error(w, "Invalid Hash", http.StatusBadRequest)
 				continue
 			} else {
-				Logger.Debug().Msg("Hash validation succeeded")
+				logging.Debug("Hash validation succeeded")
 			}
 		} else {
-			Logger.Debug().Msg("Skipping hash validation")
+			logging.Debug("Skipping hash validation")
 		}
 		_, found := aggregatedMetrics[m.ID]
 		if m.MType == "counter" && found {

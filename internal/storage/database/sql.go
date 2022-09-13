@@ -38,7 +38,7 @@ func FetchRecords(tx *sql.Tx, metricMap metric.MetricMap) error {
 	}
 	rows, err := fetchStatement.Query()
 	if err != nil {
-		logging.Warn("Error During DB interaction %s": err.Error())
+		logging.Warn("Error During DB interactionL %s", err.Error())
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -92,7 +92,7 @@ func InsertRecord(tx *sql.Tx, metrics metric.Metrics) error {
 func InsertRecords(tx *sql.Tx, metricSlice []metric.Metrics) error {
 	for _, metric := range metricSlice {
 		insertQuery := ConstructInsertQuery(metric)
-		logging.Debug("Preparing request to DB server: %s",insertQuery)
+		logging.Debug("Preparing request to DB server: %s", insertQuery)
 		insertStatement, err := tx.Prepare(insertQuery)
 		if err != nil {
 			logging.Warn("Error during statement preparation %s", err.Error())
@@ -127,7 +127,7 @@ func ConstructUpdateQuery(metrics metric.Metrics) string {
 func UpdateRecord(tx *sql.Tx, metrics metric.Metrics) error {
 	logging.Debug("Updating Old Record")
 	updateQuery := ConstructUpdateQuery(metrics)
-	logging.Debug( "Preparing request to DB server: %s", updateQuery)
+	logging.Debug("Preparing request to DB server: %s", updateQuery)
 	updateStatement, err := tx.Prepare(updateQuery)
 	if err != nil {
 		logging.Warn("Problem during query preparation: %s", err.Error())
