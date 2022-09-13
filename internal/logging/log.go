@@ -22,7 +22,7 @@ func Configure(dst io.Writer, level zerolog.Level) {
 
 func Crit(msg string, args ...any) {
 	if len(args) > 0 {
-		Logger.Fatal().Msgf(msg, args)
+		Logger.Fatal().Msgf(msg, args...)
 	} else {
 		Logger.Fatal().Msg(msg)
 	}
@@ -30,7 +30,7 @@ func Crit(msg string, args ...any) {
 
 func Warn(msg string, args ...any) {
 	if len(args) > 0 {
-		Logger.Warn().Msgf(msg, args)
+		Logger.Warn().Msgf(msg, args...)
 	} else {
 		Logger.Warn().Msg(msg)
 	}
@@ -38,7 +38,7 @@ func Warn(msg string, args ...any) {
 
 func Debug(msg string, args ...any) {
 	if len(args) > 0 {
-		Logger.Debug().Msgf(msg, args)
+		Logger.Debug().Msgf(msg, args...)
 	} else {
 		Logger.Debug().Msg(msg)
 	}
