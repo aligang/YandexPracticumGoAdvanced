@@ -80,11 +80,28 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 }
 
 func (s *DBStorage) BulkUpdate(metrics []metric.Metrics) {
+	currentMetrics := s.Dump()
+	var metricsToInsert []metric.Metrics
+	var metricsToUpdate []metric.Metrics
+	for id, m := range currentMetrics {
+		if _, found := currentMetrics[id]; found {
+			metricsToUpdate = append(metricsToUpdate, m)
+		} else {
+			metricsToInsert = append(metricsToInsert, m)
+		}
+	}
+
 	tx, err := s.DB.Begin()
 	if err != nil {
 		fmt.Println("Could not connect to open transaction")
 		fmt.Println(err.Error())
 		return
+	}
+
+	err = InsertRecords(tx, metrics)
+	if err != nil {
+		fmt.Println("Could not update slice of metrics")
+		fmt.Println(err.Error())
 	}
 	err = UpdateRecords(tx, metrics)
 	if err != nil {
@@ -95,6 +112,7 @@ func (s *DBStorage) BulkUpdate(metrics []metric.Metrics) {
 		log.Fatalf("update drivers: unable to commit: %v", err)
 		return
 	}
+	fmt.Println("Succsefully put")
 }
 
 func (s *DBStorage) IsAlive() error {

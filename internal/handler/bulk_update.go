@@ -37,7 +37,7 @@ func (h APIHandler) BulkUpdate(w http.ResponseWriter, r *http.Request) {
 			if !hash.CheckHashInfo(&m, h.Config.HashKey) {
 				Logger.Warn().Msg("Invalid Hash")
 				http.Error(w, "Invalid Hash", http.StatusBadRequest)
-				return
+				continue
 			} else {
 				Logger.Debug().Msg("Hash validation succeeded")
 			}

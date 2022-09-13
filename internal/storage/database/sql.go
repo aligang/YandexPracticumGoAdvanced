@@ -94,6 +94,28 @@ func InsertRecord(tx *sql.Tx, metrics metric.Metrics) error {
 	return nil
 }
 
+func InsertRecords(tx *sql.Tx, metricSlice []metric.Metrics) error {
+	for _, metric := range metricSlice {
+		insertQuery := ConstructInsertQuery(metric)
+		fmt.Println(insertQuery)
+		insertStatement, err := tx.Prepare(insertQuery)
+		if err != nil {
+			fmt.Println("Error during statement preparation")
+			fmt.Println(err.Error())
+			return err
+		}
+		_, err = insertStatement.Exec()
+		if err != nil {
+			fmt.Println(err.Error())
+			if err = tx.Rollback(); err != nil {
+				log.Fatalf("insert drivers: unable to rollback: %v", err)
+			}
+			return err
+		}
+	}
+	return nil
+}
+
 func ConstructUpdateQuery(metrics metric.Metrics) string {
 	query := ""
 	if metrics.MType == "gauge" {
