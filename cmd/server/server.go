@@ -1,22 +1,24 @@
 package main
 
 import (
-	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/compress"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/handler"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/rs/zerolog"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
 	conf := config.NewServer()
 	config.GetServerCLIConfig(conf)
 	config.GetServerENVConfig(conf)
-	fmt.Printf("Starting Server with config : %+v\n", conf)
-	//Storage, Type := storage.New(conf)
+	logging.Configure(os.Stdout, zerolog.DebugLevel)
+	logging.Debug("Starting Server with config : %+v\n", *conf)
 	Storage, Type := storage.New(conf)
 	mux := handler.New(Storage, conf.Key, Type)
 	mux.Use(middleware.RequestID)

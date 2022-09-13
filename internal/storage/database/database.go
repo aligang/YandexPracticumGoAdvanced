@@ -4,10 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
-	"log"
 	"time"
 )
 import _ "github.com/jackc/pgx/v4/stdlib"
@@ -35,8 +34,7 @@ func (s *DBStorage) Dump() metric.MetricMap {
 	tx, err := s.DB.Begin()
 	err = FetchRecords(tx, metricMap)
 	if err != nil {
-		fmt.Println("Error during dumping Database content")
-		fmt.Println(err.Error())
+		logging.Warn("Error during dumping Database content %s", err.Error())
 	}
 	return metricMap
 }
@@ -46,7 +44,7 @@ func (s *DBStorage) Get(metricName string) (metric.Metrics, bool) {
 	tx, err := s.DB.Begin()
 	fetchedRecord, err := FetchRecord(tx, m)
 	if err != nil {
-		fmt.Println("Records were not found")
+		logging.Debug("Records were not found")
 		return m, false
 	}
 	return fetchedRecord, true
@@ -58,7 +56,7 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 	if errors.Is(err, sql.ErrNoRows) {
 		err = InsertRecord(tx, metrics)
 		if err != nil {
-			fmt.Println(err.Error())
+			logging.Warn(err.Error())
 			return
 		}
 	} else if err == nil {
@@ -67,12 +65,11 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 		}
 		err = UpdateRecord(tx, metrics)
 	} else {
-		fmt.Println("Problem during select")
-		fmt.Println(err.Error())
+		logging.Debug("Problem during select %s", err.Error())
 		return
 	}
 	if err := tx.Commit(); err != nil {
-		log.Fatalf("update drivers: unable to commit: %v", err)
+		logging.Crit("update drivers: unable to commit: %v", err)
 		return
 	}
 
@@ -82,8 +79,7 @@ func (s *DBStorage) BulkUpdate(aggregatedMetrics map[string]metric.Metrics) {
 	currentMetricMap := metric.MetricMap{}
 	tx, err := s.DB.Begin()
 	if err != nil {
-		fmt.Println("Could not connect to open transaction")
-		fmt.Println(err.Error())
+		logging.Warn("Could not connect to open transaction: %s", err.Error())
 		return
 	}
 	err = FetchRecords(tx, currentMetricMap)
@@ -101,16 +97,14 @@ func (s *DBStorage) BulkUpdate(aggregatedMetrics map[string]metric.Metrics) {
 	}
 	err = InsertRecords(tx, metricsToInsert)
 	if err != nil {
-		fmt.Println("Could not insert slice of metrics")
-		fmt.Println(err.Error())
+		logging.Warn("Could not insert slice of metrics: %s", err.Error())
 	}
 	err = UpdateRecords(tx, metricsToUpdate)
 	if err != nil {
-		fmt.Println("Could not update slice of metrics")
-		fmt.Println(err.Error())
+		logging.Debug("Could not update slice of metrics %s", err.Error())
 	}
 	if err := tx.Commit(); err != nil {
-		log.Fatalf("update drivers: unable to commit: %v", err)
+		logging.Crit("update drivers: unable to commit: %v", err)
 		return
 	}
 }
@@ -118,11 +112,11 @@ func (s *DBStorage) BulkUpdate(aggregatedMetrics map[string]metric.Metrics) {
 func (s *DBStorage) IsAlive() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	fmt.Printf("Checking connection to database\n")
+	logging.Debug("Checking connection to database")
 	if err := s.DB.PingContext(ctx); err != nil {
-		fmt.Println("Failed")
-		fmt.Println(err)
+		logging.Warn("Failed: %s", err.Error())
 		return err
 	}
+	logging.Debug("Succeed")
 	return nil
 }

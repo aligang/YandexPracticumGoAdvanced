@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	. "github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
@@ -14,7 +14,7 @@ func (h APIHandler) FetchAll(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	output, err := json.Marshal(h.Storage.Dump())
 	if err != nil {
-		Logger.Warn().Msg("Problem During serialization of database")
+		logging.Warn("Problem During serialization of database")
 		http.Error(w, "Problem During serialization of database", http.StatusInternalServerError)
 		return
 	}
@@ -41,7 +41,7 @@ func (h APIHandler) Fetch(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, err := w.Write([]byte(reply))
 		if err != nil {
-			Logger.Debug().Msg("Could not send byteData")
+			logging.Debug("Could not send byteData")
 			http.Error(w, "Could send byteData", http.StatusInternalServerError)
 			return
 		}

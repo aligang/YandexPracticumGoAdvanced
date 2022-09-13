@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/hash"
-	. "github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"net/http"
 )
@@ -14,7 +14,7 @@ func (h APIHandler) FetchWithJSON(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&m)
 	if err != nil {
-		Logger.Warn().Msg("Could not send byteData")
+		logging.Warn("Could not send byteData")
 		http.Error(w, "Mailformed JSON", http.StatusBadRequest)
 		return
 	}
@@ -29,7 +29,7 @@ func (h APIHandler) FetchWithJSON(w http.ResponseWriter, r *http.Request) {
 		}
 		j, err := json.Marshal(&result)
 		if err != nil {
-			Logger.Warn().Msg("Could not encode Json")
+			logging.Warn("Could not encode Json")
 			http.Error(w, "Mailformed JSON", http.StatusInternalServerError)
 			return
 		}

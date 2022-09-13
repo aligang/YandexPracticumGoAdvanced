@@ -3,8 +3,8 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
-	"log"
 	"strconv"
 )
 
@@ -18,15 +18,13 @@ func FetchRecord(tx *sql.Tx, metrics metric.Metrics) (metric.Metrics, error) {
 	query := ConstructSelectQuery(metrics)
 	selectStatement, err := tx.Prepare(query)
 	if err != nil {
-		fmt.Println("Could not create select statement")
-		fmt.Println(err.Error())
+		logging.Warn("Could not create select statement: %s", err.Error())
 		return fetchedMetrics, err
 	}
 	row := selectStatement.QueryRow()
 	err = row.Scan(&fetchedMetrics.ID, &fetchedMetrics.MType, &fetchedMetrics.Delta, &fetchedMetrics.Value, &fetchedMetrics.Hash)
 	if err != nil {
-		fmt.Println("Could not decode Database Server response")
-		fmt.Println(err.Error())
+		logging.Warn("Could not decode Database Server response: %s", err.Error())
 		return fetchedMetrics, err
 	}
 	return fetchedMetrics, nil
@@ -35,29 +33,23 @@ func FetchRecord(tx *sql.Tx, metrics metric.Metrics) (metric.Metrics, error) {
 func FetchRecords(tx *sql.Tx, metricMap metric.MetricMap) error {
 	fetchStatement, err := tx.Prepare("select * from metrics;")
 	if err != nil {
-		fmt.Println("Error Preparing Statement")
-		fmt.Println(err.Error())
+		logging.Warn("Error Preparing Statement %s", err.Error())
 		return err
 	}
 	rows, err := fetchStatement.Query()
 	if err != nil {
-		fmt.Println("Error During DB interaction")
-		fmt.Println(err.Error())
+		logging.Warn("Error During DB interaction %s": err.Error())
 	}
 	defer rows.Close()
-	var it int64 = 1
-	fmt.Println(rows)
 	for rows.Next() {
 		m := metric.Metrics{}
 		err := rows.Scan(&m.ID, &m.MType, &m.Delta, &m.Value, &m.Hash)
 		if err != nil {
-			fmt.Println("Error duiring scanning of dumped DB")
+			logging.Warn("Error during scanning of dumped DB")
 			return err
 		} else {
 			metricMap[m.ID] = m
 		}
-		fmt.Printf("Finished iteration %d\n", it)
-		it += 1
 	}
 	return nil
 }
@@ -76,22 +68,21 @@ func ConstructInsertQuery(metrics metric.Metrics) string {
 }
 
 func InsertRecord(tx *sql.Tx, metrics metric.Metrics) error {
-	fmt.Println("Creating New Record")
+	logging.Debug("Creating New Record")
 	insertQuery := ConstructInsertQuery(metrics)
 	fmt.Println(insertQuery)
 	insertStatement, err := tx.Prepare(insertQuery)
 	if err != nil {
-		fmt.Println("Error during statement preparation")
-		fmt.Println(err.Error())
+		logging.Warn("Error during statement preparation %s", err.Error())
 		return err
 	}
 	_, err = insertStatement.Exec()
 
 	if err != nil {
-		fmt.Println(err.Error())
+		logging.Warn(err.Error())
 		if err = tx.Rollback(); err != nil {
 
-			log.Fatalf("insert drivers: unable to rollback: %v", err)
+			logging.Crit("insert drivers: unable to rollback: %s", err.Error())
 		}
 		return err
 	}
@@ -101,18 +92,18 @@ func InsertRecord(tx *sql.Tx, metrics metric.Metrics) error {
 func InsertRecords(tx *sql.Tx, metricSlice []metric.Metrics) error {
 	for _, metric := range metricSlice {
 		insertQuery := ConstructInsertQuery(metric)
-		fmt.Println(insertQuery)
+		logging.Debug("Preparing request to DB server: %s",insertQuery)
 		insertStatement, err := tx.Prepare(insertQuery)
 		if err != nil {
-			fmt.Println("Error during statement preparation")
-			fmt.Println(err.Error())
+			logging.Warn("Error during statement preparation %s", err.Error())
 			return err
 		}
+		logging.Debug("Executing request to DB server")
 		_, err = insertStatement.Exec()
 		if err != nil {
 			fmt.Println(err.Error())
 			if err = tx.Rollback(); err != nil {
-				log.Fatalf("insert drivers: unable to rollback: %v", err)
+				logging.Crit("insert drivers: unable to rollback: %s", err.Error())
 			}
 			return err
 		}
@@ -134,18 +125,17 @@ func ConstructUpdateQuery(metrics metric.Metrics) string {
 }
 
 func UpdateRecord(tx *sql.Tx, metrics metric.Metrics) error {
-	fmt.Println("Updating Old Record")
+	logging.Debug("Updating Old Record")
 	updateQuery := ConstructUpdateQuery(metrics)
-	fmt.Println(updateQuery)
+	logging.Debug( "Preparing request to DB server: %s", updateQuery)
 	updateStatement, err := tx.Prepare(updateQuery)
 	if err != nil {
-		fmt.Println("Problem during query preparation")
-		fmt.Println(err.Error())
+		logging.Warn("Problem during query preparation: %s", err.Error())
 	}
 	_, err = updateStatement.Exec()
 	if err != nil {
 		if err = tx.Rollback(); err != nil {
-			log.Fatalf("update drivers: unable to rollback: %v", err)
+			logging.Crit("update drivers: unable to rollback: %s", err.Error())
 		}
 		return err
 	}
@@ -153,25 +143,24 @@ func UpdateRecord(tx *sql.Tx, metrics metric.Metrics) error {
 }
 
 func UpdateRecords(tx *sql.Tx, metrics []metric.Metrics) error {
-	fmt.Println("Updating metrics")
+	logging.Debug("Updating metrics")
 	for _, metric := range metrics {
 		updateQuery := ConstructUpdateQuery(metric)
-		fmt.Println(updateQuery)
+		logging.Debug("Preparing request to DB server: %s", updateQuery)
 		updateStatement, err := tx.Prepare(updateQuery)
 		if err != nil {
-			fmt.Println("Problem during query preparation")
-			fmt.Println(err.Error())
+			logging.Debug("Problem during query preparation %s", err.Error())
 		}
-		fmt.Println("Sending...")
+		logging.Debug("Executing request")
 		_, err = updateStatement.Exec()
 		if err != nil {
-			fmt.Println("Trouble")
+			logging.Warn(err.Error())
 			if err = tx.Rollback(); err != nil {
-				log.Fatalf("update drivers: unable to rollback: %v", err)
+				logging.Crit("update drivers: unable to rollback: %v", err)
 			}
 			return err
 		}
-		fmt.Println("No Trouble")
+		fmt.Println("Bulk update data push was successful")
 	}
 	return nil
 }

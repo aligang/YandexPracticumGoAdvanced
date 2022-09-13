@@ -1,8 +1,8 @@
 package memory
 
 import (
-	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"sync"
 )
@@ -50,7 +50,7 @@ func (s *MemStorage) Update(metrics metric.Metrics) {
 		}
 	}
 	if s.BackupConfig.enable && !s.BackupConfig.Periodic {
-		fmt.Println("Staring On-Deman Backup")
+		logging.Debug("Staring On-Demand Backup")
 		BackupDo(s)
 	}
 }

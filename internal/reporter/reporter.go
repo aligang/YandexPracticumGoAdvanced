@@ -39,11 +39,11 @@ func PushData(address string, client *http.Client, m *metric.Metrics) error {
 	gz.Close()
 
 	if err != nil {
-		logging.Logger.Warn().Msg("Error During compression")
+		logging.Warn("Error During compression")
 		return err
 	}
 	request, err := http.NewRequest("POST", URI, gbuf)
-	logging.Logger.Debug().Msgf("Sending request to: URI: %s\n", URI)
+	logging.Debug("Sending request to: URI: %s\n", URI)
 	if err != nil {
 		logging.Logger.Warn().Msg("Error During communication ")
 		return err
@@ -54,7 +54,7 @@ func PushData(address string, client *http.Client, m *metric.Metrics) error {
 	response, err := client.Do(request)
 
 	if err != nil {
-		logging.Logger.Warn().Msg("Error During Pushing data ")
+		logging.Warn("Error During Pushing data ")
 		return err
 	}
 	defer response.Body.Close()
@@ -66,7 +66,7 @@ func BulkPushData(address string, client *http.Client, m []metric.Metrics) error
 	jsonEncoder := json.NewEncoder(jbuf)
 	err := jsonEncoder.Encode(m)
 	if err != nil {
-		logging.Logger.Warn().Msg("Error During serialization ")
+		logging.Warn("Error During serialization ")
 		return err
 	}
 	URI := fmt.Sprintf("http://%s/update/", address)
@@ -77,7 +77,7 @@ func BulkPushData(address string, client *http.Client, m []metric.Metrics) error
 		return err
 	}
 	res, err := io.ReadAll(jbuf)
-	logging.Logger.Debug().Msgf("Going to send json: %s", string(res))
+	logging.Debug("Going to send json: %s", string(res))
 	if err != nil {
 		logging.Logger.Warn().Msg("Error During fetching data for compression")
 		return err
@@ -86,7 +86,7 @@ func BulkPushData(address string, client *http.Client, m []metric.Metrics) error
 	gz.Close()
 
 	if err != nil {
-		logging.Logger.Warn().Msg("Error During compression")
+		logging.Warn("Error During compression")
 		return err
 	}
 	request, err := http.NewRequest("POST", URI, gbuf)
@@ -151,7 +151,7 @@ func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 	iteration := 0
 	for {
 		<-ticker.C
-		logging.Logger.Debug().Msgf("Running Iteration %d\n", iteration)
+		logging.Debug("Running Iteration %d\n", iteration)
 		for name, value := range stats.Gauge {
 			m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
 			if len(agentConfig.Key) > 0 {
@@ -167,7 +167,7 @@ func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 			if len(agentConfig.Key) > 0 {
 				hash.AddHashInfo(m, agentConfig.Key)
 			}
-			logging.Logger.Debug().Msgf("Updating value of counter: %+v with delta: %d\n", *m, *m.Delta)
+			logging.Debug("Updating value of counter: %+v with delta: %d\n", *m, *m.Delta)
 			err := PushData(agentConfig.Address, client, m)
 			if err != nil {
 				logging.Logger.Warn().Msg(err.Error())
@@ -186,7 +186,7 @@ func BulkSendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 	for {
 		metrics := []metric.Metrics{}
 		<-ticker.C
-		logging.Logger.Debug().Msgf("Running Iteration %d\n", iteration)
+		logging.Debug("Running Iteration %d\n", iteration)
 		for name, value := range stats.Gauge {
 			m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
 			if len(agentConfig.Key) > 0 {
@@ -199,12 +199,12 @@ func BulkSendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 			if len(agentConfig.Key) > 0 {
 				hash.AddHashInfo(m, agentConfig.Key)
 			}
-			logging.Logger.Debug().Msgf("Updating value of counter: %+v with delta: %d\n", *m, *m.Delta)
+			logging.Debug("Updating value of counter: %+v with delta: %d\n", *m, *m.Delta)
 			metrics = append(metrics, *m)
 		}
 		err := BulkPushData(agentConfig.Address, client, metrics)
 		if err != nil {
-			logging.Logger.Warn().Msgf("Could not Push data: %s", err.Error())
+			logging.Warn("Could not Push data: %s", err.Error())
 		}
 		iteration++
 	}
