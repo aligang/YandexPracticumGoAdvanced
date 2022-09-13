@@ -33,7 +33,7 @@ func CalculateHash(m *metric.Metrics, key string) (string, error) {
 
 	dst := h.Sum(nil)
 	hash := hex.EncodeToString(dst)
-	fmt.Printf("Calculated hash for: %v = %s\n", *m, hash)
+	Logger.Debug().Msgf("Calculated hash for: %v = %s\n", *m, hash)
 	return hash, nil
 }
 
