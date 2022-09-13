@@ -73,10 +73,6 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 		logging.Warn("Error during transaction creation %s", err.Error())
 		return
 	}
-	if err != nil {
-		logging.Warn("Error during transaction creation %s", err.Error())
-		return
-	}
 	fetchedRecord, err := FetchRecord(tx, metrics)
 	if errors.Is(err, sql.ErrNoRows) {
 		err = InsertRecord(tx, metrics)
@@ -89,6 +85,9 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 			*metrics.Delta += *fetchedRecord.Delta
 		}
 		err = UpdateRecord(tx, metrics)
+		if err != nil {
+			logging.Debug("Problem during transaction process %s", err.Error())
+		}
 	} else {
 		logging.Debug("Problem during select %s", err.Error())
 		return
@@ -103,10 +102,6 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 func (s *DBStorage) BulkUpdate(aggregatedMetrics map[string]metric.Metrics) {
 	currentMetricMap := metric.MetricMap{}
 	tx, err := s.DB.Begin()
-	if err != nil {
-		logging.Warn("Error during transaction creation %s", err.Error())
-		return
-	}
 	if err != nil {
 		logging.Warn("Could not connect to open transaction: %s", err.Error())
 		return

@@ -137,6 +137,7 @@ func UpdateRecord(tx *sql.Tx, metrics metric.Metrics) error {
 	updateStatement, err := tx.Prepare(updateQuery)
 	if err != nil {
 		logging.Warn("Problem during query preparation: %s", err.Error())
+		return err
 	}
 	_, err = updateStatement.Exec()
 	if err != nil {
