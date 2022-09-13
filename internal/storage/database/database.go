@@ -79,20 +79,10 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 
 }
 
-func (s *DBStorage) BulkUpdate(metrics []metric.Metrics) {
+func (s *DBStorage) BulkUpdate(aggregatedMetrics map[string]metric.Metrics) {
 	currentMetrics := s.Dump()
 	var metricsToInsert []metric.Metrics
 	var metricsToUpdate []metric.Metrics
-	aggregatedMetrics := map[string]metric.Metrics{}
-
-	for _, m := range metrics {
-		_, found := aggregatedMetrics[m.ID]
-		if m.MType == "counter" && found {
-			*aggregatedMetrics[m.ID].Delta += *m.Delta
-		} else {
-			aggregatedMetrics[m.ID] = m
-		}
-	}
 	for id, m := range aggregatedMetrics {
 		if cm, found := currentMetrics[id]; found {
 			if m.MType == "counter" {
@@ -109,7 +99,6 @@ func (s *DBStorage) BulkUpdate(metrics []metric.Metrics) {
 		fmt.Println(err.Error())
 		return
 	}
-
 	err = InsertRecords(tx, metricsToInsert)
 	if err != nil {
 		fmt.Println("Could not insert slice of metrics")
@@ -124,7 +113,6 @@ func (s *DBStorage) BulkUpdate(metrics []metric.Metrics) {
 		log.Fatalf("update drivers: unable to commit: %v", err)
 		return
 	}
-	fmt.Println("Succsefully put")
 }
 
 func (s *DBStorage) IsAlive() error {

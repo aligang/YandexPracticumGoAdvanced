@@ -11,8 +11,6 @@ import (
 
 func (h APIHandler) BulkUpdate(w http.ResponseWriter, r *http.Request) {
 	var metricSlice []metric.Metrics
-	var validMetrics []metric.Metrics
-
 	payload, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Could not read data", http.StatusUnsupportedMediaType)
@@ -26,11 +24,12 @@ func (h APIHandler) BulkUpdate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON received", http.StatusBadRequest)
 		return
 	}
+	aggregatedMetrics := map[string]metric.Metrics{}
 	for _, m := range metricSlice {
 		if m.MType != "gauge" && m.MType != "counter" {
 			Logger.Warn().Msg("Invalid Metric Type")
-			http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
-			return
+			//http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
+			continue
 		}
 		if h.Config.HashKey != "" {
 			Logger.Debug().Msg("Validating hash ...")
@@ -44,9 +43,15 @@ func (h APIHandler) BulkUpdate(w http.ResponseWriter, r *http.Request) {
 		} else {
 			Logger.Debug().Msg("Skipping hash validation")
 		}
-		validMetrics = append(validMetrics, m)
+		_, found := aggregatedMetrics[m.ID]
+		if m.MType == "counter" && found {
+			*aggregatedMetrics[m.ID].Delta += *m.Delta
+		} else {
+			aggregatedMetrics[m.ID] = m
+		}
 	}
-	h.Storage.BulkUpdate(validMetrics)
+
+	h.Storage.BulkUpdate(aggregatedMetrics)
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 }

@@ -55,7 +55,7 @@ func (s *MemStorage) Update(metrics metric.Metrics) {
 	}
 }
 
-func (s *MemStorage) BulkUpdate(metrics []metric.Metrics) {
+func (s *MemStorage) BulkUpdate(metrics map[string]metric.Metrics) {
 	for _, m := range metrics {
 		s.Update(m)
 	}

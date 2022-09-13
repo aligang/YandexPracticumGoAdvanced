@@ -54,7 +54,6 @@ func FetchRecords(db *sql.DB, metricMap metric.MetricMap) error {
 		fmt.Printf("Finished iteration %d\n", it)
 		it += 1
 	}
-	fmt.Println(metricMap)
 	return nil
 }
 
