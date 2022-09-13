@@ -83,8 +83,18 @@ func (s *DBStorage) BulkUpdate(metrics []metric.Metrics) {
 	currentMetrics := s.Dump()
 	var metricsToInsert []metric.Metrics
 	var metricsToUpdate []metric.Metrics
+	var aggregatedMetrics map[string]metric.Metrics
+
 	for _, m := range metrics {
-		if cm, found := currentMetrics[m.ID]; found {
+		_, found := aggregatedMetrics[m.ID]
+		if m.MType == "counter" && found {
+			*aggregatedMetrics[m.ID].Delta = +*m.Delta
+		} else {
+			aggregatedMetrics[m.ID] = m
+		}
+	}
+	for id, m := range aggregatedMetrics {
+		if cm, found := currentMetrics[id]; found {
 			if m.MType == "counter" {
 				*m.Delta = +*cm.Delta
 			}
@@ -93,7 +103,6 @@ func (s *DBStorage) BulkUpdate(metrics []metric.Metrics) {
 			metricsToInsert = append(metricsToInsert, m)
 		}
 	}
-
 	tx, err := s.DB.Begin()
 	if err != nil {
 		fmt.Println("Could not connect to open transaction")
