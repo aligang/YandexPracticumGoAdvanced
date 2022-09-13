@@ -21,7 +21,7 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 	Logger.Debug().Msg(string(payload))
 	err = json.Unmarshal(payload, &m)
 	if err != nil {
-		Logger.Warn().Msgf("Invalid JSON received s%", err.Error())
+		Logger.Warn().Msgf("Invalid JSON received %s", err.Error())
 		http.Error(w, "Invalid JSON received", http.StatusBadRequest)
 		return
 	}
