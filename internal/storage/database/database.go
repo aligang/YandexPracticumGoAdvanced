@@ -83,12 +83,12 @@ func (s *DBStorage) BulkUpdate(metrics []metric.Metrics) {
 	currentMetrics := s.Dump()
 	var metricsToInsert []metric.Metrics
 	var metricsToUpdate []metric.Metrics
-	var aggregatedMetrics map[string]metric.Metrics
+	aggregatedMetrics := map[string]metric.Metrics{}
 
 	for _, m := range metrics {
 		_, found := aggregatedMetrics[m.ID]
 		if m.MType == "counter" && found {
-			*aggregatedMetrics[m.ID].Delta = +*m.Delta
+			*aggregatedMetrics[m.ID].Delta += *m.Delta
 		} else {
 			aggregatedMetrics[m.ID] = m
 		}
@@ -96,7 +96,7 @@ func (s *DBStorage) BulkUpdate(metrics []metric.Metrics) {
 	for id, m := range aggregatedMetrics {
 		if cm, found := currentMetrics[id]; found {
 			if m.MType == "counter" {
-				*m.Delta = +*cm.Delta
+				*m.Delta += *cm.Delta
 			}
 			metricsToUpdate = append(metricsToUpdate, m)
 		} else {
@@ -110,12 +110,12 @@ func (s *DBStorage) BulkUpdate(metrics []metric.Metrics) {
 		return
 	}
 
-	err = InsertRecords(tx, metrics)
+	err = InsertRecords(tx, metricsToInsert)
 	if err != nil {
 		fmt.Println("Could not insert slice of metrics")
 		fmt.Println(err.Error())
 	}
-	err = UpdateRecords(tx, metrics)
+	err = UpdateRecords(tx, metricsToUpdate)
 	if err != nil {
 		fmt.Println("Could not update slice of metrics")
 		fmt.Println(err.Error())
