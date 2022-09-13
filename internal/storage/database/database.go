@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
@@ -25,7 +26,12 @@ func New(conf *config.ServerConfig) *DBStorage {
 		DB:   db,
 		Type: "Database",
 	}
-	s.DB.Query("create table if not exists metrics(ID text , MType text, Delta bigint, Value double precision, Hash text)")
+	_, err = s.DB.Query(
+		"create table if not exists metrics(ID text , MType text, Delta bigint, Value double precision, Hash text)",
+	)
+	if err != nil {
+		panic(fmt.Sprintf("Could not establish connection to database %s:", err.Error()))
+	}
 	return s
 }
 

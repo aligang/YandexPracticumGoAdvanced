@@ -56,7 +56,7 @@ func BackupDo(storage *MemStorage) {
 		logging.Debug("Going to backup metrics")
 		err := p.encoder.Encode(storage.Metrics)
 		if err != nil {
-			logging.Warn("Problem during encoding data during dumping", err.Error())
+			logging.Warn("Problem during encoding data during dumping %s", err.Error())
 		}
 		p.file.Close()
 		logging.Debug("Backup dumpening is finished")

@@ -43,7 +43,7 @@ func FetchRecords(tx *sql.Tx, metricMap metric.MetricMap) error {
 	defer rows.Close()
 	for rows.Next() {
 		m := metric.Metrics{}
-		err := rows.Scan(&m.ID, &m.MType, &m.Delta, &m.Value, &m.Hash)
+		err = rows.Scan(&m.ID, &m.MType, &m.Delta, &m.Value, &m.Hash)
 		if err != nil {
 			logging.Warn("Error during scanning of dumped DB")
 			return err
