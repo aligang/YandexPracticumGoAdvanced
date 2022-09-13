@@ -56,7 +56,6 @@ func (s *DBStorage) Get(metricName string) (metric.Metrics, bool) {
 func (s *DBStorage) Update(metrics metric.Metrics) {
 	tx, err := s.DB.Begin()
 	fetchedRecord, err := FetchRecord(tx, metrics)
-
 	if err == sql.ErrNoRows {
 		err = InsertRecord(tx, metrics)
 		if err != nil {
@@ -64,7 +63,6 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 			return
 		}
 	} else if err == nil {
-
 		if metrics.MType == "counter" {
 			*metrics.Delta += *fetchedRecord.Delta
 		}
@@ -92,6 +90,10 @@ func (s *DBStorage) BulkUpdate(metrics []metric.Metrics) {
 	if err != nil {
 		fmt.Println("Could not update slice of metrics")
 		fmt.Println(err.Error())
+	}
+	if err := tx.Commit(); err != nil {
+		log.Fatalf("update drivers: unable to commit: %v", err)
+		return
 	}
 }
 
