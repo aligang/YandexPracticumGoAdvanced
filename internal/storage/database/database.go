@@ -41,6 +41,10 @@ func New(conf *config.ServerConfig) *DBStorage {
 func (s *DBStorage) Dump() metric.MetricMap {
 	metricMap := metric.MetricMap{}
 	tx, err := s.DB.Begin()
+	if err != nil {
+		logging.Warn("Error during transaction creation %s", err.Error())
+		return metricMap
+	}
 	err = FetchRecords(tx, metricMap)
 	if err != nil {
 		logging.Warn("Error during dumping Database content %s", err.Error())
@@ -51,6 +55,10 @@ func (s *DBStorage) Dump() metric.MetricMap {
 func (s *DBStorage) Get(metricName string) (metric.Metrics, bool) {
 	m := metric.Metrics{ID: metricName}
 	tx, err := s.DB.Begin()
+	if err != nil {
+		logging.Warn("Error during transaction creation %s", err.Error())
+		return m, false
+	}
 	fetchedRecord, err := FetchRecord(tx, m)
 	if err != nil {
 		logging.Debug("Records were not found")
@@ -61,6 +69,14 @@ func (s *DBStorage) Get(metricName string) (metric.Metrics, bool) {
 
 func (s *DBStorage) Update(metrics metric.Metrics) {
 	tx, err := s.DB.Begin()
+	if err != nil {
+		logging.Warn("Error during transaction creation %s", err.Error())
+		return
+	}
+	if err != nil {
+		logging.Warn("Error during transaction creation %s", err.Error())
+		return
+	}
 	fetchedRecord, err := FetchRecord(tx, metrics)
 	if errors.Is(err, sql.ErrNoRows) {
 		err = InsertRecord(tx, metrics)
@@ -87,6 +103,10 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 func (s *DBStorage) BulkUpdate(aggregatedMetrics map[string]metric.Metrics) {
 	currentMetricMap := metric.MetricMap{}
 	tx, err := s.DB.Begin()
+	if err != nil {
+		logging.Warn("Error during transaction creation %s", err.Error())
+		return
+	}
 	if err != nil {
 		logging.Warn("Could not connect to open transaction: %s", err.Error())
 		return

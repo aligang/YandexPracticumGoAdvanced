@@ -40,6 +40,9 @@ func FetchRecords(tx *sql.Tx, metricMap metric.MetricMap) error {
 		return err
 	}
 	rows, err := fetchStatement.Query()
+	if err := rows.Err(); err != nil {
+		panic(err.Error())
+	}
 	if err != nil {
 		logging.Warn("Error During DB interactionL %s", err.Error())
 	}
