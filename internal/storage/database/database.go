@@ -87,6 +87,7 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 		err = UpdateRecord(tx, metrics)
 		if err != nil {
 			logging.Debug("Problem during transaction process %s", err.Error())
+			return
 		}
 	} else {
 		logging.Debug("Problem during select %s", err.Error())
@@ -107,6 +108,10 @@ func (s *DBStorage) BulkUpdate(aggregatedMetrics map[string]metric.Metrics) {
 		return
 	}
 	err = FetchRecords(tx, currentMetricMap)
+	if err != nil {
+		logging.Warn("Problem during transaction process %s", err.Error())
+		return
+	}
 	var metricsToInsert []metric.Metrics
 	var metricsToUpdate []metric.Metrics
 	for id, m := range aggregatedMetrics {
