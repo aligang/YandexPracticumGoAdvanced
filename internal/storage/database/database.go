@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/hash"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"log"
 	"time"
@@ -67,6 +68,7 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 
 		if metrics.MType == "counter" {
 			*metrics.Delta += *fetchedRecord.Delta
+			hash.AddHashInfo(m)
 		}
 		err = UpdateRecord(tx, metrics)
 	} else {
