@@ -22,6 +22,9 @@ func FetchRecord(tx *sql.Tx, metrics metric.Metrics) (metric.Metrics, error) {
 		return fetchedMetrics, err
 	}
 	row := selectStatement.QueryRow()
+	if err := row.Err(); err != nil {
+		panic(err.Error())
+	}
 	err = row.Scan(&fetchedMetrics.ID, &fetchedMetrics.MType, &fetchedMetrics.Delta, &fetchedMetrics.Value, &fetchedMetrics.Hash)
 	if err != nil {
 		logging.Warn("Could not decode Database Server response: %s", err.Error())

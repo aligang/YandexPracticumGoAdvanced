@@ -26,9 +26,12 @@ func New(conf *config.ServerConfig) *DBStorage {
 		DB:   db,
 		Type: "Database",
 	}
-	_, err = s.DB.Query(
+	rows, err := s.DB.Query(
 		"create table if not exists metrics(ID text , MType text, Delta bigint, Value double precision, Hash text)",
 	)
+	if err := rows.Err(); err != nil {
+		panic(err.Error())
+	}
 	if err != nil {
 		panic(fmt.Sprintf("Could not establish connection to database %s:", err.Error()))
 	}
