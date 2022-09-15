@@ -22,9 +22,9 @@ func Configure(dst io.Writer, level zerolog.Level) {
 
 func Crit(msg string, args ...any) {
 	if len(args) > 0 {
-		Logger.Fatal().Msgf(msg, args...)
+		Logger.Error().Msgf(msg, args...)
 	} else {
-		Logger.Fatal().Msg(msg)
+		Logger.Error().Msg(msg)
 	}
 }
 
