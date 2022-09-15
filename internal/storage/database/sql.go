@@ -105,7 +105,7 @@ func InsertRecords(tx *sql.Tx, metricSlice []metric.Metrics) error {
 			return err
 		}
 		logging.Debug("Executing request to DB server")
-		_, err = insertStatement.Exec(args)
+		_, err = insertStatement.Exec(args...)
 		if err != nil {
 			fmt.Println(err.Error())
 			if err = tx.Rollback(); err != nil {
@@ -162,7 +162,7 @@ func UpdateRecords(tx *sql.Tx, metrics []metric.Metrics) error {
 			logging.Debug("Problem during query preparation %s", err.Error())
 		}
 		logging.Debug("Executing request")
-		_, err = updateStatement.Exec(args)
+		_, err = updateStatement.Exec(args...)
 		if err != nil {
 			logging.Warn(err.Error())
 			if err = tx.Rollback(); err != nil {
