@@ -36,7 +36,7 @@ func New(conf *config.ServerConfig) *MemStorage {
 	return s
 }
 
-func (s *MemStorage) Update(metrics metric.Metrics) {
+func (s *MemStorage) Update(metrics metric.Metrics) error {
 
 	if metrics.MType == "gauge" {
 		s.Metrics[metrics.ID] = metrics
@@ -53,12 +53,14 @@ func (s *MemStorage) Update(metrics metric.Metrics) {
 		logging.Debug("Staring On-Demand Backup")
 		BackupDo(s)
 	}
+	return nil
 }
 
-func (s *MemStorage) BulkUpdate(metrics map[string]metric.Metrics) {
+func (s *MemStorage) BulkUpdate(metrics map[string]metric.Metrics) error {
 	for _, m := range metrics {
 		s.Update(m)
 	}
+	return nil
 }
 
 func (s *MemStorage) Get(metricName string) (metric.Metrics, bool) {

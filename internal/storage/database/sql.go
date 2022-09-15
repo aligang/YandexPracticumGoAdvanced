@@ -8,22 +8,21 @@ import (
 	"strconv"
 )
 
-func ConstructSelectQuery(metrics metric.Metrics) string {
-	query := fmt.Sprintf("select ID,MType,Delta,Value,Hash from metrics where ID = '%s'", metrics.ID)
-	return query
+func ConstructSelectQuery() string {
+	return "SELECT ID,MType,Delta,Value,Hash FROM metrics WHERE ID = $1"
 }
 
 func FetchRecord(tx *sql.Tx, metrics metric.Metrics) (metric.Metrics, error) {
 	fetchedMetrics := metric.Metrics{}
-	query := ConstructSelectQuery(metrics)
+	query := ConstructSelectQuery()
 	selectStatement, err := tx.Prepare(query)
 	if err != nil {
 		logging.Warn("Could not create select statement: %s", err.Error())
 		return fetchedMetrics, err
 	}
-	row := selectStatement.QueryRow()
+	row := selectStatement.QueryRow(metrics.ID)
 	if err := row.Err(); err != nil {
-		panic(err.Error())
+		logging.Warn(err.Error())
 	}
 	err = row.Scan(&fetchedMetrics.ID, &fetchedMetrics.MType, &fetchedMetrics.Delta, &fetchedMetrics.Value, &fetchedMetrics.Hash)
 	if err != nil {
@@ -41,10 +40,12 @@ func FetchRecords(tx *sql.Tx, metricMap metric.MetricMap) error {
 	}
 	rows, err := fetchStatement.Query()
 	if err := rows.Err(); err != nil {
-		panic(err.Error())
+		logging.Warn(err.Error())
+		return err
 	}
 	if err != nil {
 		logging.Warn("Error During DB interactionL %s", err.Error())
+		return err
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -53,41 +54,40 @@ func FetchRecords(tx *sql.Tx, metricMap metric.MetricMap) error {
 		if err != nil {
 			logging.Warn("Error during scanning of dumped DB")
 			return err
-		} else {
-			metricMap[m.ID] = m
 		}
+		metricMap[m.ID] = m
 	}
 	return nil
 }
 
-func ConstructInsertQuery(metrics metric.Metrics) string {
+func ConstructInsertQuery(metrics metric.Metrics) (string, []any) {
+	var args []any
 	query := ""
 	if metrics.MType == "gauge" {
 		value := strconv.FormatFloat(*metrics.Value, 'f', -1, 64)
-		query = fmt.Sprintf("INSERT INTO metrics (ID, MType, Value, Hash) VALUES('%s', '%s',  %s, '%s')",
-			metrics.ID, metrics.MType, value, metrics.Hash)
+		query = "INSERT INTO metrics (ID, MType, Value, Hash) VALUES($1, $2, $3, $4)"
+		args = append(args, metrics.ID, metrics.MType, value, metrics.Hash)
 	} else if metrics.MType == "counter" {
-		query = fmt.Sprintf("INSERT INTO metrics (ID, MType, Delta, Hash) VALUES('%s', '%s',  %d, '%s')",
-			metrics.ID, metrics.MType, *metrics.Delta, metrics.Hash)
+		query = "INSERT INTO metrics (ID, MType, Delta, Hash) VALUES($1, $2,  $3, $4)"
+		args = append(args, metrics.ID, metrics.MType, *metrics.Delta, metrics.Hash)
 	}
-	return query
+	return query, args
 }
 
 func InsertRecord(tx *sql.Tx, metrics metric.Metrics) error {
 	logging.Debug("Creating New Record")
-	insertQuery := ConstructInsertQuery(metrics)
-	fmt.Println(insertQuery)
+	insertQuery, args := ConstructInsertQuery(metrics)
+	logging.Debug(insertQuery)
+	logging.Debug(fmt.Sprintln(args))
 	insertStatement, err := tx.Prepare(insertQuery)
 	if err != nil {
 		logging.Warn("Error during statement preparation %s", err.Error())
 		return err
 	}
-	_, err = insertStatement.Exec()
-
+	_, err = insertStatement.Exec(args...)
 	if err != nil {
-		logging.Warn(err.Error())
+		logging.Warn("Problem during request Execution %s", err.Error())
 		if err = tx.Rollback(); err != nil {
-
 			logging.Crit("insert drivers: unable to rollback: %s", err.Error())
 		}
 		return err
@@ -97,7 +97,7 @@ func InsertRecord(tx *sql.Tx, metrics metric.Metrics) error {
 
 func InsertRecords(tx *sql.Tx, metricSlice []metric.Metrics) error {
 	for _, metric := range metricSlice {
-		insertQuery := ConstructInsertQuery(metric)
+		insertQuery, args := ConstructInsertQuery(metric)
 		logging.Debug("Preparing request to DB server: %s", insertQuery)
 		insertStatement, err := tx.Prepare(insertQuery)
 		if err != nil {
@@ -105,7 +105,7 @@ func InsertRecords(tx *sql.Tx, metricSlice []metric.Metrics) error {
 			return err
 		}
 		logging.Debug("Executing request to DB server")
-		_, err = insertStatement.Exec()
+		_, err = insertStatement.Exec(args)
 		if err != nil {
 			fmt.Println(err.Error())
 			if err = tx.Rollback(); err != nil {
@@ -117,30 +117,33 @@ func InsertRecords(tx *sql.Tx, metricSlice []metric.Metrics) error {
 	return nil
 }
 
-func ConstructUpdateQuery(metrics metric.Metrics) string {
+func ConstructUpdateQuery(metrics metric.Metrics) (string, []any) {
 	query := ""
+	var args []any
 	if metrics.MType == "gauge" {
 		value := strconv.FormatFloat(*metrics.Value, 'f', -1, 64)
-		query = fmt.Sprintf("UPDATE metrics SET Mtype = '%s', Value = '%s', Hash = '%s' where id = '%s'",
-			metrics.MType, value, metrics.Hash, metrics.ID)
+		query = "UPDATE metrics SET Mtype = $1, Value = $2, Hash = $3 where id = $4"
+		args = append(args, metrics.MType, value, metrics.Hash, metrics.ID)
 	} else if metrics.MType == "counter" {
-		query = fmt.Sprintf("UPDATE metrics SET Mtype = '%s', Delta = '%d', Hash = '%s' where id = '%s'",
-			metrics.MType, *metrics.Delta, metrics.Hash, metrics.ID)
+		query = "UPDATE metrics SET Mtype = $1, Delta = $2, Hash = $3 where id = $4"
+		args = append(args, metrics.MType, *metrics.Delta, metrics.Hash, metrics.ID)
 	}
-	return query
+	return query, args
 }
 
 func UpdateRecord(tx *sql.Tx, metrics metric.Metrics) error {
 	logging.Debug("Updating Old Record")
-	updateQuery := ConstructUpdateQuery(metrics)
+	updateQuery, args := ConstructUpdateQuery(metrics)
 	logging.Debug("Preparing request to DB server: %s", updateQuery)
+	logging.Debug(fmt.Sprintln(args))
 	updateStatement, err := tx.Prepare(updateQuery)
 	if err != nil {
 		logging.Warn("Problem during query preparation: %s", err.Error())
 		return err
 	}
-	_, err = updateStatement.Exec()
+	_, err = updateStatement.Exec(args...)
 	if err != nil {
+		logging.Warn("Problem during request execution: %s", err.Error())
 		if err = tx.Rollback(); err != nil {
 			logging.Crit("update drivers: unable to rollback: %s", err.Error())
 		}
@@ -152,14 +155,14 @@ func UpdateRecord(tx *sql.Tx, metrics metric.Metrics) error {
 func UpdateRecords(tx *sql.Tx, metrics []metric.Metrics) error {
 	logging.Debug("Updating metrics")
 	for _, metric := range metrics {
-		updateQuery := ConstructUpdateQuery(metric)
+		updateQuery, args := ConstructUpdateQuery(metric)
 		logging.Debug("Preparing request to DB server: %s", updateQuery)
 		updateStatement, err := tx.Prepare(updateQuery)
 		if err != nil {
 			logging.Debug("Problem during query preparation %s", err.Error())
 		}
 		logging.Debug("Executing request")
-		_, err = updateStatement.Exec()
+		_, err = updateStatement.Exec(args)
 		if err != nil {
 			logging.Warn(err.Error())
 			if err = tx.Rollback(); err != nil {

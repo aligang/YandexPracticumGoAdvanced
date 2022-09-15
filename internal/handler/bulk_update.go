@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/hash"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
@@ -14,6 +15,7 @@ func (h APIHandler) BulkUpdate(w http.ResponseWriter, r *http.Request) {
 	payload, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Could not read data", http.StatusUnsupportedMediaType)
+		logging.Warn("Could not read data %s", err.Error())
 		return
 	}
 	logging.Debug("Received JSON: %s", string(payload))
@@ -27,18 +29,17 @@ func (h APIHandler) BulkUpdate(w http.ResponseWriter, r *http.Request) {
 	for _, m := range metricSlice {
 		if m.MType != "gauge" && m.MType != "counter" {
 			logging.Warn("Invalid Metric Type")
-			//http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
-			continue
+			http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
+			return
 		}
 		if h.Config.HashKey != "" {
 			logging.Debug("Validating hash ...")
 			if !hash.CheckHashInfo(&m, h.Config.HashKey) {
 				logging.Warn("Invalid Hash")
 				http.Error(w, "Invalid Hash", http.StatusBadRequest)
-				continue
-			} else {
-				logging.Debug("Hash validation succeeded")
+				return
 			}
+			logging.Debug("Hash validation succeeded")
 		} else {
 			logging.Debug("Skipping hash validation")
 		}
@@ -50,7 +51,11 @@ func (h APIHandler) BulkUpdate(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	h.Storage.BulkUpdate(aggregatedMetrics)
+	err = h.Storage.BulkUpdate(aggregatedMetrics)
+	if err != nil {
+		msg := fmt.Sprintf("Error during BulkUpdate: %s", err.Error())
+		http.Error(w, msg, http.StatusInternalServerError)
+	}
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 }

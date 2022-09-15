@@ -53,8 +53,10 @@ func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 	logging.Debug("Value is metric: %+v\n", m)
 	logging.Debug("Updating storage with metric %+v\n", m)
-	h.Storage.Update(m)
-
+	err := h.Storage.Update(m)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 	logging.Debug("Prepare response")
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)

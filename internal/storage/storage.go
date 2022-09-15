@@ -26,9 +26,9 @@ func New(conf *config.ServerConfig) (Storage, string) {
 }
 
 type Storage interface {
-	BulkUpdate(metrics map[string]metric.Metrics)
+	BulkUpdate(metrics map[string]metric.Metrics) error
 	Dump() metric.MetricMap
 	Get(metricName string) (metric.Metrics, bool)
-	Update(metrics metric.Metrics)
+	Update(metrics metric.Metrics) error
 	IsAlive() error
 }

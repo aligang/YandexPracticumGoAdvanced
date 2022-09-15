@@ -9,6 +9,7 @@ func (h APIHandler) Ping(w http.ResponseWriter, r *http.Request) {
 	if h.Config.StorageType == "Memory" {
 		logging.Warn("Ping Handler is not supported for current storage type")
 		http.Error(w, "", http.StatusInternalServerError)
+		return
 	}
 
 	if h.Config.StorageType == "Database" {

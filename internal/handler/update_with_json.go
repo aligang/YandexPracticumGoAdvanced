@@ -43,7 +43,10 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 		logging.Debug("Skipping hash validation")
 	}
 
-	h.Storage.Update(m)
+	err = h.Storage.Update(m)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 }

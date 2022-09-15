@@ -67,18 +67,18 @@ func (s *DBStorage) Get(metricName string) (metric.Metrics, bool) {
 	return fetchedRecord, true
 }
 
-func (s *DBStorage) Update(metrics metric.Metrics) {
+func (s *DBStorage) Update(metrics metric.Metrics) error {
 	tx, err := s.DB.Begin()
 	if err != nil {
 		logging.Warn("Error during transaction creation %s", err.Error())
-		return
+		return err
 	}
 	fetchedRecord, err := FetchRecord(tx, metrics)
 	if errors.Is(err, sql.ErrNoRows) {
 		err = InsertRecord(tx, metrics)
 		if err != nil {
 			logging.Warn(err.Error())
-			return
+			return err
 		}
 	} else if err == nil {
 		if metrics.MType == "counter" {
@@ -87,30 +87,31 @@ func (s *DBStorage) Update(metrics metric.Metrics) {
 		err = UpdateRecord(tx, metrics)
 		if err != nil {
 			logging.Debug("Problem during transaction process %s", err.Error())
-			return
+			return err
 		}
 	} else {
 		logging.Debug("Problem during select %s", err.Error())
-		return
+		return err
 	}
 	if err := tx.Commit(); err != nil {
 		logging.Crit("update drivers: unable to commit: %v", err)
-		return
+		return err
 	}
+	return nil
 
 }
 
-func (s *DBStorage) BulkUpdate(aggregatedMetrics map[string]metric.Metrics) {
+func (s *DBStorage) BulkUpdate(aggregatedMetrics map[string]metric.Metrics) error {
 	currentMetricMap := metric.MetricMap{}
 	tx, err := s.DB.Begin()
 	if err != nil {
 		logging.Warn("Could not connect to open transaction: %s", err.Error())
-		return
+		return err
 	}
 	err = FetchRecords(tx, currentMetricMap)
 	if err != nil {
 		logging.Warn("Problem during transaction process %s", err.Error())
-		return
+		return err
 	}
 	var metricsToInsert []metric.Metrics
 	var metricsToUpdate []metric.Metrics
@@ -127,15 +128,18 @@ func (s *DBStorage) BulkUpdate(aggregatedMetrics map[string]metric.Metrics) {
 	err = InsertRecords(tx, metricsToInsert)
 	if err != nil {
 		logging.Warn("Could not insert slice of metrics: %s", err.Error())
+		return err
 	}
 	err = UpdateRecords(tx, metricsToUpdate)
 	if err != nil {
 		logging.Debug("Could not update slice of metrics %s", err.Error())
+		return err
 	}
 	if err := tx.Commit(); err != nil {
 		logging.Crit("update drivers: unable to commit: %v", err)
-		return
+		return err
 	}
+	return nil
 }
 
 func (s *DBStorage) IsAlive() error {
