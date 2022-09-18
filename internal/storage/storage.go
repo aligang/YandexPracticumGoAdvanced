@@ -1,58 +1,34 @@
 package storage
 
 import (
-	"fmt"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
-	"sync"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage/database"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage/memory"
 )
 
-type metricMap map[string]metric.Metrics
-
-type Storage struct {
-	Metrics      metricMap
-	Lock         sync.Mutex
-	BackupConfig BackupConfig
-}
-
-func (s *Storage) init() {
-	s.Metrics = metricMap{}
-	s.Lock = sync.Mutex{}
-}
-
-func (s *Storage) Load(metrics metricMap) {
-	s.Metrics = metrics
-}
-
-func New() *Storage {
-	s := &Storage{}
-	s.init()
-	return s
-}
-
-func (s *Storage) Update(metrics metric.Metrics) {
-
-	if metrics.MType == "gauge" {
-		s.Metrics[metrics.ID] = metrics
+func New(conf *config.ServerConfig) (Storage, string) {
+	var storage Storage
+	var storageType string
+	switch true {
+	case len(conf.DatabaseDsn) > 0:
+		logging.Debug("Configuring SQL Database Storage")
+		storage = database.New(conf)
+		storageType = "Database"
+	default:
+		logging.Debug("Configuring In-Memory Storage")
+		storage = memory.New(conf)
+		storageType = "Memory"
 	}
-	if metrics.MType == "counter" {
-		if _, exists := s.Metrics[metrics.ID]; !exists {
-			s.Metrics[metrics.ID] = metrics
-		} else {
-			value := *s.Metrics[metrics.ID].Delta + *metrics.Delta
-			*s.Metrics[metrics.ID].Delta = value
-		}
-	}
-	if s.BackupConfig.enable && !s.BackupConfig.Periodic {
-		fmt.Println("Staring On-Deman Backup")
-		BackupDo(s)
-	}
+	logging.Debug("Succeed")
+	return storage, storageType
 }
 
-func (s *Storage) Get(metricName string) (metric.Metrics, bool) {
-	value, found := s.Metrics[metricName]
-	return value, found
-}
-
-func (s *Storage) Dump() metricMap {
-	return s.Metrics
+type Storage interface {
+	BulkUpdate(metrics map[string]metric.Metrics) error
+	Dump() metric.MetricMap
+	Get(metricName string) (metric.Metrics, bool)
+	Update(metrics metric.Metrics) error
+	IsAlive() error
 }

@@ -2,7 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage/memory"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"net/http"
@@ -59,8 +59,8 @@ func TestUpdate(t *testing.T) {
 		},
 	}
 
-	strg := storage.New()
-	mux := New(strg)
+	strg := memory.New(nil)
+	mux := New(strg, "", "Memory")
 	mux.Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)
 	ts := httptest.NewServer(mux)
 	defer ts.Close()

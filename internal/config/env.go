@@ -18,6 +18,12 @@ func GetServerENVConfig(conf *ServerConfig) {
 	if envConf.StoreFile != "" {
 		conf.StoreFile = envConf.StoreFile
 	}
+	if envConf.Key != "" {
+		conf.Key = envConf.Key
+	}
+	if envConf.DatabaseDsn != "" {
+		conf.DatabaseDsn = envConf.DatabaseDsn
+	}
 
 	if envConf.StoreInterval >= 0 {
 		conf.StoreInterval = envConf.StoreInterval
@@ -36,6 +42,10 @@ func GetAgentENVConfig(conf *AgentConfig) {
 	if envConf.Address != "" {
 		conf.Address = envConf.Address
 	}
+	if envConf.Key != "" {
+		conf.Key = envConf.Key
+	}
+
 	if envConf.PollInterval >= 0 {
 		conf.PollInterval = envConf.PollInterval
 	}

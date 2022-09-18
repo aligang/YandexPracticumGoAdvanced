@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage/memory"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io"
@@ -24,14 +24,16 @@ func TestFetchWithJson(t *testing.T) {
 			input: input{path: "/value/", contentType: "application/json",
 				payload: "{\"id\":\"gauge_example\",\"type\":\"gauge\"}"},
 			expected: expected{code: 200, contentType: "application/json",
-				payload: "{\"id\":\"gauge_example\",\"type\":\"gauge\",\"value\":1234}"},
+				payload: "{\"id\":\"gauge_example\",\"type\":\"gauge\",\"value\":1234}",
+			},
 		},
 		{
 			name: "CORRECT COUNTER",
 			input: input{path: "/value/", contentType: "application/json",
 				payload: "{\"id\":\"counter_example\",\"type\":\"counter\"}"},
 			expected: expected{code: 200, contentType: "application/json",
-				payload: "{\"id\":\"counter_example\",\"type\":\"counter\",\"delta\":12345}"},
+				payload: "{\"id\":\"counter_example\",\"type\":\"counter\",\"delta\":12345}",
+			},
 		},
 		{
 			name: "NON-EXISTIN GAUGE",
@@ -49,7 +51,7 @@ func TestFetchWithJson(t *testing.T) {
 
 	var GaugeValue float64 = 1234
 	var CounterDelta int64 = 12345
-	strg := storage.New()
+	strg := memory.New(nil)
 	strg.Load(
 		map[string]metric.Metrics{
 			"gauge_example":   {ID: "gauge_example", MType: "gauge", Value: &GaugeValue},
@@ -57,7 +59,7 @@ func TestFetchWithJson(t *testing.T) {
 		},
 	)
 
-	mux := New(strg)
+	mux := New(strg, "", "Memory")
 	mux.Post("/value/", mux.FetchWithJSON)
 	ts := httptest.NewServer(mux)
 	tc := ts.Client()
