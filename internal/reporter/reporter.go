@@ -143,14 +143,12 @@ func BulkPushData(address string, client *http.Client, m []metric.Metrics) error
 //	return &pulledMetric, nil
 //}
 
-func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
+func SendMetrics(agentConfig *config.AgentConfig, bus <-chan metric.Stats) {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}
-	ticker := time.NewTicker(agentConfig.ReportInterval)
 	iteration := 0
-	for {
-		<-ticker.C
+	for stats := range bus {
 		logging.Debug("Running Iteration %d\n", iteration)
 		for name, value := range stats.Gauge {
 			m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
@@ -177,15 +175,13 @@ func SendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
 	}
 }
 
-func BulkSendMetrics(agentConfig *config.AgentConfig, stats *metric.Stats) {
+func BulkSendMetrics(agentConfig *config.AgentConfig, bus <-chan metric.Stats) {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}
-	ticker := time.NewTicker(agentConfig.ReportInterval)
 	iteration := 0
-	for {
+	for stats := range bus {
 		metrics := []metric.Metrics{}
-		<-ticker.C
 		logging.Debug("Running Iteration %d\n", iteration)
 		for name, value := range stats.Gauge {
 			m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
