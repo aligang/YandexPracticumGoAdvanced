@@ -49,7 +49,7 @@ func CollectMemStats(m *metric.Stats) {
 	m.Gauge["TotalAlloc"] = float64(memstats.TotalAlloc)
 }
 
-func CollectCpuStats(m *metric.Stats) {
+func CollectCPUStats(m *metric.Stats) {
 	percents, err := cpu.Percent(time.Second, true)
 	if err != nil {
 		return
@@ -82,7 +82,7 @@ func CollectMetrics(cfg *config.AgentConfig, bus chan metric.Stats) {
 		case <-pollTicker.C:
 			CollectMemStats(m)
 			CollectOperStats(m, r)
-			CollectCpuStats(m)
+			CollectCPUStats(m)
 			CollectVirtualMemoryStats(m)
 		case <-reportTicker.C:
 			bus <- *m
