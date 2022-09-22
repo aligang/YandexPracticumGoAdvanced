@@ -1,8 +1,10 @@
 package collector
 
 import (
+	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
+	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/mem"
 	"math/rand"
 	"runtime"
@@ -48,12 +50,13 @@ func CollectMemStats(m *metric.Stats) {
 }
 
 func CollectCpuStats(m *metric.Stats) {
-	memStats, err := mem.VirtualMemory()
+	percents, err := cpu.Percent(time.Second, true)
 	if err != nil {
 		return
 	}
-	m.Gauge["TotalMemory"] = float64(memStats.Total)
-	m.Gauge["FreeMemory"] = float64(memStats.Free)
+	for i, percent := range percents {
+		m.Gauge[fmt.Sprintf("CPUutilization%d", i)] = percent
+	}
 }
 
 func CollectVirtualMemoryStats(m *metric.Stats) {
