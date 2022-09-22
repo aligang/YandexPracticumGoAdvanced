@@ -1,8 +1,11 @@
 package collector
 
 import (
+	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/mem"
 	"math/rand"
 	"runtime"
 	"time"
@@ -46,6 +49,20 @@ func CollectMemStats(m *metric.Stats) {
 	m.Gauge["TotalAlloc"] = float64(memstats.TotalAlloc)
 }
 
+func CollectOpsStats(m *metric.Stats) {
+	utils, err := cpu.Percent(time.Second, true)
+	for i, utilisation := range utils {
+		m.Gauge[fmt.Sprintf("CPUutilization%d", i)] = utilisation
+	}
+	memStats, err := mem.VirtualMemory()
+	if err != nil {
+		return
+	}
+	m.Gauge["TotalMemory"] = float64(memStats.Total)
+	m.Gauge["FreeMemory"] = float64(memStats.Free)
+
+}
+
 func CollectMetrics(cfg *config.AgentConfig, m *metric.Stats) {
 	s := rand.NewSource(time.Now().Unix())
 	r := rand.New(s)
@@ -53,6 +70,7 @@ func CollectMetrics(cfg *config.AgentConfig, m *metric.Stats) {
 	for {
 		CollectMemStats(m)
 		CollectOperStats(m, r)
+		CollectOpsStats(m)
 		<-ticker.C
 	}
 }
