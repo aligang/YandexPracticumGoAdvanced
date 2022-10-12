@@ -1,8 +1,11 @@
 package collector
 
 import (
+	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/mem"
 	"math/rand"
 	"runtime"
 	"time"
@@ -46,13 +49,44 @@ func CollectMemStats(m *metric.Stats) {
 	m.Gauge["TotalAlloc"] = float64(memstats.TotalAlloc)
 }
 
-func CollectMetrics(cfg *config.AgentConfig, m *metric.Stats) {
+func CollectCPUStats(m *metric.Stats) {
+	percents, err := cpu.Percent(time.Second, true)
+	if err != nil {
+		return
+	}
+	for i, percent := range percents {
+		m.Gauge[fmt.Sprintf("CPUutilization%d", i)] = percent
+	}
+}
+
+func CollectVirtualMemoryStats(m *metric.Stats) {
+	memStats, err := mem.VirtualMemory()
+	if err != nil {
+		return
+	}
+	m.Gauge["TotalMemory"] = float64(memStats.Total)
+	m.Gauge["FreeMemory"] = float64(memStats.Free)
+}
+
+func CollectMetrics(cfg *config.AgentConfig, bus chan metric.Stats) {
+	m := &metric.Stats{
+		Gauge:   map[string]float64{},
+		Counter: map[string]int64{},
+	}
 	s := rand.NewSource(time.Now().Unix())
 	r := rand.New(s)
-	ticker := time.NewTicker(cfg.PollInterval)
+	pollTicker := time.NewTicker(cfg.PollInterval)
+	reportTicker := time.NewTicker(cfg.ReportInterval)
 	for {
-		CollectMemStats(m)
-		CollectOperStats(m, r)
-		<-ticker.C
+		select {
+		case <-pollTicker.C:
+			CollectMemStats(m)
+			CollectOperStats(m, r)
+			CollectCPUStats(m)
+			CollectVirtualMemoryStats(m)
+		case <-reportTicker.C:
+			bus <- *m
+			bus <- *m
+		}
 	}
 }
