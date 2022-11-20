@@ -3,10 +3,11 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
-	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
+
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
+	"github.com/go-chi/chi/v5"
 )
 
 func (h APIHandler) FetchAll(w http.ResponseWriter, r *http.Request) {

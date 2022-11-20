@@ -2,10 +2,11 @@ package compress
 
 import (
 	"compress/gzip"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 )
 
 type gzipWriter struct {

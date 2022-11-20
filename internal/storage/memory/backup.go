@@ -3,11 +3,12 @@ package memory
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
-	"os"
-	"time"
 )
 
 type BackupConfig struct {

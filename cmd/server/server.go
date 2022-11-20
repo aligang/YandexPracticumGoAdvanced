@@ -1,6 +1,10 @@
 package main
 
 import (
+	"log"
+	"net/http"
+	"os"
+
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/compress"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/handler"
@@ -8,9 +12,6 @@ import (
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog"
-	"log"
-	"net/http"
-	"os"
 )
 
 func main() {

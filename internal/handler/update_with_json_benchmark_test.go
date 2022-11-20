@@ -2,11 +2,12 @@ package handler
 
 import (
 	"bytes"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage/memory"
 	"net/http"
 	"net/http/httptest"
 	_ "net/http/pprof"
 	"testing"
+
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage/memory"
 )
 
 func BenchmarkUpdateWithJson(b *testing.B) {

@@ -1,10 +1,11 @@
 package memory
 
 import (
+	"sync"
+
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
-	"sync"
 )
 
 type MemStorage struct {

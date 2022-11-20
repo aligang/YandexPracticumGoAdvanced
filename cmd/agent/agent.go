@@ -1,15 +1,16 @@
 package main
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/collector"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/reporter"
 	"github.com/rs/zerolog"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func main() {

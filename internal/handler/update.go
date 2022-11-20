@@ -2,11 +2,12 @@ package handler
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"github.com/go-chi/chi/v5"
-	"net/http"
-	"strconv"
 )
 
 func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {

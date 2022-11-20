@@ -2,11 +2,12 @@ package handler
 
 import (
 	"encoding/json"
+	"io"
+	"net/http"
+
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/hash"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
-	"io"
-	"net/http"
 )
 
 func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {

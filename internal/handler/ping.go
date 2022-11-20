@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"net/http"
+
+	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 )
 
 func (h APIHandler) Ping(w http.ResponseWriter, r *http.Request) {

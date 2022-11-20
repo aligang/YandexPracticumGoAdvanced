@@ -3,10 +3,11 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/hash"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
-	"net/http"
 )
 
 func (h APIHandler) FetchWithJSON(w http.ResponseWriter, r *http.Request) {

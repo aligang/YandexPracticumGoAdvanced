@@ -5,12 +5,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
-	"time"
+
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
-import _ "github.com/jackc/pgx/v4/stdlib"
 
 type DBStorage struct {
 	DB   *sql.DB

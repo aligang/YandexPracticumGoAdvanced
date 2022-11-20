@@ -3,9 +3,10 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
+
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
-	"strconv"
 )
 
 func ConstructSelectQuery() string {

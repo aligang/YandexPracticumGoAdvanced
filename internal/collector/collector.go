@@ -2,13 +2,14 @@ package collector
 
 import (
 	"fmt"
+	"math/rand"
+	"runtime"
+	"time"
+
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/mem"
-	"math/rand"
-	"runtime"
-	"time"
 )
 
 func CollectOperStats(m *metric.Stats, r *rand.Rand) {

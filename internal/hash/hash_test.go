@@ -2,9 +2,10 @@ package hash
 
 import (
 	"crypto/hmac"
+	"testing"
+
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestHash(t *testing.T) {

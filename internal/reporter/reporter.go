@@ -5,13 +5,14 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"time"
+
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/hash"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/internal/metric"
-	"io"
-	"net/http"
-	"time"
 )
 
 func PushData(address string, client *http.Client, m *metric.Metrics) error {
