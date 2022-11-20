@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/compress"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/config"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/handler"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/logging"
-	"github.com/aligang/YandexPracticumGoAdvanced/internal/storage"
+	"github.com/aligang/YandexPracticumGoAdvanced/iinternal/compress"
+	"github.com/aligang/YandexPracticumGoAdvanced/iinternal/config"
+	"github.com/aligang/YandexPracticumGoAdvanced/iinternal/handler"
+	"github.com/aligang/YandexPracticumGoAdvanced/iinternal/logging"
+	"github.com/aligang/YandexPracticumGoAdvanced/iinternal/storage"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog"
 )
