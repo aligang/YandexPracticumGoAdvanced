@@ -5,7 +5,7 @@ import (
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/storage"
 )
 
-func ExampleApiHandler() {
+func ExampleAPIHandler() {
 	conf := config.NewServer()
 	config.GetServerCLIConfig(conf)
 	config.GetServerENVConfig(conf)
