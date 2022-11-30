@@ -26,7 +26,6 @@ func main() {
 	go collector.CollectMetrics(conf, bus)
 	go reporter.SendMetrics(conf, bus)
 	go reporter.BulkSendMetrics(conf, bus)
-
 	<-exitSignal
-
+	os.Exit(0)
 }
