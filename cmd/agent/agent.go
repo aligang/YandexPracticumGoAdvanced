@@ -13,7 +13,9 @@ import (
 	"github.com/rs/zerolog"
 )
 
+//go:generate go run ../codegen/generate.go
 func main() {
+	printBuildInfo()
 	conf := config.NewAgent()
 	config.GetAgentCLIConfig(conf)
 	config.GetAgentENVConfig(conf)
