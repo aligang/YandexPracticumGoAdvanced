@@ -37,8 +37,10 @@ func inspectExitCall(node ast.Node, pass *analysis.Pass) {
 	ast.Inspect(node, func(node ast.Node) bool {
 		if c, ok := node.(*ast.CallExpr); ok {
 			if s, ok := c.Fun.(*ast.SelectorExpr); ok {
-				if s.Sel.Name == "Exit" {
-					pass.Reportf(s.Pos(), "os.Exit method call within main function")
+				if i, ok := s.X.(*ast.Ident); ok {
+					if i.Name == "os" && s.Sel.Name == "Exit" {
+						pass.Reportf(s.Pos(), "os.Exit method call within main function")
+					}
 				}
 			}
 		}
