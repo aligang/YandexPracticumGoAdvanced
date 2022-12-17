@@ -12,6 +12,7 @@ type ServerConfig struct {
 	Restore       bool          `env:"RESTORE" envDefault:"false"`
 	Key           string        `env:"KEY" envDefault:""`
 	DatabaseDsn   string        `env:"DATABASE_DSN" envDefault:""`
+	CryptoKey     string        `env:"CRYPTO_KEY" envDefault:""`
 }
 
 // AgentConfig represents configuration of agent
@@ -20,6 +21,7 @@ type AgentConfig struct {
 	PollInterval   time.Duration `env:"POLL_INTERVAL" envDefault:"-1s"`
 	ReportInterval time.Duration `env:"REPORT_INTERVAL" envDefault:"-1s"`
 	Key            string        `env:"KEY" envDefault:""`
+	CryptoKey      string        `env:"CRYPTO_KEY" envDefault:""`
 }
 
 // NewServer returns blanc server configuration

@@ -26,6 +26,9 @@ func GetServerENVConfig(conf *ServerConfig) {
 	if envConf.DatabaseDsn != "" {
 		conf.DatabaseDsn = envConf.DatabaseDsn
 	}
+	if envConf.CryptoKey != "" {
+		conf.CryptoKey = envConf.CryptoKey
+	}
 
 	if envConf.StoreInterval >= 0 {
 		conf.StoreInterval = envConf.StoreInterval
@@ -47,6 +50,9 @@ func GetAgentENVConfig(conf *AgentConfig) {
 	}
 	if envConf.Key != "" {
 		conf.Key = envConf.Key
+	}
+	if envConf.CryptoKey != "" {
+		conf.CryptoKey = envConf.CryptoKey
 	}
 
 	if envConf.PollInterval >= 0 {

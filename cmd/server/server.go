@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/aligang/YandexPracticumGoAdvanced/lib/encrypt"
 	"log"
 	"net/http"
 	"os"
@@ -21,18 +22,20 @@ func main() {
 	logging.Configure(os.Stdout, zerolog.DebugLevel)
 	logging.Debug("Starting Server with config : %+v\n", *conf)
 	Storage, Type := storage.New(conf)
+
+	encryption := encrypt.GetServerPlugin(conf)
 	mux := handler.New(Storage, conf.Key, Type)
 	mux.Use(middleware.RequestID)
 	mux.Use(middleware.RealIP)
 	mux.Use(middleware.Recoverer)
 
 	mux.Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)
-	mux.Post("/update/", compress.GzipHandle(mux.UpdateWithJSON))
-	mux.Post("/updates/", compress.GzipHandle(mux.BulkUpdate))
+	mux.With(compress.GzipHandle, encryption.DecryptWithPublicKey).Post("/update/", mux.UpdateWithJSON)
+	mux.With(compress.GzipHandle, encryption.DecryptWithPublicKey).Post("/updates/", mux.BulkUpdate)
 
-	mux.Get("/", compress.GzipHandle(mux.FetchAll))
+	mux.With(compress.GzipHandle).Get("/", mux.FetchAll)
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
-	mux.Post("/value/", compress.GzipHandle(mux.FetchWithJSON))
+	mux.With(compress.GzipHandle, encryption.DecryptWithPublicKey).Post("/value/", mux.FetchWithJSON)
 
 	mux.Get("/ping", mux.Ping)
 

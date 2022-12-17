@@ -20,10 +20,9 @@ func (w gzipWriter) Write(b []byte) (int, error) {
 }
 
 // GzipHandle middleware to provide gzip compression/decompression
-func GzipHandle(next func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func GzipHandle(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var writer http.ResponseWriter
-
 		if strings.Contains(r.Header.Get("Content-Encoding"), "gzip") {
 			gz, err := gzip.NewReader(r.Body)
 			if err != nil {
@@ -51,6 +50,6 @@ func GzipHandle(next func(w http.ResponseWriter, r *http.Request)) func(w http.R
 			writer.Header().Set("Content-Encoding", "gzip")
 			defer gz.Close()
 		}
-		next(writer, r)
-	}
+		next.ServeHTTP(writer, r)
+	})
 }

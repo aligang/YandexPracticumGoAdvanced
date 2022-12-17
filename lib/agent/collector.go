@@ -1,4 +1,4 @@
-package collector
+package agent
 
 import (
 	"fmt"
@@ -70,7 +70,7 @@ func CollectVirtualMemoryStats(m *metric.Stats) {
 }
 
 // CollectMetrics goroutine that fetches data from host
-func CollectMetrics(cfg *config.AgentConfig, bus chan metric.Stats) {
+func (a *Agent) CollectMetrics(cfg *config.AgentConfig, bus chan metric.Stats) {
 	m := &metric.Stats{
 		Gauge:   map[string]float64{},
 		Counter: map[string]int64{},

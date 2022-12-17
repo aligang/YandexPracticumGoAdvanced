@@ -13,6 +13,7 @@ func GetServerCLIConfig(conf *ServerConfig) {
 	flag.BoolVar(&conf.Restore, "r", true, "Read from backup before Startup")
 	flag.StringVar(&conf.Key, "k", "", "Hashing key")
 	flag.StringVar(&conf.DatabaseDsn, "d", "", "Database")
+	flag.StringVar(&conf.CryptoKey, "crypto-key", "", "CryptoKey")
 	flag.Parse()
 }
 
@@ -22,5 +23,6 @@ func GetAgentCLIConfig(conf *AgentConfig) {
 	flag.DurationVar(&conf.PollInterval, "p", 2*time.Second, "period for collection metrics by agent")
 	flag.DurationVar(&conf.ReportInterval, "r", 10*time.Second, "period for pushing metrics by agent")
 	flag.StringVar(&conf.Key, "k", "", "Hashing key")
+	flag.StringVar(&conf.CryptoKey, "crypto-key", "", "CryptoKey")
 	flag.Parse()
 }
