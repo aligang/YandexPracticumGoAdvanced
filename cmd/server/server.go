@@ -31,12 +31,12 @@ func main() {
 	mux.Use(middleware.Recoverer)
 
 	mux.Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)
-	mux.With(compress.GzipHandle, encryption.DecryptWithPublicKey).Post("/update/", mux.UpdateWithJSON)
-	mux.With(compress.GzipHandle, encryption.DecryptWithPublicKey).Post("/updates/", mux.BulkUpdate)
+	mux.With(compress.GzipHandle, encryption.DecryptWithPrivateKey).Post("/update/", mux.UpdateWithJSON)
+	mux.With(compress.GzipHandle, encryption.DecryptWithPrivateKey).Post("/updates/", mux.BulkUpdate)
 
 	mux.With(compress.GzipHandle).Get("/", mux.FetchAll)
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
-	mux.With(compress.GzipHandle, encryption.DecryptWithPublicKey).Post("/value/", mux.FetchWithJSON)
+	mux.With(compress.GzipHandle, encryption.DecryptWithPrivateKey).Post("/value/", mux.FetchWithJSON)
 
 	mux.Get("/ping", mux.Ping)
 

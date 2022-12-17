@@ -19,10 +19,11 @@ func (k *EncryptionPlugin) EncryptWithPublicKey(next func(r *http.Request) (*htt
 	}
 }
 
-func (k *EncryptionPlugin) DecryptWithPublicKey(next http.Handler) http.Handler {
+func (k *EncryptionPlugin) DecryptWithPrivateKey(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if k.PrivateKey == nil {
 			next.ServeHTTP(w, r)
+			return
 		}
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
