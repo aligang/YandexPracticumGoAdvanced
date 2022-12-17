@@ -13,6 +13,7 @@ import (
 )
 
 func main() {
+	printBuildInfo()
 	conf := config.NewAgent()
 	config.GetAgentCLIConfig(conf)
 	config.GetAgentENVConfig(conf)
@@ -26,7 +27,7 @@ func main() {
 	go a.CollectMetrics(conf, bus)
 	go a.SendMetrics(conf, bus)
 	go a.BulkSendMetrics(conf, bus)
-
+	
 	<-exitSignal
-
+	os.Exit(0)
 }
