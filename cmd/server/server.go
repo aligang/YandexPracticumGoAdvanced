@@ -15,6 +15,7 @@ import (
 )
 
 func main() {
+	printBuildInfo()
 	conf := config.NewServer()
 	config.GetServerCLIConfig(conf)
 	config.GetServerENVConfig(conf)
