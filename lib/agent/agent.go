@@ -1,7 +1,6 @@
 package agent
 
 import (
-	"github.com/aligang/YandexPracticumGoAdvanced/lib/compress"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/encrypt"
 	"net/http"
@@ -23,7 +22,7 @@ func New(conf *config.AgentConfig) *Agent {
 		},
 	}
 	a.Do = a.client.Do
-	compress.AgentCompression(a.Do)
+	//compress.AgentCompression(a.Do)
 	if conf.CryptoKey != "" {
 		encrypt.GetAgentPlugin(conf).EncryptWithPublicKey(a.Do)
 	}

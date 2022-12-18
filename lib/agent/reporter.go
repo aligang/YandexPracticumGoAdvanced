@@ -2,37 +2,39 @@ package agent
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/hash"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/metric"
+	"io"
 	"net/http"
 )
 
 func (a *Agent) PushData(jbuf *bytes.Buffer, path string) error {
 	URI := fmt.Sprintf("http://%s/%s/", a.conf.Address, path)
-	//gbuf := &bytes.Buffer{}
-	//gz, err := gzip.NewWriterLevel(gbuf, gzip.BestSpeed)
-	//if err != nil {
-	//	logging.Logger.Warn().Msg("Error During compressor creation")
-	//	return err
-	//}
-	//res, err := io.ReadAll(jbuf)
-	//if err != nil {
-	//	logging.Logger.Warn().Msg("Error During fetching data for compressiong")
-	//	return err
-	//}
-	//_, err = gz.Write(res)
-	//gz.Close()
-	//
-	//if err != nil {
-	//	logging.Warn("Error During compression")
-	//	return err
-	//}
+	gbuf := &bytes.Buffer{}
+	gz, err := gzip.NewWriterLevel(gbuf, gzip.BestSpeed)
+	if err != nil {
+		logging.Logger.Warn().Msg("Error During compressor creation")
+		return err
+	}
+	res, err := io.ReadAll(jbuf)
+	if err != nil {
+		logging.Logger.Warn().Msg("Error During fetching data for compressiong")
+		return err
+	}
+	_, err = gz.Write(res)
+	gz.Close()
 
-	request, err := http.NewRequest("POST", URI, jbuf)
+	if err != nil {
+		logging.Warn("Error During compression")
+		return err
+	}
+
+	request, err := http.NewRequest("POST", URI, gbuf)
 	if err != nil {
 		logging.Logger.Warn().Msg("Error During Request creation ")
 		return err
