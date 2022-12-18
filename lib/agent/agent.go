@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"github.com/aligang/YandexPracticumGoAdvanced/lib/compress"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/encrypt"
 	"net/http"
@@ -11,14 +12,7 @@ type Agent struct {
 	conf         *config.AgentConfig
 	client       *http.Client
 	cryptoPlugin *encrypt.EncryptionPlugin
-}
-
-func (a *Agent) Do(r *http.Request) (*http.Response, error) {
-	fun := a.client.Do
-	if a.cryptoPlugin != nil {
-		fun = a.cryptoPlugin.EncryptWithPublicKey(fun)
-	}
-	return fun(r)
+	Do           func(r *http.Request) (*http.Response, error)
 }
 
 func New(conf *config.AgentConfig) *Agent {
@@ -28,8 +22,10 @@ func New(conf *config.AgentConfig) *Agent {
 			Timeout: 5 * time.Second,
 		},
 	}
+	a.Do = a.client.Do
+	compress.AgentCompression(a.Do)
 	if conf.CryptoKey != "" {
-		a.cryptoPlugin = encrypt.GetAgentPlugin(conf)
+		encrypt.GetAgentPlugin(conf).EncryptWithPublicKey(a.Do)
 	}
 	return a
 }
