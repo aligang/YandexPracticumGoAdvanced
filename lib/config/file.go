@@ -13,6 +13,9 @@ func getServerConfigFromFile(filePath string) *ServerConfig {
 	}
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(configFromFile)
+	if err != nil {
+		panic(err)
+	}
 	return configFromFile
 }
 
@@ -24,5 +27,8 @@ func getAgentConfigFromFile(filePath string) *AgentConfig {
 	}
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(configFromFile)
+	if err != nil {
+		panic(err)
+	}
 	return configFromFile
 }
