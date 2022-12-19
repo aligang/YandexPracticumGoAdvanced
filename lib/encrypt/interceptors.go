@@ -23,12 +23,8 @@ func (k *EncryptionPlugin) EncryptWithPublicKey(next func(r *http.Request) (*htt
 		if err != nil {
 			logging.Crit("Problem during adding of encrypted payload to request")
 		}
-		response, err := next(encryptedRequest)
-		if err != nil {
-			return nil, err
-		}
-		response.Body.Close()
-		return response, nil
+
+		return next(encryptedRequest)
 	}
 }
 
