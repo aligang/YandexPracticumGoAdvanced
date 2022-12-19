@@ -1,6 +1,7 @@
 package compress
 
 import (
+	"bytes"
 	"compress/gzip"
 	"io"
 	"net/http"
@@ -54,30 +55,30 @@ func GzipHandle(next http.Handler) http.Handler {
 	})
 }
 
-//func AgentCompression(next func(r *http.Request) (*http.Response, error)) func(r *http.Request) (*http.Response, error) {
-//	return func(r *http.Request) (*http.Response, error) {
-//		gbuf := &bytes.Buffer{}
-//		gz, err := gzip.NewWriterLevel(gbuf, gzip.BestSpeed)
-//		if err != nil {
-//			logging.Crit("Error During compressor creation")
-//		}
-//		res, err := io.ReadAll(r.Body)
-//		if err != nil {
-//			logging.Crit("Error During fetching data for compressiong")
-//		}
-//		_, err = gz.Write(res)
-//		gz.Close()
-//
-//		if err != nil {
-//			logging.Warn("Error During compression")
-//		}
-//
-//		compressedRequest, err := http.NewRequest(r.Method, r.RequestURI, gbuf)
-//		if err != nil {
-//			logging.Warn("Error During creation of compressed request")
-//		}
-//		for r.Header.
-//		compressedRequest.Header.
-//		return next(compressedRequest)
-//	}
-//}
+func AgentCompression(next func(r *http.Request) (*http.Response, error)) func(r *http.Request) (*http.Response, error) {
+	return func(r *http.Request) (*http.Response, error) {
+		gbuf := &bytes.Buffer{}
+		gz, err := gzip.NewWriterLevel(gbuf, gzip.BestSpeed)
+		if err != nil {
+			logging.Crit("Error During compressor creation")
+		}
+		res, err := io.ReadAll(r.Body)
+		if err != nil {
+			logging.Crit("Error During fetching data for compressiong")
+		}
+		_, err = gz.Write(res)
+		defer gz.Close()
+
+		compressedBody := io.NopCloser(gbuf)
+		defer compressedBody.Close()
+
+		if err != nil {
+			logging.Warn("Error During compression")
+		}
+		r.Body = compressedBody
+		if err != nil {
+			logging.Warn("Error During creation of compressed request")
+		}
+		return next(r)
+	}
+}

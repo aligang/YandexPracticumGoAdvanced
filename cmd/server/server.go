@@ -1,25 +1,22 @@
 package main
 
 import (
-	"github.com/aligang/YandexPracticumGoAdvanced/lib/encrypt"
-	"log"
-	"net/http"
-	"os"
-
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/compress"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/config"
+	"github.com/aligang/YandexPracticumGoAdvanced/lib/encrypt"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/handler"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/storage"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog"
+	"log"
+	"net/http"
+	"os"
 )
 
 func main() {
 	printBuildInfo()
-	conf := config.NewServer()
-	config.GetServerCLIConfig(conf)
-	config.GetServerENVConfig(conf)
+	conf := config.GetServerConfig()
 	logging.Configure(os.Stdout, zerolog.DebugLevel)
 	logging.Debug("Starting Server with config : %+v\n", *conf)
 	Storage, Type := storage.New(conf)
