@@ -15,7 +15,7 @@ func TestCustomAgentEnv(t *testing.T) {
 		os.Setenv("ADDRESS", ref.Address)
 		os.Setenv("POLL_INTERVAL", ref.PollInterval.String())
 		os.Setenv("REPORT_INTERVAL", ref.ReportInterval.String())
-		GetAgentENVConfig(test)
+		test = getAgentENVConfig()
 		assert.Equal(t, ref, test)
 	})
 }
@@ -29,7 +29,7 @@ func TestCustomServerEnv(t *testing.T) {
 		os.Setenv("STORE_INTERVAL", ref.StoreInterval.String())
 		os.Setenv("RESTORE", "true")
 		os.Setenv("STORE_FILE", ref.StoreFile)
-		GetServerENVConfig(test)
+		test = getServerENVConfig()
 		assert.Equal(t, ref, test)
 	})
 }

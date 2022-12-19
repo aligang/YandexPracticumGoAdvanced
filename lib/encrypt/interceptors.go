@@ -10,6 +10,8 @@ import (
 func (k *EncryptionPlugin) EncryptWithPublicKey(next func(r *http.Request) (*http.Response, error)) func(r *http.Request) (*http.Response, error) {
 	return func(r *http.Request) (*http.Response, error) {
 		body, err := io.ReadAll(r.Body)
+		defer r.Body.Close()
+
 		if err != nil {
 			logging.Crit("Problem during reading request withing middleware")
 		}
@@ -21,7 +23,12 @@ func (k *EncryptionPlugin) EncryptWithPublicKey(next func(r *http.Request) (*htt
 		if err != nil {
 			logging.Crit("Problem during adding of encrypted payload to request")
 		}
-		return next(encryptedRequest)
+		response, err := next(encryptedRequest)
+		if err != nil {
+			return nil, err
+		}
+		response.Body.Close()
+		return response, nil
 	}
 }
 
