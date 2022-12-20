@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/config"
+	"github.com/aligang/YandexPracticumGoAdvanced/lib/encrypt"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/hash"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/metric"
@@ -32,6 +33,9 @@ func (a *Agent) PushData(jbuf *bytes.Buffer, path string) error {
 	if err != nil {
 		logging.Warn("Error During compression")
 		return err
+	}
+	if a.conf.CryptoKey != "" {
+		gbuf = encrypt.EncryptWithPublicKey(gbuf, a.cryptoPlugin.PublicKey)
 	}
 
 	request, err := http.NewRequest("POST", URI, gbuf)

@@ -1,9 +1,12 @@
 package encrypt
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
+	"github.com/aligang/YandexPracticumGoAdvanced/lib/logging"
+	"io"
 )
 
 func EncryptOAEP(public *rsa.PublicKey, rawMessage []byte) ([]byte, error) {
@@ -28,6 +31,18 @@ func EncryptOAEP(public *rsa.PublicKey, rawMessage []byte) ([]byte, error) {
 		encryptedMessage = append(encryptedMessage, encryptedBlockBytes...)
 	}
 	return encryptedMessage, nil
+}
+
+func EncryptWithPublicKey(rawData io.Reader, key *rsa.PublicKey) *bytes.Buffer {
+	body, err := io.ReadAll(rawData)
+	if err != nil {
+		logging.Crit("Problem during reading request payload")
+	}
+	encryptedBytes, err := EncryptOAEP(key, body)
+	if err != nil {
+		logging.Crit("Problem during data encryption")
+	}
+	return bytes.NewBuffer(encryptedBytes)
 }
 
 func DecryptOAEP(private *rsa.PrivateKey, message []byte) ([]byte, error) {
