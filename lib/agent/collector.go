@@ -81,6 +81,7 @@ func (a *Agent) CollectMetrics(ctx context.Context, cfg *config.AgentConfig, bus
 	pollTicker := time.NewTicker(cfg.PollInterval)
 	reportTicker := time.NewTicker(cfg.ReportInterval)
 	pendingData := false
+loop:
 	for {
 		select {
 		case <-pollTicker.C:
@@ -100,7 +101,7 @@ func (a *Agent) CollectMetrics(ctx context.Context, cfg *config.AgentConfig, bus
 			}
 			exit <- struct{}{}
 			exit <- struct{}{}
-			break
+			break loop
 		}
 	}
 }

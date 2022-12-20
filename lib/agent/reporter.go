@@ -86,6 +86,7 @@ func (a *Agent) BulkPushData(m []metric.Metrics) error {
 
 // SendMetrics encode and send metrics one-by-one
 func (a *Agent) SendMetrics(agentConfig *config.AgentConfig, bus <-chan metric.Stats, exit <-chan any) {
+loop:
 	for {
 		select {
 		case stats := <-bus:
@@ -111,13 +112,14 @@ func (a *Agent) SendMetrics(agentConfig *config.AgentConfig, bus <-chan metric.S
 				}
 			}
 		case <-exit:
-			break
+			break loop
 		}
 	}
 }
 
 // BulkSendMetrics bulk encode and send several metrics
 func (a *Agent) BulkSendMetrics(agentConfig *config.AgentConfig, bus <-chan metric.Stats, exit <-chan any) {
+loop:
 	for {
 		select {
 		case stats := <-bus:
@@ -142,7 +144,7 @@ func (a *Agent) BulkSendMetrics(agentConfig *config.AgentConfig, bus <-chan metr
 				logging.Warn("Could not Push data: %s", err.Error())
 			}
 		case <-exit:
-			break
+			break loop
 		}
 	}
 }
