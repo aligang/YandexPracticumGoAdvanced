@@ -22,8 +22,8 @@ func New(conf *config.AgentConfig) *Agent {
 		},
 	}
 	a.Do = a.client.Do
-	if conf.CryptoKey != "" {
-		a.Do = encrypt.GetAgentPlugin(conf).EncryptWithPublicKey(a.Do)
-	}
+	//if conf.CryptoKey != "" {
+	//	a.Do = encrypt.GetAgentPlugin(conf).EncryptWithPublicKey(a.Do)
+	//}
 	return a
 }
