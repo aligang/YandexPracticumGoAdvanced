@@ -39,7 +39,7 @@ func main() {
 	mux.With(compress.GzipHandle, encryption.DecryptWithPrivateKey).Post("/value/", mux.FetchWithJSON)
 	mux.Get("/ping", mux.Ping)
 
-	srv := http.Server{Addr: ":8080", Handler: mux}
+	srv := http.Server{Addr: conf.Address, Handler: mux}
 
 	idleConnsClosed := make(chan struct{})
 	exitSignal := make(chan os.Signal, 1)
