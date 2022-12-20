@@ -85,61 +85,64 @@ func (a *Agent) BulkPushData(m []metric.Metrics) error {
 }
 
 // SendMetrics encode and send metrics one-by-one
-func (a *Agent) SendMetrics(agentConfig *config.AgentConfig, bus <-chan metric.Stats) {
-	iteration := 0
-	for stats := range bus {
-		logging.Debug("Running Iteration %d\n", iteration)
-		for name, value := range stats.Gauge {
-			m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
-			if len(agentConfig.Key) > 0 {
-				hash.AddHashInfo(m, agentConfig.Key)
+func (a *Agent) SendMetrics(agentConfig *config.AgentConfig, bus <-chan metric.Stats, exit <-chan any) {
+	for {
+		select {
+		case stats := <-bus:
+			for name, value := range stats.Gauge {
+				m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
+				if len(agentConfig.Key) > 0 {
+					hash.AddHashInfo(m, agentConfig.Key)
+				}
+				err := a.UnaryPushData(m)
+				if err != nil {
+					logging.Logger.Warn().Msg(err.Error())
+				}
 			}
-			err := a.UnaryPushData(m)
-			if err != nil {
-				logging.Logger.Warn().Msg(err.Error())
+			for name, value := range stats.Counter {
+				m := &metric.Metrics{ID: name, MType: "counter", Delta: &value}
+				if len(agentConfig.Key) > 0 {
+					hash.AddHashInfo(m, agentConfig.Key)
+				}
+				logging.Debug("Updating value of counter: %+v with delta: %d\n", *m, *m.Delta)
+				err := a.UnaryPushData(m)
+				if err != nil {
+					logging.Logger.Warn().Msg(err.Error())
+				}
 			}
+		case <-exit:
+			break
 		}
-		for name, value := range stats.Counter {
-			m := &metric.Metrics{ID: name, MType: "counter", Delta: &value}
-			if len(agentConfig.Key) > 0 {
-				hash.AddHashInfo(m, agentConfig.Key)
-			}
-			logging.Debug("Updating value of counter: %+v with delta: %d\n", *m, *m.Delta)
-			err := a.UnaryPushData(m)
-			if err != nil {
-				logging.Logger.Warn().Msg(err.Error())
-			}
-		}
-		iteration++
 	}
 }
 
 // BulkSendMetrics bulk encode and send several metrics
-func (a *Agent) BulkSendMetrics(agentConfig *config.AgentConfig, bus <-chan metric.Stats) {
-	iteration := 0
-
-	for stats := range bus {
-		metrics := []metric.Metrics{}
-		logging.Debug("Running Iteration %d\n", iteration)
-		for name, value := range stats.Gauge {
-			m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
-			if len(agentConfig.Key) > 0 {
-				hash.AddHashInfo(m, agentConfig.Key)
+func (a *Agent) BulkSendMetrics(agentConfig *config.AgentConfig, bus <-chan metric.Stats, exit <-chan any) {
+	for {
+		select {
+		case stats := <-bus:
+			metrics := []metric.Metrics{}
+			for name, value := range stats.Gauge {
+				m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
+				if len(agentConfig.Key) > 0 {
+					hash.AddHashInfo(m, agentConfig.Key)
+				}
+				metrics = append(metrics, *m)
 			}
-			metrics = append(metrics, *m)
-		}
-		for name, value := range stats.Counter {
-			m := &metric.Metrics{ID: name, MType: "counter", Delta: &value}
-			if len(agentConfig.Key) > 0 {
-				hash.AddHashInfo(m, agentConfig.Key)
+			for name, value := range stats.Counter {
+				m := &metric.Metrics{ID: name, MType: "counter", Delta: &value}
+				if len(agentConfig.Key) > 0 {
+					hash.AddHashInfo(m, agentConfig.Key)
+				}
+				logging.Debug("Updating value of counter: %+v with delta: %d\n", *m, *m.Delta)
+				metrics = append(metrics, *m)
 			}
-			logging.Debug("Updating value of counter: %+v with delta: %d\n", *m, *m.Delta)
-			metrics = append(metrics, *m)
+			err := a.BulkPushData(metrics)
+			if err != nil {
+				logging.Warn("Could not Push data: %s", err.Error())
+			}
+		case <-exit:
+			break
 		}
-		err := a.BulkPushData(metrics)
-		if err != nil {
-			logging.Warn("Could not Push data: %s", err.Error())
-		}
-		iteration++
 	}
 }
