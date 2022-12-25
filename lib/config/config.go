@@ -14,6 +14,7 @@ type ServerConfig struct {
 	DatabaseDsn   string        `env:"DATABASE_DSN" envDefault:"" json:"database_dsn"`
 	CryptoKey     string        `env:"CRYPTO_KEY" envDefault:"" json:"crypto_key"`
 	Config        string        `env:"CONFIG" envDefault:""`
+	TrustedSubnet string        `env:"TRUSTED_SUBNET" envDefault:"" json:"trusted_subnet"`
 }
 
 func (s *ServerConfig) Merge(a ...*ServerConfig) *ServerConfig {

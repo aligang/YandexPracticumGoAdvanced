@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/aligang/YandexPracticumGoAdvanced/lib/accesslist"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/compress"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/encrypt"
@@ -31,9 +32,19 @@ func main() {
 	mux.Use(middleware.RealIP)
 	mux.Use(middleware.Recoverer)
 
-	mux.Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)
-	mux.With(compress.GzipHandle, encryption.DecryptWithPrivateKey).Post("/update/", mux.UpdateWithJSON)
-	mux.With(compress.GzipHandle, encryption.DecryptWithPrivateKey).Post("/updates/", mux.BulkUpdate)
+	mux.With(
+		accesslist.IPValidationInterceptor(conf.TrustedSubnet),
+	).Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)
+	mux.With(
+		accesslist.IPValidationInterceptor(conf.TrustedSubnet),
+		compress.GzipHandle,
+		encryption.DecryptWithPrivateKey,
+	).Post("/update/", mux.UpdateWithJSON)
+	mux.With(
+		accesslist.IPValidationInterceptor(conf.TrustedSubnet),
+		compress.GzipHandle,
+		encryption.DecryptWithPrivateKey,
+	).Post("/updates/", mux.BulkUpdate)
 
 	mux.With(compress.GzipHandle).Get("/", mux.FetchAll)
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
