@@ -19,6 +19,13 @@ func ValidateSourceIP(allowedSubnet *net.IPNet, r *http.Request) error {
 }
 
 func IPValidationInterceptor(allowedSubnet string) func(http.Handler) http.Handler {
+	if allowedSubnet == "" {
+		return func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				next.ServeHTTP(w, r)
+			})
+		}
+	}
 	_, subnet, err := net.ParseCIDR(allowedSubnet)
 	if err != nil {
 		panic(err)
