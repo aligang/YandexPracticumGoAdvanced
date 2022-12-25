@@ -32,21 +32,22 @@ func main() {
 	wg.Add(1)
 	go func() {
 		a.CollectMetrics(ctx, conf, bus, stopWorkers)
-		wg.Add(-1)
+		wg.Done()
 	}()
 	wg.Add(1)
 	go func() {
 		a.SendMetrics(conf, bus, stopWorkers)
-		wg.Add(-1)
+		wg.Done()
 	}()
 
 	wg.Add(1)
 	go func() {
 		a.BulkSendMetrics(conf, bus, stopWorkers)
-		wg.Add(-1)
+		wg.Done()
 	}()
 
 	<-exitSignal
 	cancel()
+	wg.Wait()
 	os.Exit(0)
 }

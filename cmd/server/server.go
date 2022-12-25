@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 )
 
@@ -44,17 +45,20 @@ func main() {
 	idleConnsClosed := make(chan struct{})
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-
+	wg := sync.WaitGroup{}
+	wg.Add(1)
 	go func() {
 		<-exitSignal
 		if err := srv.Shutdown(context.Background()); err != nil {
 			log.Printf("HTTP server Shutdown: %v", err)
 		}
 		close(idleConnsClosed)
+		wg.Done()
 	}()
 
 	err := srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}
+	wg.Wait()
 }
