@@ -1,6 +1,7 @@
-package collector
+package agent
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	"runtime"
@@ -70,7 +71,7 @@ func CollectVirtualMemoryStats(m *metric.Stats) {
 }
 
 // CollectMetrics goroutine that fetches data from host
-func CollectMetrics(cfg *config.AgentConfig, bus chan metric.Stats) {
+func (a *Agent) CollectMetrics(ctx context.Context, cfg *config.AgentConfig, bus chan metric.Stats, exit chan interface{}) {
 	m := &metric.Stats{
 		Gauge:   map[string]float64{},
 		Counter: map[string]int64{},
@@ -79,6 +80,8 @@ func CollectMetrics(cfg *config.AgentConfig, bus chan metric.Stats) {
 	r := rand.New(s)
 	pollTicker := time.NewTicker(cfg.PollInterval)
 	reportTicker := time.NewTicker(cfg.ReportInterval)
+	pendingData := false
+loop:
 	for {
 		select {
 		case <-pollTicker.C:
@@ -86,9 +89,19 @@ func CollectMetrics(cfg *config.AgentConfig, bus chan metric.Stats) {
 			CollectOperStats(m, r)
 			CollectCPUStats(m)
 			CollectVirtualMemoryStats(m)
+			pendingData = true
 		case <-reportTicker.C:
 			bus <- *m
 			bus <- *m
+			pendingData = false
+		case <-ctx.Done():
+			if pendingData {
+				bus <- *m
+				bus <- *m
+			}
+			exit <- struct{}{}
+			exit <- struct{}{}
+			break loop
 		}
 	}
 }

@@ -1,42 +1,64 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"os"
-
+	"context"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/compress"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/config"
+	"github.com/aligang/YandexPracticumGoAdvanced/lib/encrypt"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/handler"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/storage"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 )
 
 func main() {
 	printBuildInfo()
-	conf := config.NewServer()
-	config.GetServerCLIConfig(conf)
-	config.GetServerENVConfig(conf)
+	conf := config.GetServerConfig()
 	logging.Configure(os.Stdout, zerolog.DebugLevel)
 	logging.Debug("Starting Server with config : %+v\n", *conf)
 	Storage, Type := storage.New(conf)
+
+	encryption := encrypt.GetServerPlugin(conf)
 	mux := handler.New(Storage, conf.Key, Type)
 	mux.Use(middleware.RequestID)
 	mux.Use(middleware.RealIP)
 	mux.Use(middleware.Recoverer)
 
 	mux.Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)
-	mux.Post("/update/", compress.GzipHandle(mux.UpdateWithJSON))
-	mux.Post("/updates/", compress.GzipHandle(mux.BulkUpdate))
+	mux.With(compress.GzipHandle, encryption.DecryptWithPrivateKey).Post("/update/", mux.UpdateWithJSON)
+	mux.With(compress.GzipHandle, encryption.DecryptWithPrivateKey).Post("/updates/", mux.BulkUpdate)
 
-	mux.Get("/", compress.GzipHandle(mux.FetchAll))
+	mux.With(compress.GzipHandle).Get("/", mux.FetchAll)
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
-	mux.Post("/value/", compress.GzipHandle(mux.FetchWithJSON))
-
+	mux.With(compress.GzipHandle, encryption.DecryptWithPrivateKey).Post("/value/", mux.FetchWithJSON)
 	mux.Get("/ping", mux.Ping)
 
-	log.Fatal(http.ListenAndServe(conf.Address, mux))
+	srv := http.Server{Addr: conf.Address, Handler: mux}
 
+	idleConnsClosed := make(chan struct{})
+	exitSignal := make(chan os.Signal, 1)
+	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		<-exitSignal
+		if err := srv.Shutdown(context.Background()); err != nil {
+			log.Printf("HTTP server Shutdown: %v", err)
+		}
+		close(idleConnsClosed)
+		wg.Done()
+	}()
+
+	err := srv.ListenAndServe()
+	if err != nil {
+		log.Fatal(err)
+	}
+	wg.Wait()
 }

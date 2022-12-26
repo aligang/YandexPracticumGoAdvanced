@@ -14,6 +14,9 @@ import (
 // BulkUpdate server API to upload multiple metrics
 func (h APIHandler) BulkUpdate(w http.ResponseWriter, r *http.Request) {
 	var metricSlice []metric.Metrics
+
+	// DECRYPT_HERE
+
 	payload, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Could not read data", http.StatusUnsupportedMediaType)

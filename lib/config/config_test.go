@@ -1,13 +1,9 @@
 package config
 
 func ExampleServerConfig() {
-	conf := NewServer()
-	GetServerCLIConfig(conf)
-	GetServerENVConfig(conf)
+	GetServerConfig()
 }
 
 func ExampleAgentConfig() {
-	conf := NewAgent()
-	GetAgentCLIConfig(conf)
-	GetAgentENVConfig(conf)
+	GetAgentConfig()
 }

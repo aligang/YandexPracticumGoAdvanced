@@ -13,6 +13,9 @@ import (
 // FetchWithJSON server API to download single metric with json-provided request
 func (h APIHandler) FetchWithJSON(w http.ResponseWriter, r *http.Request) {
 	var m metric.Metrics
+
+	// DECRYPT_HERE
+
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&m)
 	if err != nil {

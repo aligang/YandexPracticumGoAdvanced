@@ -6,9 +6,7 @@ import (
 )
 
 func ExampleAPIHandler() {
-	conf := config.NewServer()
-	config.GetServerCLIConfig(conf)
-	config.GetServerENVConfig(conf)
+	conf := config.GetServerConfig()
 	Storage, Type := storage.New(conf)
 	mux := New(Storage, conf.Key, Type)
 	mux.Post("/update/{metricType}/{metricName}/{metricValue}", mux.Update)

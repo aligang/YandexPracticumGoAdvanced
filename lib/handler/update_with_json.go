@@ -19,6 +19,9 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not read data", http.StatusUnsupportedMediaType)
 		return
 	}
+
+	// DECRYPT_HERE
+
 	logging.Debug("Received JSON:")
 	logging.Debug(string(payload))
 	err = json.Unmarshal(payload, &m)
