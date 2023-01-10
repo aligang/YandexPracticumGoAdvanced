@@ -12,6 +12,5 @@ func (s *GrpcHandler) FetchAll(ctx context.Context, in *empty.Empty) (*service.F
 	for name, m := range s.BaseFetchAll() {
 		r.Metrics[name] = converter.ConvertMetricEntity(&m)
 	}
-
 	return r, nil
 }

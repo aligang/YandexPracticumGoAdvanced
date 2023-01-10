@@ -21,9 +21,9 @@ func (s *GrpcHandler) BulkUpdate(ctx context.Context, req *service.BulkUpdateReq
 	err := s.BaseBulkUpdate(metrics)
 	if err != nil {
 		switch {
-		case errors.As(err, &appErrors.InvalidMetricType):
+		case errors.Is(err, appErrors.InvalidMetricType):
 			return nil, status.Errorf(codes.InvalidArgument, err.Error())
-		case errors.As(err, &appErrors.InvalidHashValue):
+		case errors.Is(err, appErrors.InvalidHashValue):
 			return nil, status.Errorf(codes.InvalidArgument, err.Error())
 		default:
 			return nil, status.Errorf(codes.Unavailable, errors.Unwrap(err).Error())

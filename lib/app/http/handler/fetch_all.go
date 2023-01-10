@@ -8,7 +8,7 @@ import (
 
 // FetchAll app API to download all metrics
 func (h HTTPHandler) FetchAll(w http.ResponseWriter, r *http.Request) {
-	output, err := json.Marshal(h.Storage.Dump())
+	output, err := json.Marshal(h.BaseFetchAll())
 	if err != nil {
 		logging.Warn("Problem During serialization of database")
 		http.Error(w, "Problem During serialization of database", http.StatusInternalServerError)

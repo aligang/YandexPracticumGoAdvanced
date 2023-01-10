@@ -8,19 +8,10 @@ import (
 
 // Ping app API to check connectivity ot repository
 func (h HTTPHandler) Ping(w http.ResponseWriter, r *http.Request) {
-	if h.Config.StorageType == "Memory" {
-		logging.Warn("Ping Handler is not supported for current storage type")
-		http.Error(w, "", http.StatusInternalServerError)
-		return
-	}
-
-	if h.Config.StorageType == "Database" {
-		err := h.Storage.IsAlive()
-		if err != nil {
-			logging.Warn("DB Storage connection id dead")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	err := h.BasePing()
+	if err != nil {
+		logging.Warn(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/aligang/YandexPracticumGoAdvanced/lib/hash"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/metric"
 )
@@ -20,28 +19,19 @@ func (h HTTPHandler) FetchWithJSON(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Mailformed JSON", http.StatusBadRequest)
 		return
 	}
-	//COMMON PART
-	if m.MType != "gauge" && m.MType != "counter" {
-		logging.Warn("Invalid Metric Type")
-		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
-		return
-	}
-	result, found := h.Storage.Get(m.ID)
-	if found && h.Config.HashKey != "" {
-		hash.AddHashInfo(&result, h.Config.HashKey)
-	}
-	//COMMON PART
-	if found {
-		j, err := json.Marshal(&result)
-		if err != nil {
-			logging.Warn("Could not encode Json")
-			http.Error(w, "Mailformed JSON", http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(j)
-	} else {
+	result, err := h.BaseFetch(m)
+	if err != nil {
 		http.Error(w, fmt.Sprintf("Metric  with name=%s not found", m.ID), http.StatusNotFound)
 	}
+
+	j, err := json.Marshal(&result)
+	if err != nil {
+		logging.Warn("Could not encode Json")
+		http.Error(w, "Mailformed JSON", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(j)
+
 }

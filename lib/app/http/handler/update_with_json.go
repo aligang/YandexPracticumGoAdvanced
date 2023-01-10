@@ -2,10 +2,11 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
+	appErrors "github.com/aligang/YandexPracticumGoAdvanced/lib/app/base/errors"
 	"io"
 	"net/http"
 
-	"github.com/aligang/YandexPracticumGoAdvanced/lib/hash"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/metric"
 )
@@ -28,30 +29,22 @@ func (h HTTPHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON received", http.StatusBadRequest)
 		return
 	}
-	//COMMON PART
-	if m.MType != "gauge" && m.MType != "counter" {
-		logging.Warn("Invalid Metric Type")
-		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
-		return
-	}
-	if h.Config.HashKey != "" {
-		logging.Debug("Validating hash ...")
-		if !hash.CheckHashInfo(&m, h.Config.HashKey) {
-			logging.Warn("Invalid Hash")
+
+	err = h.BaseUpdate(m)
+	if err != nil {
+		switch {
+		case errors.Is(err, appErrors.InvalidMetricType):
+			http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
+			return
+		case errors.Is(err, appErrors.InvalidHashValue):
 			http.Error(w, "Invalid Hash", http.StatusBadRequest)
 			return
-		} else {
-			logging.Debug("Hash validation succeeded")
+		default:
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
-	} else {
-		logging.Debug("Skipping hash validation")
 	}
-	err = h.Storage.Update(m)
-	//COMMON PART
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 }

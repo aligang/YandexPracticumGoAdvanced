@@ -2,11 +2,11 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
+	appErrors "github.com/aligang/YandexPracticumGoAdvanced/lib/app/base/errors"
 	"io"
 	"net/http"
 
-	"github.com/aligang/YandexPracticumGoAdvanced/lib/hash"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/logging"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/metric"
 )
@@ -30,36 +30,19 @@ func (h HTTPHandler) BulkUpdate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON received", http.StatusBadRequest)
 		return
 	}
-	aggregatedMetrics := map[string]metric.Metrics{}
-	for _, m := range metricSlice {
-		if m.MType != "gauge" && m.MType != "counter" {
-			logging.Warn("Invalid Metric Type")
+	err = h.BaseBulkUpdate(metricSlice)
+	if err != nil {
+		switch {
+		case errors.Is(err, appErrors.InvalidMetricType):
 			http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
 			return
+		case errors.Is(err, appErrors.InvalidHashValue):
+			http.Error(w, "Invalid Hash", http.StatusBadRequest)
+			return
+		default:
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
-		if h.Config.HashKey != "" {
-			logging.Debug("Validating hash ...")
-			if !hash.CheckHashInfo(&m, h.Config.HashKey) {
-				logging.Warn("Invalid Hash")
-				http.Error(w, "Invalid Hash", http.StatusBadRequest)
-				return
-			}
-			logging.Debug("Hash validation succeeded")
-		} else {
-			logging.Debug("Skipping hash validation")
-		}
-		_, found := aggregatedMetrics[m.ID]
-		if m.MType == "counter" && found {
-			*aggregatedMetrics[m.ID].Delta += *m.Delta
-		} else {
-			aggregatedMetrics[m.ID] = m
-		}
-	}
-
-	err = h.Storage.BulkUpdate(aggregatedMetrics)
-	if err != nil {
-		msg := fmt.Sprintf("Error during BulkUpdate: %s", err.Error())
-		http.Error(w, msg, http.StatusInternalServerError)
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
