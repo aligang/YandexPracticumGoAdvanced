@@ -6,12 +6,12 @@ import (
 	"github.com/caarlos0/env/v6"
 )
 
-// GetServerENVConfig enriches server configuration with ENV defined params
+// GetServerENVConfig enriches app configuration with ENV defined params
 func getServerENVConfig() *ServerConfig {
 	envConf := &ServerConfig{}
 	err := env.Parse(envConf)
 	if err != nil {
-		fmt.Println("Could not fetch server ENV params")
+		fmt.Println("Could not fetch app ENV params")
 		panic(err)
 	}
 	//if envConf.Address != "" {

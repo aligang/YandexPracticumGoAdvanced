@@ -4,9 +4,10 @@ import (
 	"time"
 )
 
-// ServerConfig represents configuration of server
+// ServerConfig represents configuration of app
 type ServerConfig struct {
 	Address       string        `env:"ADDRESS" envDefault:"" json:"address"`
+	GrpcAddress   string        `env:"GRPC_ADDRESS" envDefault:"" json:"grpc_address"`
 	StoreInterval time.Duration `env:"STORE_INTERVAL" envDefault:"-1s" json:"store_interval"`
 	StoreFile     string        `env:"STORE_FILE" envDefault:"" json:"store_file"`
 	Restore       bool          `env:"RESTORE" envDefault:"false" json:"restore"`
@@ -14,12 +15,16 @@ type ServerConfig struct {
 	DatabaseDsn   string        `env:"DATABASE_DSN" envDefault:"" json:"database_dsn"`
 	CryptoKey     string        `env:"CRYPTO_KEY" envDefault:"" json:"crypto_key"`
 	Config        string        `env:"CONFIG" envDefault:""`
+	TrustedSubnet string        `env:"TRUSTED_SUBNET" envDefault:"" json:"trusted_subnet"`
 }
 
 func (s *ServerConfig) Merge(a ...*ServerConfig) *ServerConfig {
 	for _, another := range a {
 		if s.Address == "" && another.Address != "" {
 			s.Address = another.Address
+		}
+		if s.GrpcAddress == "" && another.GrpcAddress != "" {
+			s.GrpcAddress = another.GrpcAddress
 		}
 		if s.StoreFile == "" && another.StoreFile != "" {
 			s.StoreFile = another.StoreFile
@@ -47,6 +52,7 @@ func (s *ServerConfig) Merge(a ...*ServerConfig) *ServerConfig {
 // AgentConfig represents configuration of agent
 type AgentConfig struct {
 	Address        string        `env:"ADDRESS" envDefault:"" json:"address"`
+	GrpcAddress    string        `env:"GRPC_ADDRESS" envDefault:"" json:"grpc_address"`
 	PollInterval   time.Duration `env:"POLL_INTERVAL" envDefault:"-1s" json:"poll_interval"`
 	ReportInterval time.Duration `env:"REPORT_INTERVAL" envDefault:"-1s" json:"report_interval"`
 	Key            string        `env:"KEY" envDefault:"" json:"key"`
@@ -58,6 +64,9 @@ func (s *AgentConfig) Merge(a ...*AgentConfig) *AgentConfig {
 	for _, another := range a {
 		if s.Address == "" && another.Address != "" {
 			s.Address = another.Address
+		}
+		if s.GrpcAddress == "" && another.GrpcAddress != "" {
+			s.GrpcAddress = another.GrpcAddress
 		}
 		if s.Key == "" && another.Key != "" {
 			s.Key = another.Key
