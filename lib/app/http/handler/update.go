@@ -10,18 +10,12 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// Update server API to upload single metric without payload-provided request
+// Update app API to upload single metric without payload-provided request
 func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Processing incoming update to: %s\n", r.URL.String())
 	metricType := chi.URLParam(r, "metricType")
 	metricName := chi.URLParam(r, "metricName")
 	metricValue := chi.URLParam(r, "metricValue")
-
-	if !checkMetricType(&metricType) {
-		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
-		logging.Warn("Got unsupported metric Type %s\n", metricType)
-		return
-	}
 
 	if !checkMetricValueFormat(metricType, metricValue) {
 		http.Error(w, "Incorrect Metric Format", http.StatusBadRequest)
@@ -53,9 +47,17 @@ func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
 		}
 		m.Delta = &value
 	}
+
+	if m.MType != "gauge" && m.MType != "counter" {
+		logging.Warn("Invalid Metric Type")
+		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
+		return
+	}
+
 	logging.Debug("Value is metric: %+v\n", m)
 	logging.Debug("Updating storage with metric %+v\n", m)
 	err := h.Storage.Update(m)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}

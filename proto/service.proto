@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package proto.server;
+
+option go_package = "github.com/aligang/YandexPracticumGoAdvanced/lib/app/grpc/generated/service";
+
+import "proto/metric.proto";
+import "google/protobuf/empty.proto";
+
+service MetricsService {
+  rpc Update(proto.common.Metric)
+      returns (google.protobuf.Empty);
+
+  rpc BulkUpdate(BulkUpdateRequest)
+      returns (google.protobuf.Empty);
+
+  rpc Get(proto.common.Metric)
+      returns (proto.common.Metric);
+
+  rpc Ping(google.protobuf.Empty)
+      returns (proto.common.Metric);
+}
+
+
+message BulkUpdateRequest {
+  repeated proto.common.Metric metrics = 1;
+}

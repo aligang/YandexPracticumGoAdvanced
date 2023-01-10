@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// GetServerCLIConfig enriches server configuration with CLI defined params
+// GetServerCLIConfig enriches app configuration with CLI defined params
 //func GetServerCLIConfig(conf *ServerConfig) {
 //	flag.StringVar(&conf.Address, "a", "127.0.0.1:8080", "host to listen on")
 //	flag.DurationVar(&conf.StoreInterval, "i", 300*time.Second, "period to backup data")

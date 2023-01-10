@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// FetchAll server API to download all metrics
+// FetchAll app API to download all metrics
 func (h APIHandler) FetchAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
@@ -23,7 +23,7 @@ func (h APIHandler) FetchAll(w http.ResponseWriter, r *http.Request) {
 	w.Write(output)
 }
 
-// Fetch server API to download single metric without payload-provided request
+// Fetch app API to download single metric without payload-provided request
 func (h APIHandler) Fetch(w http.ResponseWriter, r *http.Request) {
 	metricType := chi.URLParam(r, "metricType")
 	metricName := chi.URLParam(r, "metricName")

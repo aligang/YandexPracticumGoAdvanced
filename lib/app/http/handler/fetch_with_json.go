@@ -10,7 +10,7 @@ import (
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/metric"
 )
 
-// FetchWithJSON server API to download single metric with json-provided request
+// FetchWithJSON app API to download single metric with json-provided request
 func (h APIHandler) FetchWithJSON(w http.ResponseWriter, r *http.Request) {
 	var m metric.Metrics
 

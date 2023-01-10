@@ -10,7 +10,7 @@ import (
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/metric"
 )
 
-// UpdateWithJSON server API to upload single metric with json-formated request
+// UpdateWithJSON app API to upload single metric with json-formated request
 func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 	var m metric.Metrics
 
@@ -30,6 +30,7 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON received", http.StatusBadRequest)
 		return
 	}
+
 	if m.MType != "gauge" && m.MType != "counter" {
 		logging.Warn("Invalid Metric Type")
 		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
@@ -47,8 +48,8 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 	} else {
 		logging.Debug("Skipping hash validation")
 	}
-
 	err = h.Storage.Update(m)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}

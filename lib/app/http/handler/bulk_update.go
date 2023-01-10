@@ -11,7 +11,7 @@ import (
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/metric"
 )
 
-// BulkUpdate server API to upload multiple metrics
+// BulkUpdate app API to upload multiple metrics
 func (h APIHandler) BulkUpdate(w http.ResponseWriter, r *http.Request) {
 	var metricSlice []metric.Metrics
 

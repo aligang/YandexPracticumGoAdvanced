@@ -6,7 +6,7 @@ import (
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/logging"
 )
 
-// Ping server API to check connectivity ot repository
+// Ping app API to check connectivity ot repository
 func (h APIHandler) Ping(w http.ResponseWriter, r *http.Request) {
 	if h.Config.StorageType == "Memory" {
 		logging.Warn("Ping Handler is not supported for current storage type")
