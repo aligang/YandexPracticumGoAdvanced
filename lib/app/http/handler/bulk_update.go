@@ -12,7 +12,7 @@ import (
 )
 
 // BulkUpdate app API to upload multiple metrics
-func (h APIHandler) BulkUpdate(w http.ResponseWriter, r *http.Request) {
+func (h HTTPHandler) BulkUpdate(w http.ResponseWriter, r *http.Request) {
 	var metricSlice []metric.Metrics
 
 	// DECRYPT_HERE

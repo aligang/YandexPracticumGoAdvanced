@@ -20,7 +20,7 @@ func ConvertMetric(in *common.Metric) metric.Metrics {
 	return m
 }
 
-func ConvertMetricEntity(e metric.Metrics) *common.Metric {
+func ConvertMetricEntity(e *metric.Metrics) *common.Metric {
 
 	m := common.Metric{
 		ID:           e.ID,

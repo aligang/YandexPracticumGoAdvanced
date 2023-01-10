@@ -87,7 +87,7 @@ func main() {
 			close(httpShutdownSignal)
 			wg.Done()
 		}()
-
+		logging.Debug("HTTP Server Starts...")
 		err := srv.ListenAndServe()
 		if err != nil {
 			log.Fatal(err)

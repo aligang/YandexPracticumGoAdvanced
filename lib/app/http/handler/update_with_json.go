@@ -11,7 +11,7 @@ import (
 )
 
 // UpdateWithJSON app API to upload single metric with json-formated request
-func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
+func (h HTTPHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 	var m metric.Metrics
 
 	payload, err := io.ReadAll(r.Body)
@@ -19,8 +19,6 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Could not read data", http.StatusUnsupportedMediaType)
 		return
 	}
-
-	// DECRYPT_HERE
 
 	logging.Debug("Received JSON:")
 	logging.Debug(string(payload))
@@ -30,7 +28,7 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON received", http.StatusBadRequest)
 		return
 	}
-
+	//COMMON PART
 	if m.MType != "gauge" && m.MType != "counter" {
 		logging.Warn("Invalid Metric Type")
 		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
@@ -49,6 +47,7 @@ func (h APIHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 		logging.Debug("Skipping hash validation")
 	}
 	err = h.Storage.Update(m)
+	//COMMON PART
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

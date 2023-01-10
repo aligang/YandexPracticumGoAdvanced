@@ -11,7 +11,7 @@ import (
 )
 
 // Update app API to upload single metric without payload-provided request
-func (h APIHandler) Update(w http.ResponseWriter, r *http.Request) {
+func (h HTTPHandler) Update(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Processing incoming update to: %s\n", r.URL.String())
 	metricType := chi.URLParam(r, "metricType")
 	metricName := chi.URLParam(r, "metricName")

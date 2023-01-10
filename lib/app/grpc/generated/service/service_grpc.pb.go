@@ -8,7 +8,7 @@ package service
 
 import (
 	context "context"
-	"github.com/aligang/YandexPracticumGoAdvanced/lib/app/grpc/generated/common"
+	common "github.com/aligang/YandexPracticumGoAdvanced/lib/app/grpc/generated/common"
 	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -26,8 +26,9 @@ const _ = grpc.SupportPackageIsVersion7
 type MetricsServiceClient interface {
 	Update(ctx context.Context, in *common.Metric, opts ...grpc.CallOption) (*empty.Empty, error)
 	BulkUpdate(ctx context.Context, in *BulkUpdateRequest, opts ...grpc.CallOption) (*empty.Empty, error)
-	Get(ctx context.Context, in *common.Metric, opts ...grpc.CallOption) (*common.Metric, error)
-	Ping(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*common.Metric, error)
+	Fetch(ctx context.Context, in *common.Metric, opts ...grpc.CallOption) (*common.Metric, error)
+	FetchAll(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*FetchAllResponse, error)
+	Ping(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
 type metricsServiceClient struct {
@@ -56,17 +57,26 @@ func (c *metricsServiceClient) BulkUpdate(ctx context.Context, in *BulkUpdateReq
 	return out, nil
 }
 
-func (c *metricsServiceClient) Get(ctx context.Context, in *common.Metric, opts ...grpc.CallOption) (*common.Metric, error) {
+func (c *metricsServiceClient) Fetch(ctx context.Context, in *common.Metric, opts ...grpc.CallOption) (*common.Metric, error) {
 	out := new(common.Metric)
-	err := c.cc.Invoke(ctx, "/proto.server.MetricsService/Get", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.server.MetricsService/Fetch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *metricsServiceClient) Ping(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*common.Metric, error) {
-	out := new(common.Metric)
+func (c *metricsServiceClient) FetchAll(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*FetchAllResponse, error) {
+	out := new(FetchAllResponse)
+	err := c.cc.Invoke(ctx, "/proto.server.MetricsService/FetchAll", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *metricsServiceClient) Ping(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/proto.server.MetricsService/Ping", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -80,8 +90,9 @@ func (c *metricsServiceClient) Ping(ctx context.Context, in *empty.Empty, opts .
 type MetricsServiceServer interface {
 	Update(context.Context, *common.Metric) (*empty.Empty, error)
 	BulkUpdate(context.Context, *BulkUpdateRequest) (*empty.Empty, error)
-	Get(context.Context, *common.Metric) (*common.Metric, error)
-	Ping(context.Context, *empty.Empty) (*common.Metric, error)
+	Fetch(context.Context, *common.Metric) (*common.Metric, error)
+	FetchAll(context.Context, *empty.Empty) (*FetchAllResponse, error)
+	Ping(context.Context, *empty.Empty) (*empty.Empty, error)
 	mustEmbedUnimplementedMetricsServiceServer()
 }
 
@@ -95,10 +106,13 @@ func (UnimplementedMetricsServiceServer) Update(context.Context, *common.Metric)
 func (UnimplementedMetricsServiceServer) BulkUpdate(context.Context, *BulkUpdateRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BulkUpdate not implemented")
 }
-func (UnimplementedMetricsServiceServer) Get(context.Context, *common.Metric) (*common.Metric, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+func (UnimplementedMetricsServiceServer) Fetch(context.Context, *common.Metric) (*common.Metric, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Fetch not implemented")
 }
-func (UnimplementedMetricsServiceServer) Ping(context.Context, *empty.Empty) (*common.Metric, error) {
+func (UnimplementedMetricsServiceServer) FetchAll(context.Context, *empty.Empty) (*FetchAllResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FetchAll not implemented")
+}
+func (UnimplementedMetricsServiceServer) Ping(context.Context, *empty.Empty) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
 func (UnimplementedMetricsServiceServer) mustEmbedUnimplementedMetricsServiceServer() {}
@@ -150,20 +164,38 @@ func _MetricsService_BulkUpdate_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MetricsService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MetricsService_Fetch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(common.Metric)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MetricsServiceServer).Get(ctx, in)
+		return srv.(MetricsServiceServer).Fetch(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.server.MetricsService/Get",
+		FullMethod: "/proto.server.MetricsService/Fetch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MetricsServiceServer).Get(ctx, req.(*common.Metric))
+		return srv.(MetricsServiceServer).Fetch(ctx, req.(*common.Metric))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MetricsService_FetchAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(empty.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MetricsServiceServer).FetchAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.server.MetricsService/FetchAll",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MetricsServiceServer).FetchAll(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -202,8 +234,12 @@ var MetricsService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MetricsService_BulkUpdate_Handler,
 		},
 		{
-			MethodName: "Get",
-			Handler:    _MetricsService_Get_Handler,
+			MethodName: "Fetch",
+			Handler:    _MetricsService_Fetch_Handler,
+		},
+		{
+			MethodName: "FetchAll",
+			Handler:    _MetricsService_FetchAll_Handler,
 		},
 		{
 			MethodName: "Ping",

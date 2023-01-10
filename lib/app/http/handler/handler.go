@@ -1,25 +1,19 @@
 package handler
 
 import (
-	"github.com/aligang/YandexPracticumGoAdvanced/lib/app"
+	baseHandler "github.com/aligang/YandexPracticumGoAdvanced/lib/app/base/handler"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/storage"
 	"github.com/go-chi/chi/v5"
 )
 
-type APIHandler struct {
+type HTTPHandler struct {
 	*chi.Mux
-	Storage storage.Storage
-	Config  app.Config
+	*baseHandler.BaseHandler
 }
 
-func New(s storage.Storage, h string, t string) APIHandler {
-	mux := APIHandler{
-		Mux:     chi.NewMux(),
-		Storage: s,
-		Config: app.Config{
-			HashKey:     h,
-			StorageType: t,
-		},
+func New(s storage.Storage, h string, t string) *HTTPHandler {
+	return &HTTPHandler{
+		Mux:         chi.NewMux(),
+		BaseHandler: baseHandler.New(s, h, t),
 	}
-	return mux
 }

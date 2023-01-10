@@ -1,28 +1,23 @@
 package handler
 
 import (
-	"net/http"
-
+	"errors"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/logging"
 )
 
-// Ping app API to check connectivity ot repository
-func (h HTTPHandler) Ping(w http.ResponseWriter, r *http.Request) {
+func (h *BaseHandler) BasePing() error {
 	if h.Config.StorageType == "Memory" {
 		logging.Warn("Ping Handler is not supported for current storage type")
-		http.Error(w, "", http.StatusInternalServerError)
-		return
+		return errors.New("ping handler is not supported for current storage type")
 	}
 
 	if h.Config.StorageType == "Database" {
 		err := h.Storage.IsAlive()
 		if err != nil {
 			logging.Warn("DB Storage connection id dead")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			return errors.New("DB Storage connection id dead")
 		}
 	}
-	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusOK)
 	logging.Debug("DB Storage is alive")
+	return nil
 }

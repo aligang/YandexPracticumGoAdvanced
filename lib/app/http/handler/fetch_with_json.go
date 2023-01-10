@@ -11,11 +11,8 @@ import (
 )
 
 // FetchWithJSON app API to download single metric with json-provided request
-func (h APIHandler) FetchWithJSON(w http.ResponseWriter, r *http.Request) {
+func (h HTTPHandler) FetchWithJSON(w http.ResponseWriter, r *http.Request) {
 	var m metric.Metrics
-
-	// DECRYPT_HERE
-
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&m)
 	if err != nil {
@@ -23,15 +20,18 @@ func (h APIHandler) FetchWithJSON(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Mailformed JSON", http.StatusBadRequest)
 		return
 	}
-	if !checkMetricType(&m.MType) {
+	//COMMON PART
+	if m.MType != "gauge" && m.MType != "counter" {
+		logging.Warn("Invalid Metric Type")
 		http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
 		return
 	}
 	result, found := h.Storage.Get(m.ID)
+	if found && h.Config.HashKey != "" {
+		hash.AddHashInfo(&result, h.Config.HashKey)
+	}
+	//COMMON PART
 	if found {
-		if h.Config.HashKey != "" {
-			hash.AddHashInfo(&result, h.Config.HashKey)
-		}
 		j, err := json.Marshal(&result)
 		if err != nil {
 			logging.Warn("Could not encode Json")
@@ -44,5 +44,4 @@ func (h APIHandler) FetchWithJSON(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.Error(w, fmt.Sprintf("Metric  with name=%s not found", m.ID), http.StatusNotFound)
 	}
-
 }

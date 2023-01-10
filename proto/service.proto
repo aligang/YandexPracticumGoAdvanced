@@ -14,14 +14,22 @@ service MetricsService {
   rpc BulkUpdate(BulkUpdateRequest)
       returns (google.protobuf.Empty);
 
-  rpc Get(proto.common.Metric)
+  rpc Fetch(proto.common.Metric)
       returns (proto.common.Metric);
 
+  rpc FetchAll(google.protobuf.Empty)
+      returns (FetchAllResponse);
+
   rpc Ping(google.protobuf.Empty)
-      returns (proto.common.Metric);
+      returns (google.protobuf.Empty);
 }
 
 
 message BulkUpdateRequest {
   repeated proto.common.Metric metrics = 1;
+}
+
+
+message FetchAllResponse {
+  map<string, proto.common.Metric> metrics = 1;
 }
