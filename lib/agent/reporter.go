@@ -3,8 +3,11 @@ package agent
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/aligang/YandexPracticumGoAdvanced/lib/app/grpc/converter"
+	"github.com/aligang/YandexPracticumGoAdvanced/lib/app/grpc/generated/service"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/config"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/encrypt"
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/hash"
@@ -99,6 +102,7 @@ loop:
 				if len(agentConfig.Key) > 0 {
 					hash.AddHashInfo(m, agentConfig.Key)
 				}
+
 				err := a.UnaryPushData(m)
 				if err != nil {
 					logging.Logger.Warn().Msg(err.Error())
@@ -146,6 +150,72 @@ loop:
 			err := a.BulkPushData(metrics)
 			if err != nil {
 				logging.Warn("Could not Push data: %s", err.Error())
+			}
+		case <-exit:
+			break loop
+		}
+	}
+}
+
+func (a *Agent) SendGrpcMetrics(agentConfig *config.AgentConfig, bus <-chan metric.Stats, exit <-chan any) {
+loop:
+	for {
+		select {
+		case stats := <-bus:
+			for name, value := range stats.Gauge {
+				m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
+				if len(agentConfig.Key) > 0 {
+					hash.AddHashInfo(m, agentConfig.Key)
+				}
+				logging.Debug("Updating value of gauge: %+v with value: %d\n", *m, *m.Value)
+				_, err := a.grpcClient.Update(context.Background(), converter.ConvertMetricEntity(m))
+				if err != nil {
+					logging.Warn(err.Error())
+				}
+			}
+			for name, value := range stats.Counter {
+				m := &metric.Metrics{ID: name, MType: "counter", Delta: &value}
+				if len(agentConfig.Key) > 0 {
+					hash.AddHashInfo(m, agentConfig.Key)
+				}
+				logging.Debug("Updating value of counter: %+v with delta: %d\n", *m, *m.Delta)
+				_, err := a.grpcClient.Update(context.Background(), converter.ConvertMetricEntity(m))
+				if err != nil {
+					logging.Warn(err.Error())
+				}
+			}
+
+		case <-exit:
+			break loop
+		}
+	}
+}
+
+func (a *Agent) BulkSendGrpcMetrics(agentConfig *config.AgentConfig, bus <-chan metric.Stats, exit <-chan any) {
+loop:
+	for {
+		select {
+		case stats := <-bus:
+			req := &service.BulkUpdateRequest{}
+			for name, value := range stats.Gauge {
+				m := &metric.Metrics{ID: name, MType: "gauge", Value: &value}
+				if len(agentConfig.Key) > 0 {
+					hash.AddHashInfo(m, agentConfig.Key)
+				}
+				logging.Debug("Updating value of gauge: %+v with value: %d\n", *m, *m.Value)
+				req.Metrics = append(req.Metrics, converter.ConvertMetricEntity(m))
+			}
+			for name, value := range stats.Counter {
+				m := &metric.Metrics{ID: name, MType: "counter", Delta: &value}
+				if len(agentConfig.Key) > 0 {
+					hash.AddHashInfo(m, agentConfig.Key)
+				}
+				logging.Debug("Updating value of counter: %+v with delta: %d\n", *m, *m.Delta)
+				req.Metrics = append(req.Metrics, converter.ConvertMetricEntity(m))
+			}
+			_, err := a.grpcClient.BulkUpdate(context.Background(), req)
+			if err != nil {
+				logging.Warn(err.Error())
 			}
 		case <-exit:
 			break loop
