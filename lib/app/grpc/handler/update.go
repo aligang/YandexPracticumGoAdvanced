@@ -16,9 +16,9 @@ func (s *GrpcHandler) Update(ctx context.Context, in *common.Metric) (*empty.Emp
 	err := s.BaseUpdate(m)
 	if err != nil {
 		switch {
-		case errors.Is(err, appErrors.InvalidMetricType):
+		case errors.Is(err, appErrors.ErrInvalidMetricType):
 			return nil, status.Errorf(codes.InvalidArgument, err.Error())
-		case errors.Is(err, appErrors.InvalidHashValue):
+		case errors.Is(err, appErrors.ErrInvalidHashValue):
 			return nil, status.Errorf(codes.InvalidArgument, err.Error())
 		default:
 			return nil, status.Errorf(codes.Unavailable, errors.Unwrap(err).Error())

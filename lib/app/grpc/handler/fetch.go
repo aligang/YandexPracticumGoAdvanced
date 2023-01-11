@@ -15,7 +15,7 @@ func (s *GrpcHandler) Fetch(ctx context.Context, in *common.Metric) (*common.Met
 	res, err := s.BaseFetch(m)
 	if err != nil {
 		switch {
-		case errors.Is(err, appErrors.InvalidMetricType):
+		case errors.Is(err, appErrors.ErrInvalidMetricType):
 			return nil, status.Errorf(codes.InvalidArgument, err.Error())
 		default:
 			return nil, status.Errorf(codes.InvalidArgument, err.Error())
