@@ -167,7 +167,7 @@ loop:
 				if len(agentConfig.Key) > 0 {
 					hash.AddHashInfo(m, agentConfig.Key)
 				}
-				logging.Debug("Updating value of gauge: %+v with value: %d\n", *m, *m.Value)
+				logging.Debug("Updating value of gauge: %+v with value: %f", *m, *m.Value)
 				_, err := a.grpcClient.Update(context.Background(), converter.ConvertMetricEntity(m))
 				if err != nil {
 					logging.Warn(err.Error())
@@ -202,7 +202,7 @@ loop:
 				if len(agentConfig.Key) > 0 {
 					hash.AddHashInfo(m, agentConfig.Key)
 				}
-				logging.Debug("Updating value of gauge: %+v with value: %d\n", *m, *m.Value)
+				logging.Debug("Updating value of gauge: %+v with value: %f", *m, *m.Value)
 				req.Metrics = append(req.Metrics, converter.ConvertMetricEntity(m))
 			}
 			for name, value := range stats.Counter {
