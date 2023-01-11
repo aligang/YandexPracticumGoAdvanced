@@ -16,37 +16,7 @@ func (h HTTPHandler) Update(w http.ResponseWriter, r *http.Request) {
 	metricType := chi.URLParam(r, "metricType")
 	metricName := chi.URLParam(r, "metricName")
 	metricValue := chi.URLParam(r, "metricValue")
-	//
-	//if !converter.checkMetricValueFormat(metricType, metricValue) {
-	//	http.Error(w, "Incorrect Metric Format", http.StatusBadRequest)
-	//	logging.Warn("Got unsupported metric format\n")
-	//	return
-	//}
-	//m := metric.Metrics{
-	//	ID:    metricName,
-	//	MType: metricType,
-	//}
-	//
-	//logging.Debug("Parsing value for metric: %+v\n", m)
-	//if metricType == "gauge" {
-	//	logging.Debug("Parsing gauge/float")
-	//	value, err := strconv.ParseFloat(metricValue, 64)
-	//	if err != nil {
-	//		http.Error(w, "Incorrect data format", http.StatusBadRequest)
-	//		return
-	//	}
-	//	m.Value = &value
-	//
-	//}
-	//if metricType == "counter" {
-	//	logging.Debug("Parsing counter/int")
-	//	value, err := strconv.ParseInt(metricValue, 10, 64)
-	//	if err != nil {
-	//		http.Error(w, "Incorrect data format", http.StatusBadRequest)
-	//		return
-	//	}
-	//	m.Delta = &value
-	//}
+
 	m, err := converter.ConvertPlainMetric(metricName, metricType, metricValue)
 	if err != nil {
 		http.Error(w, "Incorrect Metric Format", http.StatusBadRequest)
@@ -55,10 +25,10 @@ func (h HTTPHandler) Update(w http.ResponseWriter, r *http.Request) {
 	err = h.BaseUpdate(*m)
 	if err != nil {
 		switch {
-		case errors.Is(err, appErrors.InvalidMetricType):
+		case errors.Is(err, appErrors.ErrInvalidMetricType):
 			http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
 			return
-		case errors.Is(err, appErrors.InvalidHashValue):
+		case errors.Is(err, appErrors.ErrInvalidHashValue):
 			http.Error(w, "Invalid Hash", http.StatusBadRequest)
 			return
 		default:

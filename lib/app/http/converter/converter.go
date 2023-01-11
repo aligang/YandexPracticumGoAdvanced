@@ -11,7 +11,7 @@ import (
 func ConvertPlainMetric(metricID string, metricType string, metricValue string) (*metric.Metrics, error) {
 	if !checkMetricValueFormat(metricType, metricValue) {
 		logging.Warn("Got unsupported metric format\n")
-		return nil, errors.New("Got unsupported metric format\n")
+		return nil, errors.New("got unsupported metric format")
 	}
 	m := &metric.Metrics{
 		ID:    metricID,
@@ -23,7 +23,7 @@ func ConvertPlainMetric(metricID string, metricType string, metricValue string) 
 		logging.Debug("Parsing gauge/float")
 		value, err := strconv.ParseFloat(metricValue, 64)
 		if err != nil {
-			return nil, errors.New("Got unsupported metric format\n")
+			return nil, errors.New("got unsupported metric format")
 		}
 		m.Value = &value
 

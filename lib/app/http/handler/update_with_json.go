@@ -33,10 +33,10 @@ func (h HTTPHandler) UpdateWithJSON(w http.ResponseWriter, r *http.Request) {
 	err = h.BaseUpdate(m)
 	if err != nil {
 		switch {
-		case errors.Is(err, appErrors.InvalidMetricType):
+		case errors.Is(err, appErrors.ErrInvalidMetricType):
 			http.Error(w, "Unsupported Metric Type", http.StatusNotImplemented)
 			return
-		case errors.Is(err, appErrors.InvalidHashValue):
+		case errors.Is(err, appErrors.ErrInvalidHashValue):
 			http.Error(w, "Invalid Hash", http.StatusBadRequest)
 			return
 		default:

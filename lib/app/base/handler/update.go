@@ -12,13 +12,13 @@ func (h *BaseHandler) BaseUpdate(m metric.Metrics) error {
 
 	if m.MType != "gauge" && m.MType != "counter" {
 		logging.Warn("Invalid Metric Type")
-		return appErrors.InvalidMetricType
+		return appErrors.ErrInvalidMetricType
 	}
 	if h.Config.HashKey != "" {
 		logging.Debug("Validating hash ...")
 		if !hash.CheckHashInfo(&m, h.Config.HashKey) {
 			logging.Warn("Invalid Hash")
-			return appErrors.InvalidHashValue
+			return appErrors.ErrInvalidHashValue
 		} else {
 			logging.Debug("Hash validation succeeded")
 		}

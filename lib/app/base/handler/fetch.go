@@ -11,7 +11,7 @@ func (h *BaseHandler) BaseFetch(m metric.Metrics) (*metric.Metrics, error) {
 
 	if m.MType != "gauge" && m.MType != "counter" {
 		logging.Warn("Invalid Metric Type")
-		return nil, appErrors.InvalidMetricType
+		return nil, appErrors.ErrInvalidMetricType
 	}
 	result, found := h.Storage.Get(m.ID)
 	if found && h.Config.HashKey != "" {
@@ -20,6 +20,6 @@ func (h *BaseHandler) BaseFetch(m metric.Metrics) (*metric.Metrics, error) {
 	if found {
 		return &result, nil
 	}
-	return nil, appErrors.RecordNotFound
+	return nil, appErrors.ErrRecordNotFound
 
 }

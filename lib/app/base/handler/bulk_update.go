@@ -13,13 +13,13 @@ func (h *BaseHandler) BaseBulkUpdate(metrics []metric.Metrics) error {
 	for _, m := range metrics {
 		if m.MType != "gauge" && m.MType != "counter" {
 			logging.Warn("Invalid Metric Type")
-			return appErrors.InvalidMetricType
+			return appErrors.ErrInvalidMetricType
 		}
 		if h.Config.HashKey != "" {
 			logging.Debug("Validating hash ...")
 			if !hash.CheckHashInfo(&m, h.Config.HashKey) {
 				logging.Warn("Invalid Hash")
-				return appErrors.InvalidHashValue
+				return appErrors.ErrInvalidHashValue
 			}
 			logging.Debug("Hash validation succeeded")
 		} else {
