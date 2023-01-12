@@ -60,7 +60,7 @@ func TestFetch(t *testing.T) {
 	)
 	mux := New(strg, "", "Memory")
 	mux.Get("/value/{metricType}/{metricName}", mux.Fetch)
-	mux.Get("/", mux.FetchAll)
+
 	ts := httptest.NewServer(mux)
 	tc := ts.Client()
 	defer ts.Close()

@@ -97,9 +97,7 @@ loop:
 		case <-ctx.Done():
 			if pendingData {
 				bus <- *m
-				bus <- *m
 			}
-			exit <- struct{}{}
 			exit <- struct{}{}
 			break loop
 		}

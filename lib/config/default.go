@@ -5,6 +5,7 @@ import "time"
 func getDefaultServerConfig() *ServerConfig {
 	conf := newServerConfig()
 	conf.Address = "127.0.0.1:8080"
+	conf.GrpcAddress = "127.0.0.1:8081"
 	conf.StoreInterval = 300 * time.Second
 	conf.StoreFile = "/tmp/devops-metrics-db.json"
 	conf.Restore = true
@@ -17,6 +18,7 @@ func getDefaultServerConfig() *ServerConfig {
 func getDefaultAgentConfig() *AgentConfig {
 	conf := newAgentConfig()
 	conf.Address = "127.0.0.1:8080"
+	conf.GrpcAddress = "127.0.0.1:8081"
 	conf.Key = ""
 	conf.CryptoKey = ""
 	conf.PollInterval = 2 * time.Second

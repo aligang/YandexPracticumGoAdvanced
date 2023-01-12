@@ -103,13 +103,13 @@ func InsertRecord(tx *sql.Tx, metrics metric.Metrics) error {
 func InsertRecords(tx *sql.Tx, metricSlice []metric.Metrics) error {
 	for _, metric := range metricSlice {
 		insertQuery, args := ConstructInsertQuery(metric)
-		logging.Debug("Preparing request to DB server: %s", insertQuery)
+		logging.Debug("Preparing request to DB app: %s", insertQuery)
 		insertStatement, err := tx.Prepare(insertQuery)
 		if err != nil {
 			logging.Warn("Error during statement preparation %s", err.Error())
 			return err
 		}
-		logging.Debug("Executing request to DB server")
+		logging.Debug("Executing request to DB app")
 		_, err = insertStatement.Exec(args...)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -140,7 +140,7 @@ func ConstructUpdateQuery(metrics metric.Metrics) (string, []any) {
 func UpdateRecord(tx *sql.Tx, metrics metric.Metrics) error {
 	logging.Debug("Updating Old Record")
 	updateQuery, args := ConstructUpdateQuery(metrics)
-	logging.Debug("Preparing request to DB server: %s", updateQuery)
+	logging.Debug("Preparing request to DB app: %s", updateQuery)
 	logging.Debug(fmt.Sprintln(args))
 	updateStatement, err := tx.Prepare(updateQuery)
 	if err != nil {
@@ -163,7 +163,7 @@ func UpdateRecords(tx *sql.Tx, metrics []metric.Metrics) error {
 	logging.Debug("Updating metrics")
 	for _, metric := range metrics {
 		updateQuery, args := ConstructUpdateQuery(metric)
-		logging.Debug("Preparing request to DB server: %s", updateQuery)
+		logging.Debug("Preparing request to DB app: %s", updateQuery)
 		updateStatement, err := tx.Prepare(updateQuery)
 		if err != nil {
 			logging.Debug("Problem during query preparation %s", err.Error())
