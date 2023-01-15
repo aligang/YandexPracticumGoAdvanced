@@ -5,7 +5,7 @@ import (
 	"github.com/aligang/YandexPracticumGoAdvanced/lib/storage"
 )
 
-func ExampleAPIHandler() {
+func ExampleHTTPHandler() {
 	conf := config.GetServerConfig()
 	Storage, Type := storage.New(conf)
 	mux := New(Storage, conf.Key, Type)

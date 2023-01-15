@@ -1,11 +1,11 @@
 package config
 
-// NewServerConfig returns blanc server configuration
+// NewServerConfig returns blanc app configuration
 func newServerConfig() *ServerConfig {
 	return &ServerConfig{}
 }
 
-// NewAgentConfig returns blanc server configuration
+// NewAgentConfig returns blanc app configuration
 func newAgentConfig() *AgentConfig {
 	return &AgentConfig{}
 }

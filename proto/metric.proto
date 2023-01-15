@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package proto.common;
+
+option go_package = "github.com/aligang/YandexPracticumGoAdvanced/lib/app/grpc/generated/common";
+
+message Metric {
+  string ID = 1;
+  string MType = 2;
+  oneof optional_delta {
+    int64 Delta = 3;
+  }
+
+  oneof optional_value {
+    double  Value = 4;
+  }
+
+  oneof optional_hash {
+    string Hash = 5;
+  }
+
+}
